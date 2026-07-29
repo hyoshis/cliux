@@ -21,4 +21,4 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 
 | Prototype | Description | Link |
 | --- | --- | --- |
-| _none yet_ | | |
+| **azd · Extension auto-install** | Interactive terminal prototype of the `azd up` extension-install UX (single/multiple extensions, source selection). | [`azd-extension-install/`](./azd-extension-install/) · [live](https://hyoshis.github.io/cliux/prototypes/azd-extension-install/) |
