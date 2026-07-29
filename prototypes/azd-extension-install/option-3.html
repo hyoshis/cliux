@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>azd · Extension auto-install — interactive prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ===================================================================
+   TOKENS
+   =================================================================== */
+:root{
+  --bg:#0b0d12;
+  --bg-2:#111520;
+  --panel:#151b28;
+  --border:#26303f;
+  --text:#d7e0ea;
+  --muted:#8a97a8;
+  --dim:#5c6b7e;
+  --accent:#4c9bf5;          /* Figma scenario-card blue */
+  --accent-soft:rgba(76,155,245,.14);
+  /* terminal palette (matches the Figma black terminals) */
+  --term-bg:#000000;
+  --t-text:#d9d9d9;
+  --t-orange:#d79a5b;        /* "Installing … Extension" */
+  --t-blue:#4aa8e0;          /* user input / selected source */
+  --t-green:#4ec94e;         /* (✓) Done */
+  --t-amber:#e0a458;         /* ? question glyph */
+  --t-dim:#7d7d7d;
+  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:
+    radial-gradient(1200px 600px at 80% -10%, rgba(76,155,245,.10), transparent 60%),
+    var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  -webkit-font-smoothing:antialiased;
+  min-height:100vh;
+  display:flex; flex-direction:column; align-items:center;
+  padding:2.4rem 1.5rem 3rem;
+}
+.wrap{width:100%; max-width:1020px}
+
+/* ===================================================================
+   HEADER
+   =================================================================== */
+.kicker{
+  font-family:var(--mono); font-size:.74rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--accent);
+  display:flex; align-items:center; gap:.55rem; margin-bottom:.9rem;
+}
+.kicker::before{content:"▍"; color:var(--accent)}
+h1{font-size:clamp(1.7rem,3.4vw,2.5rem); font-weight:800; letter-spacing:-.02em; line-height:1.05}
+h1 .mono{font-family:var(--mono); color:var(--accent)}
+.lede{color:var(--muted); margin-top:.7rem; max-width:60ch; font-size:1.02rem; line-height:1.55}
+
+/* ===================================================================
+   SCENARIO TABS
+   =================================================================== */
+.tabs{display:grid; grid-template-columns:repeat(auto-fit,minmax(215px,1fr)); gap:.8rem; margin:1.8rem 0 1.3rem}
+@media(max-width:760px){.tabs{grid-template-columns:1fr}}
+.tab{
+  text-align:left; cursor:pointer; color:inherit;
+  background:var(--panel); border:1px solid var(--border);
+  border-radius:12px; padding:.9rem 1rem; transition:.18s;
+  display:flex; gap:.75rem; align-items:flex-start;
+}
+.tab:hover{border-color:#37475c; transform:translateY(-2px)}
+.tab.active{border-color:var(--accent); background:linear-gradient(180deg,var(--accent-soft),transparent), var(--panel); box-shadow:0 10px 30px -18px rgba(76,155,245,.7)}
+.tab .idx{
+  font-family:var(--mono); font-weight:700; font-size:.8rem; color:#fff;
+  background:var(--accent); border-radius:7px; min-width:1.7rem; height:1.7rem;
+  display:grid; place-items:center; flex:none; opacity:.9;
+}
+.tab.active .idx{opacity:1}
+.tab .t-title{font-weight:600; font-size:.95rem; color:var(--text); line-height:1.2}
+.tab .t-sub{font-size:.8rem; color:var(--dim); margin-top:.22rem; line-height:1.35}
+
+/* ===================================================================
+   TERMINAL
+   =================================================================== */
+.terminal{
+  background:var(--term-bg);
+  border:1px solid #1c1c1c;
+  border-radius:12px; overflow:hidden;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.85), 0 0 0 1px rgba(255,255,255,.02);
+}
+.term-bar{
+  display:flex; align-items:center; gap:.5rem;
+  background:#0e0e0e; border-bottom:1px solid #1c1c1c;
+  padding:.55rem .85rem;
+}
+.dot{width:11px;height:11px;border-radius:50%}
+.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+.term-bar .title{margin-left:.55rem; color:#7a7a7a; font-family:var(--mono); font-size:.76rem}
+#screen{
+  font-family:var(--mono); font-size:14px; line-height:1.55; color:var(--t-text);
+  padding:1.05rem 1.25rem; height:430px; overflow-y:auto; white-space:pre-wrap; word-break:break-word;
+}
+#screen::-webkit-scrollbar{width:9px}
+#screen::-webkit-scrollbar-thumb{background:#222; border-radius:5px}
+.ln{min-height:1.1em}
+.blank{height:.85em}
+
+/* terminal text colors */
+.o{color:var(--t-orange)}
+.b{color:var(--t-blue)}
+.g{color:var(--t-green)}
+.q{color:var(--t-blue)}
+.d{color:var(--t-dim)}
+.w{color:#f2f2f2}
+
+/* caret */
+.caret{display:inline-block; width:8px; height:1.05em; background:var(--t-text); vertical-align:-2px; margin-left:1px; animation:blink 1.05s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* inline env-name input */
+.envinput{
+  font-family:var(--mono); font-size:14px; color:var(--t-blue);
+  background:transparent; border:none; outline:none; caret-color:var(--t-text);
+  min-width:2ch;
+}
+
+/* interactive source list */
+.srclist{margin:.15rem 0}
+.srcrow{
+  padding:.05rem 0; cursor:pointer; border-radius:4px;
+  display:flex; gap:.55rem; white-space:pre;
+}
+.srcrow:hover{background:rgba(255,255,255,.04)}
+.srcrow .cursor-col{width:1.1ch; color:var(--t-blue)}
+.srcrow .box{color:var(--t-text)}
+.srcrow.cur .box{color:var(--t-blue)}
+.srcrow .name{color:var(--t-text)}
+.srcrow.cur .name{color:var(--t-blue)}
+.srcrow .desc{color:var(--t-dim)}
+/* plan-review row cells (Option 3) */
+.srcrow .pid{color:var(--t-dim)}
+.srcrow .psrc{color:var(--t-blue)}
+.srcrow.cur .psrc{color:var(--t-blue)}
+.srcrow.skip .box{color:var(--t-dim)}
+.srcrow.skip .name,.srcrow.skip .pid,.srcrow.skip .psrc{color:#4a4a4a; text-decoration:line-through}
+.srcdivider{color:#333; user-select:none}
+.srchint{color:var(--t-dim)}
+
+/* ===================================================================
+   ACTION DOCK
+   =================================================================== */
+.dock{
+  margin-top:1rem; display:flex; flex-wrap:wrap; align-items:center; gap:.6rem;
+  min-height:44px;
+}
+.dockhint{color:var(--muted); font-size:.85rem; font-family:var(--mono)}
+.donerow{display:flex; align-items:center; gap:1rem; flex-wrap:wrap}
+.dockhint kbd{
+  font-family:var(--mono); background:var(--bg-2); border:1px solid var(--border);
+  border-radius:4px; padding:.03rem .35rem; color:var(--muted); font-size:.78rem
+}
+button.act{
+  font-family:var(--sans); font-weight:600; font-size:.88rem; cursor:pointer;
+  color:var(--text); background:var(--panel); border:1px solid var(--border);
+  border-radius:9px; padding:.5rem .95rem; transition:.16s;
+  display:inline-flex; align-items:center; gap:.45rem;
+}
+button.act:hover{border-color:var(--accent); color:#fff; background:#1a2230}
+button.act.primary{background:var(--accent); border-color:var(--accent); color:#03121f}
+button.act.primary:hover{background:#5fa8f7}
+button.act .k{font-family:var(--mono); font-size:.72rem; opacity:.7}
+.spacer{flex:1}
+button.ghost{
+  font-family:var(--sans); font-size:.82rem; cursor:pointer; color:var(--muted);
+  background:transparent; border:1px solid var(--border); border-radius:9px;
+  padding:.42rem .8rem; transition:.16s;
+}
+button.ghost:hover{color:#fff; border-color:#37475c}
+
+.footer{margin-top:1.5rem; color:var(--dim); font-size:.78rem; font-family:var(--mono); text-align:center}
+.badge-done{
+  display:inline-flex; align-items:center; gap:.4rem;
+  color:var(--t-green); font-family:var(--mono); font-size:.85rem;
+}
+@media (prefers-reduced-motion: reduce){.caret{animation:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">azd · extension auto-install · option 3</div>
+  <h1><span class="mono">azd up</span> — Plan &amp; confirm</h1>
+  <p class="lede">Option 3: a single resolved <em>plan</em> up front, one confirm with a safe default, and an optional one-screen <strong>customize</strong> step to toggle extensions and switch sources — no per-extension prompt storms. Non-interactive runs (CI / agents) install the recommended set automatically.</p>
+
+  <!-- Scenario switcher -->
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-s="1">
+      <span class="idx">1</span>
+      <span><span class="t-title">Install single extension</span><br><span class="t-sub">One required extension, one confirm.</span></span>
+    </button>
+    <button class="tab" data-s="2">
+      <span class="idx">2</span>
+      <span><span class="t-title">Single extension, multiple sources</span><br><span class="t-sub">Recommended source by default; customize to switch.</span></span>
+    </button>
+    <button class="tab" data-s="3">
+      <span class="idx">3</span>
+      <span><span class="t-title">Install multiple extensions</span><br><span class="t-sub">One plan, install all, or customize the selection.</span></span>
+    </button>
+    <button class="tab" data-s="4">
+      <span class="idx">4</span>
+      <span><span class="t-title">Multiple extensions, multiple sources</span><br><span class="t-sub">Toggle & pick a source per extension in one screen.</span></span>
+    </button>
+  </div>
+
+  <!-- Terminal -->
+  <div class="terminal">
+    <div class="term-bar">
+      <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+      <span class="title" id="termtitle">PowerShell — extension-auto-install</span>
+    </div>
+    <div id="screen" tabindex="0"></div>
+  </div>
+
+  <!-- Action dock -->
+  <div class="dock" id="dock"></div>
+</div>
+
+<script>
+/* ===================================================================
+   azd extension-install — interactive prototype
+   Each scenario is an async "runner" that prints output lines and
+   awaits user interaction (confirm / source-select / text input).
+   Input arrives via the action dock (clicks) or the keyboard.
+   =================================================================== */
+(function(){
+  const screen = document.getElementById('screen');
+  const dock   = document.getElementById('dock');
+  const PROMPT = 'PS C:\\Users\\hyoshi\\Downloads\\extension-auto-install\\01-required-version';
+
+  let pending = null;   // { type, ... , resolve }  — current interaction
+  let runToken = 0;     // cancels an in-flight scenario when switching
+
+  /* ---------- low-level output helpers ---------- */
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  function scroll(){ screen.scrollTop = screen.scrollHeight; }
+  function line(html=''){
+    const d=document.createElement('div');
+    d.className='ln'+(html===''?' blank':'');
+    d.innerHTML=html;
+    screen.appendChild(d); scroll(); return d;
+  }
+  async function block(lines, stagger=90){
+    const token=runToken;
+    for(const h of lines){ if(token!==runToken) return; line(h); await sleep(stagger); }
+  }
+  function clear(){ screen.innerHTML=''; }
+
+  /* ---------- intro block (shared by all scenarios) ---------- */
+  // Aligns "Label:  value" so every value starts at the same column (col 15),
+  // matching the redesigned `azd up` extension-required output.
+  function field(label, value){
+    const pad = ' '.repeat(Math.max(1, 13 - label.length));
+    return `  ${label}${pad}${escapeHtml(value)}`;
+  }
+  async function intro(ext, count, skipCmd){
+    const countHtml = count ? ` <span class="d">${count}</span>` : '';
+    const lines = [
+      `<span class="b">Extension required: ${escapeHtml(ext.title)}</span>${countHtml}`,
+      field('ID:', ext.id),
+      field('Source:', ext.source),
+      field('Description:', ext.desc),
+      ``,
+      `Required by azure.yaml.`
+    ];
+    if(!skipCmd) lines.unshift(`<span class="w">${PROMPT}></span> <span class="w">azd up</span>`);
+    await block(lines, 95);
+  }
+
+  /* ---------- interaction: Yes / No confirm ---------- */
+  function confirmYN(promptText){
+    const el = line(`<span class="q">?</span> ${promptText} [Y/n]: <span class="caret"></span>`);
+    return new Promise(resolve=>{
+      pending = { type:'confirm', el, promptText, resolve };
+      clearDock();
+    });
+  }
+  function answerYN(v){
+    if(!pending || pending.type!=='confirm') return;
+    const {el, promptText, resolve} = pending;
+    el.innerHTML = `<span class="q">?</span> ${promptText} [Y/n]: <span class="b">${v}</span>`;
+    pending=null; clearDock(); resolve(v);
+  }
+
+  /* ---------- interaction: Yes / No / third-option confirm ---------- */
+  // Three-way prompt. `questionHtml` is the full question (may contain markup)
+  // shown between "? " and " [Y/n/s]:". `labels` sets the three option captions.
+  // Resolves to 'y', 'n' or 's'.
+  function confirmYNS(questionHtml, labels){
+    const L = Object.assign({y:'install', n:'skip', s:'yes, but change source'}, labels||{});
+    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="caret"></span>`);
+    const opts = [
+      line(`  <span class="w">Y</span> <span class="d">- ${escapeHtml(L.y)}</span>`),
+      line(`  <span class="w">n</span> <span class="d">- ${escapeHtml(L.n)}</span>`),
+      line(`  <span class="w">s</span> <span class="d">- ${escapeHtml(L.s)}</span>`)
+    ];
+    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>s</kbd> ${escapeHtml(L.s)}`);
+    return new Promise(resolve=>{
+      pending = { type:'confirm', yns:true, el, questionHtml, opts, resolve };
+    });
+  }
+  function answerYNS(v){
+    if(!pending || pending.type!=='confirm' || !pending.yns) return;
+    const {el, questionHtml, opts, resolve} = pending;
+    opts.forEach(o=>o.remove());
+    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="b">${v}</span>`;
+    pending=null; clearDock(); resolve(v);
+  }
+
+  /* ---------- interaction: generic multi-key confirm ---------- */
+  // options: [{key:'Y', label:'…'}, …]. First key is the Enter default.
+  // Resolves to the chosen key, lower-cased.
+  function confirmChoice(questionHtml, options){
+    const bracket = options.map(o=>o.key).join('/');
+    const el = line(`<span class="q">?</span> ${questionHtml} [${bracket}]: <span class="caret"></span>`);
+    const opts = options.map(o=>line(`  <span class="w">${o.key}</span> <span class="d">- ${escapeHtml(o.label)}</span>`));
+    setHint(options.map(o=>`<kbd>${o.key}</kbd> ${escapeHtml(o.label)}`).join(' · '));
+    const keymap={};
+    options.forEach(o=>keymap[o.key.toLowerCase()]=true);
+    return new Promise(resolve=>{
+      pending = { type:'choice', el, questionHtml, bracket, opts, keymap,
+                  defaultKey:options[0].key.toLowerCase(), resolve };
+    });
+  }
+  function answerChoice(k){
+    if(!pending || pending.type!=='choice') return;
+    const {el, questionHtml, bracket, opts, resolve} = pending;
+    opts.forEach(o=>o.remove());
+    el.innerHTML = `<span class="q">?</span> ${questionHtml} [${bracket}]: <span class="b">${k}</span>`;
+    pending=null; clearDock(); resolve(k);
+  }
+
+  /* ---------- interaction: select a source ---------- */
+  const SOURCES = [
+    {name:'azd',     desc:'stable, official releases'},
+    {name:'nightly', desc:'latest build, updated daily'}
+  ];
+  function selectSource(appliesToAll){
+    // header line + list container + hint (matches Figma layout)
+    line(`<span class="q">?</span> Select a source:`);
+    if(appliesToAll) line(`<span class="d">  This source applies to all extensions.</span>`);
+    line('');
+    const listEl = document.createElement('div');
+    listEl.className='ln srclist';
+    screen.appendChild(listEl);
+    line('<span class="srcdivider">────────────────────────────</span>');
+    const hintEl = line('<span class="srchint">Use arrows to move, use space to select</span>');
+    scroll();
+
+    let cursor=1, selected=1;                 // default: nightly (as in the design)
+    function render(){
+      listEl.innerHTML = SOURCES.map((s,i)=>{
+        const isCur=i===cursor;
+        return `<div class="srcrow${isCur?' cur':''}" data-i="${i}">`+
+               `<span class="cursor-col">${isCur?'>':' '}</span>`+
+               `<span class="box">[${isCur?'✓':' '}]</span>`+
+               `<span class="name">${s.name.padEnd(9,' ')}</span>`+
+               `<span class="desc">${s.desc}</span>`+
+               `</div>`;
+      }).join('');
+      listEl.querySelectorAll('.srcrow').forEach(row=>{
+        row.onclick = ()=>{ cursor=selected=+row.dataset.i; render(); if(pending&&pending.confirmSource) pending.confirmSource(); };
+      });
+    }
+    render();
+
+    return new Promise(resolve=>{
+      pending = {
+        type:'select', resolve,
+        move:d=>{ cursor=(cursor+d+SOURCES.length)%SOURCES.length; selected=cursor; render(); },
+        toggle:()=>{ selected=cursor; render(); },
+        confirm:()=>confirmSource(),
+        get selected(){ return selected; }
+      };
+      function confirmSource(){
+        if(!pending||pending.type!=='select') return;
+        selected=cursor;                       // apply the currently focused source
+        const chosen = SOURCES[selected].name;
+        // collapse the interactive UI into a single answered line
+        listEl.remove(); hintEl.remove();
+        // remove the divider + the blank line + the header we printed
+        // (walk back the last 3 non-list nodes)
+        [...screen.querySelectorAll('.srcdivider')].forEach(n=>n.parentElement.remove());
+        // rewrite the header line (last '? Select a source:' becomes answered)
+        const headers=[...screen.querySelectorAll('.ln')].filter(n=>n.textContent.trim().startsWith('? Select a source'));
+        const h=headers[headers.length-1];
+        if(h) h.innerHTML = `<span class="q">?</span> Select a source: <span class="b">${chosen}</span>`;
+        // trim any trailing blank line left behind
+        const last=screen.lastElementChild;
+        if(last && last.classList.contains('blank')) last.remove();
+        pending=null; clearDock(); resolve(chosen);
+      }
+      pending.confirmSource=confirmSource;
+      setDock(null, '<kbd>↑</kbd><kbd>↓</kbd> move · <kbd>space</kbd> select · <kbd>⏎</kbd> confirm');
+    });
+  }
+
+  /* ---------- interaction: one-screen plan review ---------- */
+  // A single interactive screen for the whole required set: toggle each
+  // extension in/out and cycle its source (when more than one is available).
+  // Resolves to [{title,id,include,source}], so the caller installs in one pass.
+  function reviewPlan(items){
+    line(`<span class="q">?</span> Review install plan:`);
+    line(`<span class="d">  space toggles an extension · ←/→ changes its source</span>`);
+    line('');
+    const listEl = document.createElement('div');
+    listEl.className='ln srclist';
+    screen.appendChild(listEl);
+    line('<span class="srcdivider">──────────────────────────────────────────────</span>');
+    const hintEl = line('<span class="srchint">↑/↓ move · space include · ←/→ source · ⏎ apply</span>');
+    scroll();
+
+    let cursor=0;
+    function render(){
+      listEl.innerHTML = items.map((it,i)=>{
+        const isCur=i===cursor;
+        const box=it.include?'✓':' ';
+        const multi=it.sources.length>1;
+        const src=it.sources[it.srcIdx];
+        const srcCell = multi ? `‹ ${src.padEnd(9,' ')}›` : `  ${src.padEnd(9,' ')} `;
+        const name = it.title.padEnd(18,' ');
+        const idc  = it.id.padEnd(20,' ');
+        const dim  = it.include ? '' : ' off';
+        return `<div class="srcrow${isCur?' cur':''}${dim?' skip':''}" data-i="${i}">`+
+               `<span class="cursor-col">${isCur?'>':' '}</span>`+
+               `<span class="box">[${box}]</span> `+
+               `<span class="name">${escapeHtml(name)}</span>`+
+               `<span class="pid">${escapeHtml(idc)}</span>`+
+               `<span class="psrc">${escapeHtml(srcCell)}</span>`+
+               `</div>`;
+      }).join('');
+      listEl.querySelectorAll('.srcrow').forEach(row=>{
+        const i=+row.dataset.i;
+        row.onclick=()=>{ cursor=i; items[i].include=!items[i].include; render(); };
+      });
+    }
+    render();
+
+    return new Promise(resolve=>{
+      pending = {
+        type:'review', resolve,
+        move:d=>{ cursor=(cursor+d+items.length)%items.length; render(); },
+        toggle:()=>{ items[cursor].include=!items[cursor].include; render(); },
+        cycle:d=>{ const it=items[cursor]; if(it.sources.length>1){ it.srcIdx=(it.srcIdx+d+it.sources.length)%it.sources.length; render(); } },
+        apply:()=>{
+          listEl.remove(); hintEl.remove();
+          [...screen.querySelectorAll('.srcdivider')].forEach(n=>n.parentElement.remove());
+          const headers=[...screen.querySelectorAll('.ln')].filter(n=>n.textContent.trim().startsWith('? Review install plan'));
+          const h=headers[headers.length-1];
+          if(h) h.innerHTML = `<span class="q">?</span> Review install plan: <span class="b">applied</span>`;
+          // trim the leftover help + blank lines
+          [...screen.querySelectorAll('.ln')].filter(n=>n.textContent.trim().startsWith('space toggles')).forEach(n=>n.remove());
+          const last=screen.lastElementChild;
+          if(last && last.classList.contains('blank')) last.remove();
+          pending=null; clearDock();
+          resolve(items.map(it=>({title:it.title, id:it.id, include:it.include, source:it.sources[it.srcIdx]})));
+        }
+      };
+      setDock(null, '<kbd>↑</kbd><kbd>↓</kbd> move · <kbd>space</kbd> include · <kbd>←</kbd><kbd>→</kbd> source · <kbd>⏎</kbd> apply');
+    });
+  }
+
+  /* ---------- installing spinner → done ---------- */
+  // azd's bouncing bar spinner (|===|) rather than braille dots.
+  const FRAMES=['|===    |','| ===   |','|  ===  |','|   === |','|    ===|','|   === |','|  ===  |','| ===   |'];
+  async function install(ext, source){
+    line('');
+    const el = line(`<span class="w">${FRAMES[0]}</span> Installing extension '${ext}'`);
+    clearDock(); 
+    const token=runToken; let i=0;
+    const start=Date.now();
+    while(Date.now()-start < 1700){
+      if(token!==runToken) return;
+      el.innerHTML = `<span class="w">${FRAMES[i%FRAMES.length]}</span> Installing extension '${ext}'`;
+      i++; await sleep(90);
+    }
+    el.innerHTML = `<span class="g">(✓) Done:</span> Installing extension '${ext}'`;
+    scroll();
+  }
+
+  /* ---------- environment-name prompt (terminal end state) ---------- */
+  // The prototype intentionally stops here — no provisioning/completion output.
+  function envPromptEnd(){
+    line('');
+    line(`<span class="q">?</span> Enter a unique environment name: <span class="caret"></span>`);
+    scroll();
+    // End of the prototype — show a completion indicator + refresh, outside the terminal.
+    dock.innerHTML =
+      `<div class="donerow">`+
+        `<span class="badge-done">✓ Prototype flow complete</span>`+
+        `<button class="act primary" id="refreshBtn">↻ Refresh</button>`+
+      `</div>`;
+    document.getElementById('refreshBtn').onclick=()=>start(currentScenario);
+  }
+  /* ===================================================================
+     SCENARIO RUNNERS
+     =================================================================== */
+  async function scenario1(token){
+    return runPlan(token, [
+      {title:'Demo Extension', id:'demo-extension', sources:['azd']}
+    ]);
+  }
+  async function scenario2(token){
+    return runPlan(token, [
+      {title:'Demo Extension', id:'demo-extension', sources:['azd','nightly']}
+    ]);
+  }
+  async function scenario3(token){
+    return runPlan(token, [
+      {title:'Demo Extension',   id:'demo-extension',   sources:['azd']},
+      {title:'Storage Helper',   id:'storage-helper',   sources:['azd']},
+      {title:'Monitoring Tools', id:'monitoring-tools', sources:['community']}
+    ]);
+  }
+  async function scenario4(token){
+    return runPlan(token, [
+      {title:'Demo Extension',   id:'demo-extension',   sources:['azd','nightly']},
+      {title:'Storage Helper',   id:'storage-helper',   sources:['azd','nightly']},
+      {title:'Monitoring Tools', id:'monitoring-tools', sources:['community','edge']}
+    ]);
+  }
+
+  /* ---------- Option 3 shared flow: plan -> confirm -> (customize) -> install ---------- */
+  function planRows(exts){
+    if(exts.length===1){
+      const e=exts[0];
+      return [ field('ID:', e.id), field('Source:', e.sources.join(', ')) ];
+    }
+    const header = `  <span class="d">${'Extension'.padEnd(18,' ')}${'ID'.padEnd(20,' ')}Source (recommended)</span>`;
+    const body = exts.map(e=>{
+      const name=e.title.padEnd(18,' ');
+      const id=e.id.padEnd(20,' ');
+      const more=e.sources.length>1?`  (+${e.sources.length-1} more)`:'';
+      return `  <span class="w">${escapeHtml(name)}</span><span class="w">${escapeHtml(id)}</span>`+
+             `<span class="w">${escapeHtml(e.sources[0])}</span><span class="d">${escapeHtml(more)}</span>`;
+    });
+    return [header, ...body];
+  }
+
+  async function runPlan(token, exts){
+    const single = exts.length===1;
+    const multiInSet = exts.some(e=>e.sources.length>1);
+    await block([
+      `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
+      `<span class="d">Resolving required extensions...</span>`,
+      ``,
+      single
+        ? `<span class="b">Extension required: ${escapeHtml(exts[0].title)}</span>`
+        : `<span class="b">${exts.length} extensions required by azure.yaml:</span>`,
+      ``,
+      ...planRows(exts),
+      ``,
+      single ? `Required by azure.yaml.`
+             : `<span class="d">Recommended sources shown - non-interactive runs install these automatically.</span>`,
+      ``
+    ], 80);
+    if(token!==runToken) return;
+
+    const recNote = single ? ` from <span class="b">${escapeHtml(exts[0].sources[0])}</span>` : '';
+    const question = single
+      ? `Install ${escapeHtml(exts[0].title)}${recNote}?`
+      : `Install all ${exts.length} required extensions?`;
+    const custom = (!multiInSet && !single) ? 'customize selection'
+                 : (single && !multiInSet) ? 'customize'
+                 : single ? 'customize - change source'
+                 : 'customize - toggle & sources';
+    const a = await confirmChoice(question, [
+      {key:'Y', label:'install '+(single?'':'all ')+'(recommended)'},
+      {key:'n', label:'skip'},
+      {key:'c', label:custom}
+    ]); if(token!==runToken) return;
+
+    if(a==='n'){ line(''); line(`<span class="d">Skipped. No extensions installed; continuing.</span>`); envPromptEnd(); return; }
+
+    let plan;
+    if(a==='c'){
+      line('');
+      const items = exts.map(e=>({title:e.title, id:e.id, sources:e.sources, include:true, srcIdx:0}));
+      plan = await reviewPlan(items); if(token!==runToken) return;
+    } else {
+      plan = exts.map(e=>({title:e.title, id:e.id, include:true, source:e.sources[0]}));
+    }
+
+    const toInstall = plan.filter(p=>p.include);
+    line('');
+    if(toInstall.length===0){ line(`<span class="d">No extensions selected; continuing.</span>`); envPromptEnd(); return; }
+    for(const p of toInstall){ await install(p.id, p.source); if(token!==runToken) return; }
+    envPromptEnd();
+  }
+
+  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4};
+  let currentScenario=1;
+
+  function start(n){
+    currentScenario=n;
+    runToken++; const token=runToken;
+    pending=null; clear(); clearDock();
+    document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.s===n));
+    RUNNERS[n](token);
+  }
+
+  /* ===================================================================
+     ACTION DOCK RENDERING
+     =================================================================== */
+  function setDock(buttons, hintHtml){
+    // CLI-only: no clickable CTA buttons — show the keyboard hint text only.
+    dock.innerHTML = hintHtml ? `<div class="dockhint">${hintHtml}</div>` : '';
+  }
+  function setHint(text){ dock.innerHTML=`<div class="dockhint">${text}</div>`; }
+  function clearDock(){ dock.innerHTML=''; }
+
+  /* ===================================================================
+     KEYBOARD ROUTING
+     =================================================================== */
+  document.addEventListener('keydown',e=>{
+    if(!pending) return;
+    if(pending.type==='confirm'){
+      if(pending.yns){
+        if(e.key==='y'||e.key==='Y'||e.key==='Enter'){ e.preventDefault(); answerYNS('y'); }
+        else if(e.key==='n'||e.key==='N'||e.key==='Escape'){ e.preventDefault(); answerYNS('n'); }
+        else if(e.key==='s'||e.key==='S'){ e.preventDefault(); answerYNS('s'); }
+      } else {
+        if(e.key==='y'||e.key==='Y'||e.key==='Enter'){ e.preventDefault(); answerYN('y'); }
+        else if(e.key==='n'||e.key==='N'||e.key==='Escape'){ e.preventDefault(); answerYN('n'); }
+      }
+    } else if(pending.type==='choice'){
+      if(e.key==='Enter'){ e.preventDefault(); answerChoice(pending.defaultKey); return; }
+      if(e.key==='Escape' && pending.keymap['n']){ e.preventDefault(); answerChoice('n'); return; }
+      const k=e.key.toLowerCase();
+      if(k.length===1 && pending.keymap[k]){ e.preventDefault(); answerChoice(k); }
+    } else if(pending.type==='review'){
+      if(e.key==='ArrowUp'){ e.preventDefault(); pending.move(-1); }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); pending.move(1); }
+      else if(e.key==='ArrowLeft'){ e.preventDefault(); pending.cycle(-1); }
+      else if(e.key==='ArrowRight'){ e.preventDefault(); pending.cycle(1); }
+      else if(e.key===' '){ e.preventDefault(); pending.toggle(); }
+      else if(e.key==='Enter'){ e.preventDefault(); pending.apply(); }
+    } else if(pending.type==='select'){
+      if(e.key==='ArrowUp'){ e.preventDefault(); pending.move(-1); }
+      else if(e.key==='ArrowDown'){ e.preventDefault(); pending.move(1); }
+      else if(e.key===' '){ e.preventDefault(); pending.toggle(); }
+      else if(e.key==='Enter'){ e.preventDefault(); pending.confirmSource(); }
+    }
+    // env input handles its own Enter via its listener
+  });
+
+  /* ---------- utils ---------- */
+  function escapeHtml(s){ return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+  /* ---------- wire tabs & boot ---------- */
+  document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>start(+t.dataset.s)));
+  start(1);
+})();
+</script>
+</body>
+</html>

@@ -90,11 +90,13 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
   <div class="opttabs" id="opttabs">
     <button class="opttab active" data-opt="1"><span class="idx">1</span>Option 1</button>
     <button class="opttab" data-opt="2"><span class="idx">2</span>Option 2</button>
+    <button class="opttab" data-opt="3"><span class="idx">3</span>Option 3</button>
   </div>
 
   <div class="stage">
     <iframe id="opt-1" src="./option-1.html" title="Prototype option 1"></iframe>
     <iframe id="opt-2" src="./option-2.html" title="Prototype option 2" class="hidden"></iframe>
+    <iframe id="opt-3" src="./option-3.html" title="Prototype option 3" class="hidden"></iframe>
   </div>
 
   <p class="footer">github.com/hyoshis/cliux</p>
@@ -105,7 +107,8 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
   const tabs = document.getElementById('opttabs');
   const frames = {
     '1': document.getElementById('opt-1'),
-    '2': document.getElementById('opt-2')
+    '2': document.getElementById('opt-2'),
+    '3': document.getElementById('opt-3')
   };
   tabs.addEventListener('click', e=>{
     const btn = e.target.closest('.opttab');
