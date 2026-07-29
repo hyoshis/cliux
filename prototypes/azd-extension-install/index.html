@@ -266,7 +266,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       field('Source:', ext.source),
       field('Description:', ext.desc),
       ``,
-      `<span class="o">Deployment may fail without this extension installed.</span>`
+      `Required by azure.yaml.`
     ];
     if(!skipCmd) lines.unshift(`<span class="w">${PROMPT}></span> <span class="w">azd up</span>`);
     await block(lines, 95);
@@ -390,7 +390,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   async function scenario1(token){
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd', desc:'This extension provides examples.'};
     await intro(ext);
-    const a = await confirmYN('Install now?'); if(token!==runToken) return;
+    const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a!=='n'){ await install(ext.id, ext.source); if(token!==runToken) return; }
     envPromptEnd();
   }
@@ -398,7 +398,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   async function scenario2(token){
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd, nightly', desc:'This extension provides examples.'};
     await intro(ext);
-    const a = await confirmYN('Install now?'); if(token!==runToken) return;
+    const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a!=='n'){
       const src = await selectSource(); if(token!==runToken) return;
       await install(ext.id, src); if(token!==runToken) return;
@@ -415,7 +415,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       const e=exts[k];
       if(k>0) line('');
       await intro(e, e.count, k>0); if(token!==runToken) return;
-      const a = await confirmYN('Install now?'); if(token!==runToken) return;
+      const a = await confirmYN(`Install ${e.title}?`); if(token!==runToken) return;
       if(a!=='n'){ await install(e.id, e.source); if(token!==runToken) return; }
     }
     envPromptEnd();
@@ -433,7 +433,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       // Source field: first shows the choices; later shows the already-picked source.
       const shownSource = chosenSource || 'azd, nightly';
       await intro({...e, source:shownSource}, e.count, k>0); if(token!==runToken) return;
-      const a = await confirmYN('Install now?'); if(token!==runToken) return;
+      const a = await confirmYN(`Install ${e.title}?`); if(token!==runToken) return;
       if(a!=='n'){
         if(!chosenSource){ chosenSource = await selectSource(true); if(token!==runToken) return; }
         await install(e.id, chosenSource); if(token!==runToken) return;
