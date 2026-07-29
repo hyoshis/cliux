@@ -312,21 +312,18 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
 
   /* ---------- upfront summary of every required extension ---------- */
-  async function listExtensions(exts, showSource){
-    function extRow(i, e){
-      const num   = `${i+1}.`;
-      const title = e.title.padEnd(18,' ');
-      const idcol = showSource ? (`ID: ${e.id}`).padEnd(24,' ') : `ID: ${e.id}`;
-      let row = `  <span class="w">${num}</span> <span class="w">${escapeHtml(title)}</span>`+
-                `<span class="w">${escapeHtml(idcol)}</span>`;
-      if(showSource) row += `<span class="w">Source: ${escapeHtml(e.source)}</span>`;
-      return row;
-    }
+  async function listExtensions(exts){
+    const colHead = `  <span class="d">${'Extension'.padEnd(18,' ')}${'ID'.padEnd(20,' ')}Source (recommended)</span>`;
+    const rows = exts.map(e=>
+      `  <span class="w">${escapeHtml(e.title.padEnd(18,' '))}</span>`+
+      `<span class="w">${escapeHtml(e.id.padEnd(20,' '))}</span>`+
+      `<span class="w">${escapeHtml(e.source)}</span>`);
     await block([
       `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
-      `The following extensions are required by azure.yaml:`,
+      `${exts.length} extensions required by azure.yaml:`,
       ``,
-      ...exts.map((e,i)=>extRow(i,e)),
+      colHead,
+      ...rows,
       ``
     ], 90);
   }
@@ -456,7 +453,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
       {title:'Monitoring Tools', id:'monitoring-tools', source:'community'}
     ];
-    await listExtensions(exts, true); if(token!==runToken) return;
+    await listExtensions(exts); if(token!==runToken) return;
     const a = await confirmYNS(`Install all ${exts.length} required extensions?`, {
       y:'install all (default)', n:'skip', s:'select individually'
     }); if(token!==runToken) return;
@@ -480,12 +477,12 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   async function scenario4(token){
     const exts=[
-      {title:'Demo Extension',   id:'demo-extension'},
-      {title:'Storage Helper',   id:'storage-helper'},
-      {title:'Monitoring Tools', id:'monitoring-tools'}
+      {title:'Demo Extension',   id:'demo-extension',   source:'azd'},
+      {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
+      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
     ];
     const defaultSource='azd';
-    await listExtensions(exts, false); if(token!==runToken) return;
+    await listExtensions(exts); if(token!==runToken) return;
     const a = await confirmYNS(
       `Install all ${exts.length} required extensions from <span class="b">${escapeHtml(defaultSource)}</span>?`,
       {y:'install all (default)', n:'skip', s:'select individually'}

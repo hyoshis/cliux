@@ -335,6 +335,23 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     pending=null; clearDock(); resolve(k);
   }
 
+  /* ---------- upfront summary table for a required set ---------- */
+  // "N extensions required by azure.yaml:" + aligned Extension / ID / Source columns.
+  function listRequired(exts){
+    const colHead = `  <span class="d">${'Extension'.padEnd(18,' ')}${'ID'.padEnd(20,' ')}Source (recommended)</span>`;
+    const rows = exts.map(e=>
+      `  <span class="w">${escapeHtml(e.title.padEnd(18,' '))}</span>`+
+      `<span class="w">${escapeHtml(e.id.padEnd(20,' '))}</span>`+
+      `<span class="w">${escapeHtml(e.source)}</span>`);
+    return [
+      `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
+      `${exts.length} extensions required by azure.yaml:`,
+      ``,
+      colHead,
+      ...rows
+    ];
+  }
+
   /* ---------- interaction: select a source ---------- */
   const SOURCES = [
     {name:'azd',     desc:'stable, official releases'},
@@ -470,22 +487,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
       {title:'Monitoring Tools', id:'monitoring-tools', source:'community'}
     ];
-    // Aligned summary table: "N. Title   ID: id   Source: source"
-    function extRow(i, e){
-      const num   = `${i+1}.`;
-      const title = e.title.padEnd(18,' ');
-      const idcol = (`ID: ${e.id}`).padEnd(24,' ');
-      return `  <span class="w">${num}</span> <span class="w">${escapeHtml(title)}</span>`+
-             `<span class="w">${escapeHtml(idcol)}</span>`+
-             `<span class="w">Source: ${escapeHtml(e.source)}</span>`;
-    }
-    await block([
-      `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
-      `The following extensions are required by azure.yaml:`,
-      ``,
-      ...exts.map((e,i)=>extRow(i,e)),
-      ``
-    ], 90);
+    await block([...listRequired(exts), ``], 90);
     if(token!==runToken) return;
 
     const a = await confirmYNS(`Install all ${exts.length} required extensions?`, {
@@ -513,28 +515,12 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   async function scenario4(token){
     const exts=[
-      {title:'Demo Extension',   id:'demo-extension'},
-      {title:'Storage Helper',   id:'storage-helper'},
-      {title:'Monitoring Tools', id:'monitoring-tools'}
+      {title:'Demo Extension',   id:'demo-extension',   source:'azd'},
+      {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
+      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
     ];
     const defaultSource='azd';
-    // Summary table without a Source column — the source is chosen for the whole set.
-    function extRow(i, e){
-      const num   = `${i+1}.`;
-      const title = e.title.padEnd(18,' ');
-      return `  <span class="w">${num}</span> <span class="w">${escapeHtml(title)}</span>`+
-             `<span class="w">ID: ${escapeHtml(e.id)}</span>`;
-    }
-    await block([
-      `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
-      `The following extensions are required by azure.yaml:`,
-      ``,
-      ...exts.map((e,i)=>extRow(i,e)),
-      ``,
-      `Required by azure.yaml.`,
-      `Multiple sources available.`,
-      ``
-    ], 90);
+    await block([...listRequired(exts), ``, `Multiple sources available.`, ``], 90);
     if(token!==runToken) return;
 
     const a = await confirmChoice(
