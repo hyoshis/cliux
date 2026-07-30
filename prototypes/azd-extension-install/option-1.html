@@ -27,6 +27,7 @@
   --t-orange:#d79a5b;        /* "Installing … Extension" */
   --t-blue:#4aa8e0;          /* user input / selected source */
   --t-green:#4ec94e;         /* (✓) Done */
+  --t-red:#f14c4c;           /* errors */
   --t-amber:#e0a458;         /* ? question glyph */
   --t-dim:#7d7d7d;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
@@ -112,6 +113,7 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .o{color:var(--t-orange)}
 .b{color:var(--t-blue)}
 .g{color:var(--t-green)}
+.e{color:var(--t-red)}
 .q{color:var(--t-blue)}
 .d{color:var(--t-dim)}
 .w{color:#f2f2f2}
@@ -196,7 +198,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     </button>
     <button class="tab" data-s="2">
       <span class="idx">2</span>
-      <span><span class="t-title">Single extension, multiple sources</span><br><span class="t-sub">Choose between a stable and a nightly source.</span></span>
+      <span><span class="t-title">Single extension, multiple sources</span><br><span class="t-sub">Choose between a stable and a latest source.</span></span>
     </button>
     <button class="tab" data-s="3">
       <span class="idx">3</span>
@@ -205,6 +207,18 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     <button class="tab" data-s="4">
       <span class="idx">4</span>
       <span><span class="t-title">Multiple extensions, multiple sources</span><br><span class="t-sub">Install all, or pick a source per extension.</span></span>
+    </button>
+    <button class="tab" data-s="5">
+      <span class="idx">5</span>
+      <span><span class="t-title">Command requires an extension</span><br><span class="t-sub">Install the extension that provides an unavailable command.</span></span>
+    </button>
+    <button class="tab" data-s="6">
+      <span class="idx">6</span>
+      <span><span class="t-title">No-prompt deployment</span><br><span class="t-sub">Show install commands, then continue without prompting.</span></span>
+    </button>
+    <button class="tab" data-s="7">
+      <span class="idx">7</span>
+      <span><span class="t-title">YOLO deployment</span><br><span class="t-sub">Install required extensions automatically and deploy.</span></span>
     </button>
   </div>
 
@@ -258,16 +272,16 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const pad = ' '.repeat(Math.max(1, 13 - label.length));
     return `  ${label}${pad}${escapeHtml(value)}`;
   }
-  async function intro(ext, count, skipCmd){
+  async function intro(ext, count, skipCmd, sourceLabel='Source:', requiredBy='Required by azure.yaml.'){
     const countHtml = count ? ` <span class="d">${count}</span>` : '';
     const lines = [
       `<span class="b">Extension required: ${escapeHtml(ext.title)}</span>${countHtml}`,
       field('ID:', ext.id),
-      field('Source:', ext.source),
+      field(sourceLabel, ext.source),
       field('Description:', ext.desc),
-      ``,
-      `Required by azure.yaml.`
+      ``
     ];
+    if(requiredBy) lines.push(requiredBy);
     if(!skipCmd) lines.unshift(`<span class="w">${PROMPT}></span> <span class="w">azd up</span>`);
     await block(lines, 95);
   }
@@ -312,15 +326,16 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
 
   /* ---------- upfront summary of every required extension ---------- */
-  async function listExtensions(exts){
-    const colHead = `  <span class="d">${'Extension'.padEnd(18,' ')}${'ID'.padEnd(20,' ')}Source (recommended)</span>`;
+  async function listExtensions(exts, sourceHeading='Source (recommended)', command='azd up'){
+    const colHead = `  <span class="d">${'Extension'.padEnd(18,' ')}${'ID'.padEnd(20,' ')}${sourceHeading}</span>`;
     const rows = exts.map(e=>
       `  <span class="w">${escapeHtml(e.title.padEnd(18,' '))}</span>`+
       `<span class="w">${escapeHtml(e.id.padEnd(20,' '))}</span>`+
-      `<span class="w">${escapeHtml(e.source)}</span>`);
+      `<span class="w">${escapeHtml(e.source)}</span>`+
+      (e.sourceNote ? ` <span class="d">${escapeHtml(e.sourceNote)}</span>` : ''));
     await block([
-      `<span class="w">${PROMPT}></span> <span class="w">azd up</span>`,
-      `${exts.length} extensions required by azure.yaml:`,
+      `<span class="w">${PROMPT}></span> <span class="w">${escapeHtml(command)}</span>`,
+      `<span class="b">${exts.length} extensions required by azure.yaml:</span>`,
       ``,
       colHead,
       ...rows,
@@ -331,21 +346,21 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   /* ---------- interaction: select a source ---------- */
   const SOURCES = [
     {name:'azd',     desc:'stable, official releases'},
-    {name:'nightly', desc:'latest build, updated daily'}
+    {name:'latest', desc:'latest build, updated daily'}
   ];
   function selectSource(appliesToAll){
     // header line + list container + hint (matches Figma layout)
     line(`<span class="q">?</span> Select a source:`);
-    if(appliesToAll) line(`<span class="d">  This source applies to all extensions.</span>`);
+    if(appliesToAll) line(`<span class="d">  This source will apply to all following extension installations.</span>`);
     line('');
     const listEl = document.createElement('div');
     listEl.className='ln srclist';
     screen.appendChild(listEl);
     line('<span class="srcdivider">────────────────────────────</span>');
-    const hintEl = line('<span class="srchint">Use arrows to move, use space to select</span>');
+    const hintEl = line('<span class="srchint">Use arrows to move</span>');
     scroll();
 
-    let cursor=1, selected=1;                 // default: nightly (as in the design)
+    let cursor=1, selected=1;                 // default: latest (as in the design)
     function render(){
       listEl.innerHTML = SOURCES.map((s,i)=>{
         const isCur=i===cursor;
@@ -402,7 +417,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     clearDock(); 
     const token=runToken; let i=0;
     const start=Date.now();
-    while(Date.now()-start < 1700){
+    while(Date.now()-start < 400){
       if(token!==runToken) return;
       el.innerHTML = `<span class="w">${FRAMES[i%FRAMES.length]}</span> Installing extension '${ext}'`;
       i++; await sleep(90);
@@ -411,19 +426,36 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     scroll();
   }
 
-  /* ---------- environment-name prompt (terminal end state) ---------- */
-  // The prototype intentionally stops here — no provisioning/completion output.
-  function envPromptEnd(){
-    line('');
-    line(`<span class="q">?</span> Enter a unique environment name: <span class="caret"></span>`);
+  async function runOperation(action, completed, succeeded=true){
+    const el = line(`<span class="w">${FRAMES[0]}</span> ${escapeHtml(action)}`);
+    const token=runToken; let i=0;
+    const start=Date.now();
+    while(Date.now()-start < 500){
+      if(token!==runToken) return;
+      el.innerHTML = `<span class="w">${FRAMES[i%FRAMES.length]}</span> ${escapeHtml(action)}`;
+      i++; await sleep(90);
+    }
+    el.innerHTML = succeeded
+      ? `<span class="g">(✓) Done:</span> ${escapeHtml(completed)}`
+      : `<span class="e">(×) Failed:</span> ${escapeHtml(completed)}`;
     scroll();
-    // End of the prototype — show a completion indicator + refresh, outside the terminal.
+  }
+
+  /* ---------- environment-name prompt (terminal end state) ---------- */
+  function completeFlow(){
     dock.innerHTML =
       `<div class="donerow">`+
         `<span class="badge-done">✓ Prototype flow complete</span>`+
         `<button class="act primary" id="refreshBtn">↻ Refresh</button>`+
       `</div>`;
     document.getElementById('refreshBtn').onclick=()=>start(currentScenario);
+  }
+  // The prototype intentionally stops here — no provisioning/completion output.
+  function envPromptEnd(){
+    line('');
+    line(`<span class="q">?</span> Enter a unique environment name: <span class="caret"></span>`);
+    scroll();
+    completeFlow();
   }
   /* ===================================================================
      SCENARIO RUNNERS
@@ -437,8 +469,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
 
   async function scenario2(token){
-    const ext={title:'Demo Extension', id:'demo-extension', source:'azd, nightly', desc:'This extension provides examples.'};
-    await intro(ext);
+    const ext={title:'Demo Extension', id:'demo-extension', source:'azd, latest', desc:'This extension provides examples.'};
+    await intro(ext, undefined, undefined, 'Sources:');
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a!=='n'){
       const src = await selectSource(); if(token!==runToken) return;
@@ -451,14 +483,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const exts=[
       {title:'Demo Extension',   id:'demo-extension',   source:'azd'},
       {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
-      {title:'Monitoring Tools', id:'monitoring-tools', source:'community'}
+      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
     ];
-    await listExtensions(exts); if(token!==runToken) return;
+    await listExtensions(exts, 'Source'); if(token!==runToken) return;
     const a = await confirmYNS(`Install all ${exts.length} required extensions?`, {
-      y:'install all (default)', n:'skip', s:'select individually'
+      y:'install all (recommended)', n:'skip', s:'select individually'
     }); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); line(`<span class="d">Skipped. No extensions installed; continuing.</span>`); envPromptEnd(); return; }
+    if(a==='n'){ line(''); line(`<span class="d">Skipped. Continuing without installing extensions.</span>`); envPromptEnd(); return; }
 
     line('');
     if(a==='y'){
@@ -477,22 +509,22 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   async function scenario4(token){
     const exts=[
-      {title:'Demo Extension',   id:'demo-extension',   source:'azd'},
-      {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
-      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
+      {title:'Demo Extension',   id:'demo-extension',   source:'azd, latest'},
+      {title:'Storage Helper',   id:'storage-helper',   source:'azd, latest'},
+      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd', sourceNote:'(+4 more)'}
     ];
-    const defaultSource='azd';
-    await listExtensions(exts); if(token!==runToken) return;
+    await listExtensions(exts, 'Sources'); if(token!==runToken) return;
     const a = await confirmYNS(
-      `Install all ${exts.length} required extensions from <span class="b">${escapeHtml(defaultSource)}</span>?`,
-      {y:'install all (default)', n:'skip', s:'select individually'}
+      `Install all ${exts.length} required extensions?`,
+      {y:'install all (recommended)', n:'skip', s:'select individually'}
     ); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); line(`<span class="d">Skipped. No extensions installed; continuing.</span>`); envPromptEnd(); return; }
+    if(a==='n'){ line(''); line(`<span class="d">Skipped installation. Continuing.</span>`); envPromptEnd(); return; }
 
     line('');
     if(a==='y'){
-      for(const e of exts){ await install(e.id, defaultSource); if(token!==runToken) return; }
+      const src = await selectSource(true); if(token!==runToken) return;
+      for(const e of exts){ await install(e.id, src); if(token!==runToken) return; }
     } else {
       // Select individually: prompt each extension, then show source selection (option-1 style).
       for(let k=0;k<exts.length;k++){
@@ -507,7 +539,82 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     envPromptEnd();
   }
 
-  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4};
+  async function scenario5(token){
+    const command='azd ai agent version';
+    const ext={
+      title:'Foundry agents (Beta)',
+      id:'foundry-agents',
+      source:'azd',
+      desc:'Ship agents with Microsoft Foundry from your terminal. (Beta)'
+    };
+    await block([
+      `<span class="w">${PROMPT}></span> <span class="w">${command}</span>`,
+      `Command 'ai agent version' isn't available. Install the required extension to use this command.`,
+      ``
+    ], 95);
+    await intro(ext, undefined, true, 'Source:', '');
+    const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
+    if(a==='n'){
+      line('');
+      line(`<span class="d">Skipped installation.</span>`);
+      completeFlow();
+      return;
+    }
+    await install(ext.id, ext.source); if(token!==runToken) return;
+    line('');
+    await block([
+      `Version: 1.0.0-beta.7`,
+      `Commit: 701476730a2196ec7422aeb3d688ec64ed8f351a`,
+      `Build Date: 2026-07-23T06:06:45.8680053+00:00`
+    ], 70);
+    completeFlow();
+  }
+
+  function singleSourceExtensions(){
+    return [
+      {title:'Demo Extension',   id:'demo-extension',   source:'azd'},
+      {title:'Storage Helper',   id:'storage-helper',   source:'azd'},
+      {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
+    ];
+  }
+
+  async function scenario6(token){
+    const command='azd up --no-prompt';
+    const exts=singleSourceExtensions();
+    await listExtensions(exts, 'Source', command); if(token!==runToken) return;
+    await block([
+      `Required extensions aren't installed. Install them before running this command:`,
+      ``,
+      ...exts.map(e=>`  <span class="b">azd extension install ${escapeHtml(e.id)}</span>`),
+      ``
+    ], 80);
+    await runOperation('Initializing project...', 'Initialized project'); if(token!==runToken) return;
+    await runOperation('Provisioning Azure resources...', 'Provisioned Azure resources'); if(token!==runToken) return;
+    await runOperation('Deploying services...', 'Deployment stopped', false); if(token!==runToken) return;
+    line('');
+    await block([
+      `<span class="e">ERROR: Deployment failed because required extensions aren't installed.</span>`,
+      `Install the extensions listed above, then run <span class="b">${command}</span> again.`
+    ], 80);
+    completeFlow();
+  }
+
+  async function scenario7(token){
+    const command='azd up --yolo';
+    const exts=singleSourceExtensions();
+    await listExtensions(exts, 'Source', command); if(token!==runToken) return;
+    line(`<span class="d">YOLO mode enabled. Installing required extensions without prompting.</span>`);
+    for(const e of exts){ await install(e.id, e.source); if(token!==runToken) return; }
+    line('');
+    await runOperation('Initializing project...', 'Initialized project'); if(token!==runToken) return;
+    await runOperation('Provisioning Azure resources...', 'Provisioned Azure resources'); if(token!==runToken) return;
+    await runOperation('Deploying services...', 'Deployed services'); if(token!==runToken) return;
+    line('');
+    line(`<span class="g">SUCCESS: Your application was provisioned and deployed to Azure.</span>`);
+    completeFlow();
+  }
+
+  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4,5:scenario5,6:scenario6,7:scenario7};
   let currentScenario=1;
 
   function start(n){
