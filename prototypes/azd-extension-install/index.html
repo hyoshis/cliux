@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>azd · Extension auto-install — prototype options</title>
+<title>azd · Extension auto-install prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -11,13 +11,11 @@
 :root{
   --bg:#0b0d12;
   --bg-2:#111520;
-  --panel:#151b28;
   --border:#26303f;
   --text:#d7e0ea;
   --muted:#8a97a8;
   --dim:#5c6b7e;
   --accent:#4c9bf5;
-  --accent-soft:rgba(76,155,245,.14);
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Inter',system-ui,-apple-system,sans-serif;
 }
@@ -45,30 +43,9 @@ h1{font-size:clamp(1.5rem,3vw,2.1rem); font-weight:800; letter-spacing:-.02em; l
 h1 .mono{font-family:var(--mono); color:var(--accent)}
 .lede{color:var(--muted); margin-top:.7rem; max-width:64ch; font-size:1rem; line-height:1.55}
 
-/* Option tabs */
-.opttabs{display:flex; gap:.6rem; margin:1.6rem 0 1.1rem; flex-wrap:wrap}
-.opttab{
-  cursor:pointer; color:var(--muted);
-  background:var(--panel); border:1px solid var(--border);
-  border-radius:11px; padding:.7rem 1.2rem; transition:.16s;
-  font-family:var(--sans); font-weight:600; font-size:.95rem;
-  display:inline-flex; align-items:center; gap:.6rem;
-}
-.opttab:hover{border-color:#37475c; color:#fff}
-.opttab.active{
-  color:#fff; border-color:var(--accent);
-  background:linear-gradient(180deg,var(--accent-soft),transparent), var(--panel);
-  box-shadow:0 10px 30px -18px rgba(76,155,245,.7);
-}
-.opttab .idx{
-  font-family:var(--mono); font-weight:700; font-size:.78rem; color:#fff;
-  background:var(--accent); border-radius:6px; min-width:1.55rem; height:1.55rem;
-  display:grid; place-items:center; flex:none; opacity:.9;
-}
-.opttab.active .idx{opacity:1}
-
 /* Iframe stage */
 .stage{
+  margin-top:1.6rem;
   border:1px solid var(--border); border-radius:14px; overflow:hidden;
   background:var(--bg-2);
   box-shadow:0 40px 90px -40px rgba(0,0,0,.85);
@@ -76,48 +53,21 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .stage iframe{
   display:block; width:100%; height:1180px; border:0; background:transparent;
 }
-.stage iframe.hidden{display:none}
-
 .footer{margin-top:1.3rem; color:var(--dim); font-size:.78rem; font-family:var(--mono); text-align:center}
 </style>
 </head>
 <body>
 <div class="wrap">
   <div class="kicker">azd · extension auto-install</div>
-  <h1><span class="mono">azd up</span> — Prototype options</h1>
-  <p class="lede">Two design options for the extension auto-install UX. Both start identical; Option&nbsp;2 is where iterations happen. Switch tabs to compare.</p>
-
-  <div class="opttabs" id="opttabs">
-    <button class="opttab active" data-opt="1"><span class="idx">1</span>Option 1</button>
-    <button class="opttab" data-opt="2"><span class="idx">2</span>Option 2</button>
-    <button class="opttab" data-opt="3"><span class="idx">3</span>Option 3</button>
-  </div>
+  <h1><span class="mono">azd up</span> — Extension auto-install</h1>
+  <p class="lede">Interactive scenarios for the extension auto-install experience.</p>
 
   <div class="stage">
-    <iframe id="opt-1" src="./option-1.html" title="Prototype option 1"></iframe>
-    <iframe id="opt-2" src="./option-2.html" title="Prototype option 2" class="hidden"></iframe>
-    <iframe id="opt-3" src="./option-3.html" title="Prototype option 3" class="hidden"></iframe>
+    <iframe src="./option-1.html" title="Extension auto-install prototype"></iframe>
   </div>
 
   <p class="footer">github.com/hyoshis/cliux</p>
 </div>
 
-<script>
-(function(){
-  const tabs = document.getElementById('opttabs');
-  const frames = {
-    '1': document.getElementById('opt-1'),
-    '2': document.getElementById('opt-2'),
-    '3': document.getElementById('opt-3')
-  };
-  tabs.addEventListener('click', e=>{
-    const btn = e.target.closest('.opttab');
-    if(!btn) return;
-    const opt = btn.dataset.opt;
-    tabs.querySelectorAll('.opttab').forEach(t=>t.classList.toggle('active', t===btn));
-    Object.entries(frames).forEach(([k,f])=>f.classList.toggle('hidden', k!==opt));
-  });
-})();
-</script>
 </body>
 </html>
