@@ -191,10 +191,10 @@ window.SLIDES = [
 },
 
 {
-  section: "Analysis", title: "Case study: cancel", sub: "One key, big signal",
+  section: "Analysis", title: "Case study: cancel", sub: "A small but visible difference",
   html: `
   <div class="kicker">Micro-UX case study</div>
-  <h2>The cancel key tells you the whole philosophy</h2>
+  <h2>Cancel works differently across AI CLIs</h2>
   <div class="cols cols-2">
     <div>
       <div class="term" style="margin-bottom:1rem;">
@@ -213,7 +213,7 @@ window.SLIDES = [
         <li><b class="accent">Copilot's double-tap</b> optimizes for <b>safety</b> — never lose a session by fat-fingering. Great for newcomers; friction for veterans.</li>
         <li><b class="accent-2">Codex's single-tap</b> optimizes for <b>flow &amp; muscle memory</b> — Ctrl-C means stop, like every other Unix tool. Great for experts; riskier for the careless.</li>
       </ul>
-      <div class="callout"><p class="q">A one-keystroke decision encodes an entire audience assumption. There's no free lunch — only a chosen user.</p></div>
+      <div class="callout"><p class="q">The difference is small but noticeable: one interaction protects against accidental exits, while the other prioritizes immediate cancellation.</p></div>
     </div>
   </div>`
 },
