@@ -28,7 +28,7 @@
   --t-blue:#4aa8e0;          /* user input / selected source */
   --t-green:#4ec94e;         /* (✓) Done */
   --t-amber:#e0a458;         /* ? question glyph */
-  --t-dim:#7d7d7d;
+  --t-dim:#949494;
   --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --sans:'Inter',system-ui,-apple-system,sans-serif;
 }
@@ -98,10 +98,11 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 }
 .dot{width:11px;height:11px;border-radius:50%}
 .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
-.term-bar .title{margin-left:.55rem; color:#7a7a7a; font-family:var(--mono); font-size:.76rem}
+.term-bar .title{margin-left:.55rem; color:var(--t-dim); font-family:var(--mono); font-size:.76rem}
 #screen{
   font-family:var(--mono); font-size:14px; line-height:1.55; color:var(--t-text);
   padding:1.05rem 1.25rem; height:430px; overflow-y:auto; white-space:pre-wrap; word-break:break-word;
+  outline:none;
 }
 #screen::-webkit-scrollbar{width:9px}
 #screen::-webkit-scrollbar-thumb{background:#222; border-radius:5px}
@@ -112,6 +113,7 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .o{color:var(--t-orange)}
 .b{color:var(--t-blue)}
 .g{color:var(--t-green)}
+.warn{color:#ffcc00}
 .q{color:var(--t-blue)}
 .d{color:var(--t-dim)}
 .w{color:#f2f2f2}
@@ -196,7 +198,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     </button>
     <button class="tab" data-s="2">
       <span class="idx">2</span>
-      <span><span class="t-title">Single extension, multiple sources</span><br><span class="t-sub">Choose between a stable and a nightly source.</span></span>
+      <span><span class="t-title">Single extension, multiple sources</span><br><span class="t-sub">Choose between a stable and a local source.</span></span>
     </button>
     <button class="tab" data-s="3">
       <span class="idx">3</span>
@@ -334,6 +336,18 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     el.innerHTML = `<span class="q">?</span> ${questionHtml} [${bracket}]: <span class="b">${k}</span>`;
     pending=null; clearDock(); resolve(k);
   }
+  function stagePromptValue(v){
+    if(!pending || (pending.type!=='confirm' && pending.type!=='choice')) return;
+    pending.value=v;
+    const input = v ? `<span class="b">${escapeHtml(v)}</span>` : '';
+    if(pending.type==='choice'){
+      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [${pending.bracket}]: ${input}<span class="caret"></span>`;
+    } else if(pending.yns){
+      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [Y/n/s]: ${input}<span class="caret"></span>`;
+    } else {
+      pending.el.innerHTML = `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
+    }
+  }
 
   /* ---------- upfront summary table for a required set ---------- */
   // "N extensions required by azure.yaml:" + aligned Extension / ID / Source columns.
@@ -355,7 +369,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   /* ---------- interaction: select a source ---------- */
   const SOURCES = [
     {name:'azd',     desc:'stable, official releases'},
-    {name:'nightly', desc:'latest build, updated daily'}
+    {name:'local', desc:'local development registry'}
   ];
   function selectSource(appliesToAll){
     // header line + list container + hint (matches Figma layout)
@@ -369,7 +383,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const hintEl = line('<span class="srchint">Use arrows to move, use space to select</span>');
     scroll();
 
-    let cursor=1, selected=1;                 // default: nightly (as in the design)
+    let cursor=1, selected=1;                 // default: local (as in the design)
     function render(){
       listEl.innerHTML = SOURCES.map((s,i)=>{
         const isCur=i===cursor;
@@ -449,6 +463,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       `</div>`;
     document.getElementById('refreshBtn').onclick=()=>start(currentScenario);
   }
+  function showSkipWarning(extensionName){
+    const detail = extensionName ? ` for '${escapeHtml(extensionName)}'` : '';
+    line(`<span class="warn">[Warning] Extension installation skipped${detail}. The workflow may fail without it.</span>`);
+  }
   /* ===================================================================
      SCENARIO RUNNERS
      =================================================================== */
@@ -456,7 +474,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd', desc:'This extension provides examples.'};
     await intro(ext);
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
-    if(a!=='n'){ await install(ext.id, ext.source); if(token!==runToken) return; }
+    if(a==='n'){ line(''); showSkipWarning(ext.title); }
+    else { await install(ext.id, ext.source); if(token!==runToken) return; }
     envPromptEnd();
   }
 
@@ -474,7 +493,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     ], 95);
     if(token!==runToken) return;
     const a = await confirmYNS(`Install ${escapeHtml(ext.title)} from <span class="b">${escapeHtml(defaultSource)}</span>?`, {y:'install', n:'skip', s:'yes, but change source'}); if(token!==runToken) return;
-    if(a==='n'){ envPromptEnd(); return; }
+    if(a==='n'){ line(''); showSkipWarning(ext.title); envPromptEnd(); return; }
     let src = defaultSource;
     if(a==='s'){ src = await selectSource(); if(token!==runToken) return; }
     await install(ext.id, src); if(token!==runToken) return;
@@ -494,7 +513,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       y:'install all (default)', n:'cancel', s:'select individually'
     }); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); line(`<span class="d">Skipped. No extensions installed; continuing.</span>`); envPromptEnd(); return; }
+    if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
 
     line('');
     if(a==='y'){
@@ -507,7 +526,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
         if(k>0) line('');
         const yn = await confirmYN(`Install ${escapeHtml(e.title)} from <span class="b">${escapeHtml(e.source)}</span>?`);
         if(token!==runToken) return;
-        if(yn!=='n'){ await install(e.id, e.source); if(token!==runToken) return; }
+        if(yn==='n'){ showSkipWarning(e.title); }
+        else { await install(e.id, e.source); if(token!==runToken) return; }
       }
     }
     envPromptEnd();
@@ -533,7 +553,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       ]
     ); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); line(`<span class="d">Skipped. No extensions installed; continuing.</span>`); envPromptEnd(); return; }
+    if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
 
     line('');
     if(a==='y'){
@@ -554,7 +574,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
           {y:'install', n:'skip', s:'yes, but change source'}
         );
         if(token!==runToken) return;
-        if(yn==='n') continue;
+        if(yn==='n'){ showSkipWarning(e.title); continue; }
         let src = defaultSource;
         if(yn==='s'){ src = await selectSource(); if(token!==runToken) return; }
         await install(e.id, src); if(token!==runToken) return;
@@ -571,6 +591,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     runToken++; const token=runToken;
     pending=null; clear(); clearDock();
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.s===n));
+    screen.focus({preventScroll:true});
     RUNNERS[n](token);
   }
 
@@ -590,19 +611,27 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   document.addEventListener('keydown',e=>{
     if(!pending) return;
     if(pending.type==='confirm'){
-      if(pending.yns){
-        if(e.key==='y'||e.key==='Y'||e.key==='Enter'){ e.preventDefault(); answerYNS('y'); }
-        else if(e.key==='n'||e.key==='N'||e.key==='Escape'){ e.preventDefault(); answerYNS('n'); }
-        else if(e.key==='s'||e.key==='S'){ e.preventDefault(); answerYNS('s'); }
+      if(e.key==='Enter'){
+        e.preventDefault();
+        const value=pending.value||'y';
+        pending.yns ? answerYNS(value) : answerYN(value);
+      } else if(e.key==='Backspace'){
+        e.preventDefault(); stagePromptValue('');
+      } else if(e.key==='Escape'){
+        e.preventDefault(); stagePromptValue('n');
       } else {
-        if(e.key==='y'||e.key==='Y'||e.key==='Enter'){ e.preventDefault(); answerYN('y'); }
-        else if(e.key==='n'||e.key==='N'||e.key==='Escape'){ e.preventDefault(); answerYN('n'); }
+        const k=e.key.toLowerCase();
+        const valid=pending.yns ? ['y','n','s'] : ['y','n'];
+        if(k.length===1 && valid.includes(k)){ e.preventDefault(); stagePromptValue(k); }
       }
     } else if(pending.type==='choice'){
-      if(e.key==='Enter'){ e.preventDefault(); answerChoice(pending.defaultKey); return; }
-      if(e.key==='Escape' && pending.keymap['n']){ e.preventDefault(); answerChoice('n'); return; }
-      const k=e.key.toLowerCase();
-      if(k.length===1 && pending.keymap[k]){ e.preventDefault(); answerChoice(k); }
+      if(e.key==='Enter'){ e.preventDefault(); answerChoice(pending.value||pending.defaultKey); }
+      else if(e.key==='Backspace'){ e.preventDefault(); stagePromptValue(''); }
+      else if(e.key==='Escape' && pending.keymap['n']){ e.preventDefault(); stagePromptValue('n'); }
+      else {
+        const k=e.key.toLowerCase();
+        if(k.length===1 && pending.keymap[k]){ e.preventDefault(); stagePromptValue(k); }
+      }
     } else if(pending.type==='select'){
       if(e.key==='ArrowUp'){ e.preventDefault(); pending.move(-1); }
       else if(e.key==='ArrowDown'){ e.preventDefault(); pending.move(1); }
