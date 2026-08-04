@@ -465,18 +465,26 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   /* ---------- installing spinner → done ---------- */
   // azd's bouncing bar spinner (|===|) rather than braille dots.
   const FRAMES=['|===    |','| ===   |','|  ===  |','|   === |','|    ===|','|   === |','|  ===  |','| ===   |'];
-  async function install(ext, source, addLeadingSpace=true){
+  const EXTENSION_VERSIONS={
+    'demo-extension':'1.0.5',
+    'storage-helper':'2.1.3',
+    'monitoring-tools':'2.0.13-preview',
+    'foundry-agents':'1.0.0-beta.7'
+  };
+  async function install(ext, source, addLeadingSpace=true, version=''){
     if(addLeadingSpace) line('');
-    const el = line(`<span class="w">${FRAMES[0]}</span> Installing extension '${ext}'`);
+    const resolvedVersion=version||EXTENSION_VERSIONS[ext]||'1.0.0';
+    const target = `'${escapeHtml(ext)}' (${escapeHtml(resolvedVersion)})`;
+    const el = line(`<span class="w">${FRAMES[0]}</span> Installing extension ${target}`);
     clearDock(); 
     const token=runToken; let i=0;
     const start=Date.now();
     while(Date.now()-start < 400){
       if(token!==runToken) return;
-      el.innerHTML = `<span class="w">${FRAMES[i%FRAMES.length]}</span> Installing extension '${ext}'`;
+      el.innerHTML = `<span class="w">${FRAMES[i%FRAMES.length]}</span> Installing extension ${target}`;
       i++; await sleep(90);
     }
-    el.innerHTML = `<span class="g">(✓) Done:</span> Installing extension '${ext}'`;
+    el.innerHTML = `<span class="g">(✓) Done:</span> Installing extension ${target}`;
     scroll();
   }
 
