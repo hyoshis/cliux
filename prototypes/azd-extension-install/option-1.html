@@ -216,7 +216,11 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     </button>
     <button class="tab" data-s="6">
       <span class="idx">6</span>
-      <span><span class="t-title">No-prompt deployment</span><br><span class="t-sub">Install required extensions automatically, then deploy.</span></span>
+      <span><span class="t-title">YOLO deployment</span><br><span class="t-sub">Install required extensions automatically, then deploy.</span></span>
+    </button>
+    <button class="tab" data-s="7">
+      <span class="idx">7</span>
+      <span><span class="t-title">No-prompt deployment</span><br><span class="t-sub">Continue without prompts or automatic extension installation.</span></span>
     </button>
   </div>
 
@@ -654,10 +658,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
 
   async function scenario6(token){
-    const command='azd up --no-prompt';
+    const command='azd up --yolo';
     const exts=singleSourceExtensions();
     await listExtensions(exts, 'Source', command); if(token!==runToken) return;
-    line(`<span class="d">No-prompt mode: installing required extensions automatically.</span>`);
+    line(`<span class="d">YOLO mode: installing required extensions automatically.</span>`);
     for(let i=0;i<exts.length;i++){
       const e=exts[i];
       await install(e.id, e.source, i===0); if(token!==runToken) return;
@@ -671,7 +675,27 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     completeFlow();
   }
 
-  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4,5:scenario5,6:scenario6};
+  async function scenario7(token){
+    const command='azd up --no-prompt';
+    const exts=singleSourceExtensions();
+    await listExtensions(exts, 'Source', command); if(token!==runToken) return;
+    line(`<span class="d">No-prompt mode doesn't install required extensions automatically.</span>`);
+    await block([
+      `Install them with:`,
+      ``,
+      ...exts.map(e=>`  <span class="b">azd extension install ${escapeHtml(e.id)}</span>`),
+      ``
+    ], 80);
+    await runOperation('Initializing project...', 'Initialized project'); if(token!==runToken) return;
+    await runOperation('Provisioning Azure resources...', 'Provisioned Azure resources'); if(token!==runToken) return;
+    await runOperation('Deploying services...', 'Deployment stopped', false); if(token!==runToken) return;
+    line('');
+    line(`<span class="e">[Error] Deployment failed because required extensions aren't installed.</span>`);
+    line(`Run the install commands above, then run \`${command}\` again.`);
+    completeFlow();
+  }
+
+  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4,5:scenario5,6:scenario6,7:scenario7};
   let currentScenario=1;
 
   function start(n){
