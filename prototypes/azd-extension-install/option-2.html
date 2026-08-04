@@ -291,26 +291,26 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   /* ---------- interaction: Yes / No / third-option confirm ---------- */
   // Three-way prompt. `questionHtml` is the full question (may contain markup)
-  // shown between "? " and " [Y/n/s]:". `labels` sets the three option captions.
-  // Resolves to 'y', 'n' or 's'.
-  function confirmYNS(questionHtml, labels){
-    const L = Object.assign({y:'install', n:'skip', s:'yes, but change source'}, labels||{});
-    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="caret"></span>`);
+  // shown between "? " and " [Y/n/c]:". `labels` sets the three option captions.
+  // Resolves to 'y', 'n' or 'c'.
+  function confirmYNC(questionHtml, labels){
+    const L = Object.assign({y:'install (recommended)', n:'skip', c:'yes, but change source'}, labels||{});
+    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="caret"></span>`);
     const opts = [
       line(`  <span class="w">Y</span> <span class="d">- ${escapeHtml(L.y)}</span>`),
       line(`  <span class="w">n</span> <span class="d">- ${escapeHtml(L.n)}</span>`),
-      line(`  <span class="w">s</span> <span class="d">- ${escapeHtml(L.s)}</span>`)
+      line(`  <span class="w">c</span> <span class="d">- ${escapeHtml(L.c)}</span>`)
     ];
-    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>s</kbd> ${escapeHtml(L.s)}`);
+    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>c</kbd> ${escapeHtml(L.c)}`);
     return new Promise(resolve=>{
-      pending = { type:'confirm', yns:true, el, questionHtml, opts, resolve };
+      pending = { type:'confirm', ync:true, el, questionHtml, opts, resolve };
     });
   }
-  function answerYNS(v){
-    if(!pending || pending.type!=='confirm' || !pending.yns) return;
+  function answerYNC(v){
+    if(!pending || pending.type!=='confirm' || !pending.ync) return;
     const {el, questionHtml, opts, resolve} = pending;
     opts.forEach(o=>o.remove());
-    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="b">${v}</span>`;
+    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="b">${v}</span>`;
     pending=null; clearDock(); resolve(v);
   }
 
@@ -342,8 +342,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const input = v ? `<span class="b">${escapeHtml(v)}</span>` : '';
     if(pending.type==='choice'){
       pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [${pending.bracket}]: ${input}<span class="caret"></span>`;
-    } else if(pending.yns){
-      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [Y/n/s]: ${input}<span class="caret"></span>`;
+    } else if(pending.ync){
+      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [Y/n/c]: ${input}<span class="caret"></span>`;
     } else {
       pending.el.innerHTML = `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
     }
@@ -492,10 +492,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       `Multiple sources available.`
     ], 95);
     if(token!==runToken) return;
-    const a = await confirmYNS(`Install ${escapeHtml(ext.title)} from <span class="b">${escapeHtml(defaultSource)}</span>?`, {y:'install', n:'skip', s:'yes, but change source'}); if(token!==runToken) return;
+    const a = await confirmYNC(`Install ${escapeHtml(ext.title)} from \`${escapeHtml(defaultSource)}\`?`, {y:'install (recommended)', n:'skip', c:'yes, but change source'}); if(token!==runToken) return;
     if(a==='n'){ line(''); showSkipWarning(ext.title); envPromptEnd(); return; }
     let src = defaultSource;
-    if(a==='s'){ src = await selectSource(); if(token!==runToken) return; }
+    if(a==='c'){ src = await selectSource(); if(token!==runToken) return; }
     await install(ext.id, src); if(token!==runToken) return;
     envPromptEnd();
   }
@@ -509,8 +509,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     await block([...listRequired(exts), ``], 90);
     if(token!==runToken) return;
 
-    const a = await confirmYNS(`Install all ${exts.length} required extensions?`, {
-      y:'install all (default)', n:'cancel', s:'select individually'
+    const a = await confirmYNC(`Install all ${exts.length} required extensions?`, {
+      y:'install all (default)', n:'cancel', c:'choose for each extension'
     }); if(token!==runToken) return;
 
     if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
@@ -524,7 +524,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       for(let k=0;k<exts.length;k++){
         const e=exts[k];
         if(k>0) line('');
-        const yn = await confirmYN(`Install ${escapeHtml(e.title)} from <span class="b">${escapeHtml(e.source)}</span>?`);
+        const yn = await confirmYN(`Install ${escapeHtml(e.title)} from \`${escapeHtml(e.source)}\`?`);
         if(token!==runToken) return;
         if(yn==='n'){ showSkipWarning(e.title); }
         else { await install(e.id, e.source); if(token!==runToken) return; }
@@ -544,11 +544,11 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     if(token!==runToken) return;
 
     const a = await confirmChoice(
-      `Install all ${exts.length} required extensions from <span class="b">${escapeHtml(defaultSource)}</span>?`,
+      `Install all ${exts.length} required extensions from \`${escapeHtml(defaultSource)}\`?`,
       [
         {key:'Y', label:'install all (default)'},
         {key:'n', label:'skip'},
-        {key:'s', label:'select individually'},
+        {key:'e', label:'choose for each extension'},
         {key:'c', label:'install all but change source'}
       ]
     ); if(token!==runToken) return;
@@ -569,14 +569,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       for(let k=0;k<exts.length;k++){
         const e=exts[k];
         if(k>0) line('');
-        const yn = await confirmYNS(
-          `Install ${escapeHtml(e.title)} from <span class="b">${escapeHtml(defaultSource)}</span>?`,
-          {y:'install', n:'skip', s:'yes, but change source'}
+        const yn = await confirmYNC(
+          `Install ${escapeHtml(e.title)} from \`${escapeHtml(defaultSource)}\`?`,
+          {y:'install (recommended)', n:'skip', c:'yes, but change source'}
         );
         if(token!==runToken) return;
         if(yn==='n'){ showSkipWarning(e.title); continue; }
         let src = defaultSource;
-        if(yn==='s'){ src = await selectSource(); if(token!==runToken) return; }
+        if(yn==='c'){ src = await selectSource(); if(token!==runToken) return; }
         await install(e.id, src); if(token!==runToken) return;
       }
     }
@@ -614,14 +614,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       if(e.key==='Enter'){
         e.preventDefault();
         const value=pending.value||'y';
-        pending.yns ? answerYNS(value) : answerYN(value);
+        pending.ync ? answerYNC(value) : answerYN(value);
       } else if(e.key==='Backspace'){
         e.preventDefault(); stagePromptValue('');
       } else if(e.key==='Escape'){
         e.preventDefault(); stagePromptValue('n');
       } else {
         const k=e.key.toLowerCase();
-        const valid=pending.yns ? ['y','n','s'] : ['y','n'];
+        const valid=pending.ync ? ['y','n','c'] : ['y','n'];
         if(k.length===1 && valid.includes(k)){ e.preventDefault(); stagePromptValue(k); }
       }
     } else if(pending.type==='choice'){

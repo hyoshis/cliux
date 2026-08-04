@@ -297,26 +297,26 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   /* ---------- interaction: Yes / No / third-option confirm ---------- */
   // Three-way prompt. `questionHtml` is the full question (may contain markup)
-  // shown between "? " and " [Y/n/s]:". `labels` sets the three option captions.
-  // Resolves to 'y', 'n' or 's'.
-  function confirmYNS(questionHtml, labels){
-    const L = Object.assign({y:'install', n:'skip', s:'yes, but change source'}, labels||{});
-    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="caret"></span>`);
+  // shown between "? " and " [Y/n/c]:". `labels` sets the three option captions.
+  // Resolves to 'y', 'n' or 'c'.
+  function confirmYNC(questionHtml, labels){
+    const L = Object.assign({y:'install (recommended)', n:'skip', c:'yes, but change source'}, labels||{});
+    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="caret"></span>`);
     const opts = [
       line(`  <span class="w">Y</span> <span class="d">- ${escapeHtml(L.y)}</span>`),
       line(`  <span class="w">n</span> <span class="d">- ${escapeHtml(L.n)}</span>`),
-      line(`  <span class="w">s</span> <span class="d">- ${escapeHtml(L.s)}</span>`)
+      line(`  <span class="w">c</span> <span class="d">- ${escapeHtml(L.c)}</span>`)
     ];
-    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>s</kbd> ${escapeHtml(L.s)}`);
+    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>c</kbd> ${escapeHtml(L.c)}`);
     return new Promise(resolve=>{
-      pending = { type:'confirm', yns:true, el, questionHtml, opts, resolve };
+      pending = { type:'confirm', ync:true, el, questionHtml, opts, resolve };
     });
   }
-  function answerYNS(v){
-    if(!pending || pending.type!=='confirm' || !pending.yns) return;
+  function answerYNC(v){
+    if(!pending || pending.type!=='confirm' || !pending.ync) return;
     const {el, questionHtml, opts, resolve} = pending;
     opts.forEach(o=>o.remove());
-    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="b">${v}</span>`;
+    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="b">${v}</span>`;
     pending=null; clearDock(); resolve(v);
   }
 
@@ -348,8 +348,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const input = v ? `<span class="b">${escapeHtml(v)}</span>` : '';
     if(pending.type==='choice'){
       pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [${pending.bracket}]: ${input}<span class="caret"></span>`;
-    } else if(pending.yns){
-      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [Y/n/s]: ${input}<span class="caret"></span>`;
+    } else if(pending.ync){
+      pending.el.innerHTML = `<span class="q">?</span> ${pending.questionHtml} [Y/n/c]: ${input}<span class="caret"></span>`;
     } else {
       pending.el.innerHTML = `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
     }
@@ -584,7 +584,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     ], 80);
     if(token!==runToken) return;
 
-    const recNote = single ? ` from <span class="b">${escapeHtml(exts[0].sources[0])}</span>` : '';
+    const recNote = single ? ` from \`${escapeHtml(exts[0].sources[0])}\`` : '';
     const question = single
       ? `Install ${escapeHtml(exts[0].title)}${recNote}?`
       : `Install all ${exts.length} required extensions?`;
@@ -647,14 +647,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       if(e.key==='Enter'){
         e.preventDefault();
         const value=pending.value||'y';
-        pending.yns ? answerYNS(value) : answerYN(value);
+        pending.ync ? answerYNC(value) : answerYN(value);
       } else if(e.key==='Backspace'){
         e.preventDefault(); stagePromptValue('');
       } else if(e.key==='Escape'){
         e.preventDefault(); stagePromptValue('n');
       } else {
         const k=e.key.toLowerCase();
-        const valid=pending.yns ? ['y','n','s'] : ['y','n'];
+        const valid=pending.ync ? ['y','n','c'] : ['y','n'];
         if(k.length===1 && valid.includes(k)){ e.preventDefault(); stagePromptValue(k); }
       }
     } else if(pending.type==='choice'){

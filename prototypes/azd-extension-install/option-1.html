@@ -302,24 +302,24 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   /* ---------- interaction: Yes / No / Select-individually confirm ---------- */
   // Batch prompt shown once for a set of required extensions.
   // Resolves to 'y' (install all), 'n' (skip) or 's' (select individually).
-  function confirmYNS(questionHtml, labels){
-    const L = Object.assign({y:'install all (default)', n:'skip', s:'select individually'}, labels||{});
-    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="caret"></span>`);
+  function confirmYNC(questionHtml, labels){
+    const L = Object.assign({y:'install all (default)', n:'skip', c:'choose for each extension'}, labels||{});
+    const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="caret"></span>`);
     const opts = [
       line(`  <span class="w">Y</span> <span class="d">- ${escapeHtml(L.y)}</span>`),
       line(`  <span class="w">n</span> <span class="d">- ${escapeHtml(L.n)}</span>`),
-      line(`  <span class="w">s</span> <span class="d">- ${escapeHtml(L.s)}</span>`)
+      line(`  <span class="w">c</span> <span class="d">- ${escapeHtml(L.c)}</span>`)
     ];
-    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>s</kbd> ${escapeHtml(L.s)}`);
+    setHint(`<kbd>Y</kbd> ${escapeHtml(L.y)} · <kbd>n</kbd> ${escapeHtml(L.n)} · <kbd>c</kbd> ${escapeHtml(L.c)}`);
     return new Promise(resolve=>{
-      pending = { type:'confirm', yns:true, el, questionHtml, opts, resolve };
+      pending = { type:'confirm', ync:true, el, questionHtml, opts, resolve };
     });
   }
-  function answerYNS(v){
-    if(!pending || pending.type!=='confirm' || !pending.yns) return;
+  function answerYNC(v){
+    if(!pending || pending.type!=='confirm' || !pending.ync) return;
     const {el, questionHtml, opts, resolve} = pending;
     opts.forEach(o=>o.remove());
-    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/s]: <span class="b">${v}</span>`;
+    el.innerHTML = `<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="b">${v}</span>`;
     pending=null; clearDock(); resolve(v);
   }
 
@@ -327,8 +327,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     if(!pending || pending.type!=='confirm') return;
     pending.value=v;
     const input = v ? `<span class="b">${escapeHtml(v)}</span>` : '';
-    pending.el.innerHTML = pending.yns
-      ? `<span class="q">?</span> ${pending.questionHtml} [Y/n/s]: ${input}<span class="caret"></span>`
+    pending.el.innerHTML = pending.ync
+      ? `<span class="q">?</span> ${pending.questionHtml} [Y/n/c]: ${input}<span class="caret"></span>`
       : `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
   }
 
@@ -527,13 +527,13 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd, local', desc:'This extension provides examples.'};
     const defaultSource='azd';
     await intro(ext, undefined, undefined, 'Sources:');
-    const a = await confirmYNS(
-      `Install ${ext.title} from <span class="b">${defaultSource}</span>?`,
-      {y:'install', n:'skip', s:'yes, but change source'}
+    const a = await confirmYNC(
+      `Install ${ext.title} from \`${defaultSource}\`?`,
+      {y:'install (recommended)', n:'skip', c:'yes, but change source'}
     ); if(token!==runToken) return;
     if(a==='n'){ line(''); showSkipWarning(ext.title); envPromptEnd(); return; }
     let src=defaultSource;
-    if(a==='s'){ src = await selectSource(); if(token!==runToken) return; }
+    if(a==='c'){ src = await selectSource(); if(token!==runToken) return; }
     await install(ext.id, src); if(token!==runToken) return;
     envPromptEnd();
   }
@@ -545,8 +545,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
     ];
     await listExtensions(exts, 'Source'); if(token!==runToken) return;
-    const a = await confirmYNS(`Install all ${exts.length} required extensions?`, {
-      y:'install all (recommended)', n:'skip', s:'Choose for each extension'
+    const a = await confirmYNC(`Install all ${exts.length} required extensions?`, {
+      y:'install all (recommended)', n:'skip', c:'choose for each extension'
     }); if(token!==runToken) return;
 
     if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
@@ -576,9 +576,9 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const defaultSource='azd';
     await listExtensions(exts, 'Sources'); if(token!==runToken) return;
     const a = await selectAction(
-      `Install all ${exts.length} required extensions from <span class="b">${defaultSource}</span>?`,
+      `Install all ${exts.length} required extensions from \`${defaultSource}\`?`,
       [
-        {value:'y', label:'Yes, install all from azd (recommended)'},
+        {value:'y', label:'Yes, install all from `azd` (recommended)'},
         {value:'c', label:'Yes, install all but change source'},
         {value:'s', label:'Choose for each extension'},
         {value:'n', label:'No, skip installation'}
@@ -601,13 +601,13 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       for(let k=0;k<exts.length;k++){
         const e=exts[k];
         if(k>0) line('');
-        const yn = await confirmYNS(
-          `Install ${escapeHtml(e.title)} from <span class="b">${defaultSource}</span>?`,
-          {y:'install', n:'skip', s:'yes, but change source'}
+        const yn = await confirmYNC(
+          `Install ${escapeHtml(e.title)} from \`${defaultSource}\`?`,
+          {y:'install (recommended)', n:'skip', c:'yes, but change source'}
         ); if(token!==runToken) return;
         if(yn==='n'){ showSkipWarning(e.title); continue; }
         let src=defaultSource;
-        if(yn==='s'){ src = await selectSource(); if(token!==runToken) return; }
+        if(yn==='c'){ src = await selectSource(); if(token!==runToken) return; }
         await install(e.id, src); if(token!==runToken) return;
       }
     }
@@ -702,14 +702,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       if(e.key==='Enter'){
         e.preventDefault();
         const value=pending.value||'y';
-        pending.yns ? answerYNS(value) : answerYN(value);
+        pending.ync ? answerYNC(value) : answerYN(value);
       } else if(e.key==='Backspace'){
         e.preventDefault(); stagePromptValue('');
       } else if(e.key==='Escape'){
         e.preventDefault(); stagePromptValue('n');
       } else {
         const k=e.key.toLowerCase();
-        const valid=pending.yns ? ['y','n','s'] : ['y','n'];
+        const valid=pending.ync ? ['y','n','c'] : ['y','n'];
         if(k.length===1 && valid.includes(k)){ e.preventDefault(); stagePromptValue(k); }
       }
     } else if(pending.type==='action'){
