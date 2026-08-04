@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>azd · Validation warning prototype</title>
+<style>
+:root {
+  color-scheme: dark;
+  --page: #08090b;
+  --surface: #101216;
+  --surface-raised: #171a20;
+  --border: #2b3038;
+  --text: #f2f3f5;
+  --muted: #9ba3ad;
+  --blue: #67b7ff;
+  --yellow: #ffd166;
+  --red: #ff6b6b;
+  --green: #7bd88f;
+  --focus: #8cc8ff;
+  --sans: "Segoe UI Variable", "Segoe UI", sans-serif;
+  --mono: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body { min-height: 100%; }
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 74% 0%, rgba(45, 118, 196, 0.12), transparent 34rem),
+    var(--page);
+  color: var(--text);
+  font-family: var(--sans);
+}
+
+button { font: inherit; }
+
+.shell {
+  width: min(1440px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 34px 0 56px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: var(--blue);
+  font: 600 12px/1 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(26px, 4vw, 42px);
+  line-height: 1.12;
+  letter-spacing: -0.035em;
+}
+
+.intro {
+  max-width: 680px;
+  margin: 12px 0 26px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.prototype {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 8px 10px 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
+.tab {
+  position: relative;
+  min-height: 42px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 6px 6px 0 0;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab[aria-selected="true"] {
+  color: var(--text);
+  background: var(--surface);
+}
+
+.tab[aria-selected="true"]::after {
+  position: absolute;
+  right: 12px;
+  bottom: -1px;
+  left: 12px;
+  height: 2px;
+  background: var(--blue);
+  content: "";
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: -4px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.terminal {
+  min-height: 530px;
+  padding: clamp(18px, 3vw, 30px);
+  overflow-x: auto;
+  background: #000;
+  color: #f4f4f4;
+  font: 18px/1.18 var(--mono);
+  letter-spacing: 0;
+}
+
+.terminal pre {
+  min-width: 1110px;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.blue { color: var(--blue); }
+.yellow { color: var(--yellow); }
+.red { color: var(--red); }
+.green { color: var(--green); }
+.bold { font-weight: 700; }
+.dim { color: #b8b8b8; }
+
+.severity {
+  display: inline-block;
+  min-width: 110px;
+  font-weight: 700;
+}
+
+.choice {
+  display: inline-block;
+  font-weight: 700;
+}
+
+.cursor {
+  display: inline-block;
+  width: 9px;
+  height: 18px;
+  margin-left: 4px;
+  background: #f4f4f4;
+  vertical-align: -3px;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    width: min(100% - 24px, 1440px);
+    padding-top: 22px;
+  }
+
+  .tabs { overflow-x: auto; }
+  .tab { white-space: nowrap; }
+  .terminal { font-size: 14px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .panel.active { animation: reveal 160ms ease-out; }
+  @keyframes reveal {
+    from { opacity: 0; transform: translateY(3px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+</style>
+</head>
+<body>
+<main class="shell">
+  <p class="eyebrow">azd up · validation warning</p>
+  <h1>Validation warning message comparison</h1>
+  <p class="intro">Compare the current terminal experience with a proposed revision while keeping the deployment context consistent.</p>
+
+  <section class="prototype" aria-label="Validation warning message comparison">
+    <div class="tabs" role="tablist" aria-label="Message versions">
+      <button class="tab" id="current-tab" role="tab" aria-selected="true" aria-controls="current-panel">Current experience</button>
+      <button class="tab" id="improved-tab" role="tab" aria-selected="false" aria-controls="improved-panel" tabindex="-1">Improved message</button>
+    </div>
+
+    <div class="panel active" id="current-panel" role="tabpanel" aria-labelledby="current-tab">
+      <div class="terminal" aria-label="Terminal showing the current validation warning">
+<pre>hiyo@proto:~/workspace$ azd up
+<span class="dim">Note: Running custom 'up' workflow from azure.yaml</span>
+
+Provisioning Azure resources (azd provision)
+<span class="dim">Provisioning Azure resources can take some time.</span>
+
+Subscription: <span class="blue">Azure SDK Developer Playground (faa080af-c1d8-40ad-9cce-e1a450ca5b57)</span>
+Location: <span class="blue">East US 2</span>
+
+  <span class="yellow">(!) Warning:</span> Principal <span class="blue">(62661785-adcf-4117-b9d0-22b3aa2b4ebf)</span> lacks role assignment permissions on subscription faa080af-
+c1d8-40ad-9cce-e1a450ca5b57
+  The deployment includes role assignments and will fail without Microsoft.Authorization/roleAssignments/write permission.
+  <span class="blue">Suggestion:</span> Ensure you have the 'Role Based Access Control Administrator', 'User Access Administrator', 'Owner', or a custom role
+with 'Microsoft.Authorization/roleAssignments/write' assigned to your account.
+  <span class="yellow">(!) Warning:</span> This warning was intentional and generated by the demo extension. Bicep snapshot contains 19 predicted resources.
+
+? Proceed with deployment despite the warnings above?: [Y/n] Yes</pre>
+      </div>
+    </div>
+
+    <div class="panel" id="improved-panel" role="tabpanel" aria-labelledby="improved-tab" hidden>
+      <div class="terminal" aria-label="Terminal showing the proposed categorized validation warnings">
+<pre>hiyo@proto:~/workspace$ azd up
+<span class="dim">Note: Running custom 'up' workflow from azure.yaml</span>
+
+Provisioning Azure resources (azd provision)
+<span class="dim">Provisioning Azure resources can take some time.</span>
+
+Subscription: <span class="blue">Azure SDK Developer Playground (faa080af-c1d8-40ad-9cce-e1a450ca5b57)</span>
+Location: <span class="blue">East US 2</span>
+
+Validation found <span class="red bold">1 critical warning</span> and <span class="yellow bold">1 warning</span>.
+
+  <span class="severity red">[Critical]</span> Role assignment permissions are missing
+             Principal <span class="blue">62661785-adcf-4117-b9d0-22b3aa2b4ebf</span> cannot create role assignments
+             in subscription <span class="blue">faa080af-c1d8-40ad-9cce-e1a450ca5b57</span>.
+
+             <span class="red bold">This deployment will most likely fail if you continue.</span>
+             Ask an administrator to assign Role Based Access Control Administrator,
+             User Access Administrator, Owner, or a custom role that includes
+             Microsoft.Authorization/roleAssignments/write.
+
+  <span class="severity yellow">[Warning]</span> Demo extension generated a validation warning
+             The Bicep snapshot contains 19 predicted resources. Review them before deployment.
+
+<span class="bold">Fix the warnings before continuing to reduce the risk of deployment failure.</span>
+
+<span class="blue">?</span> Choose an action: [N/y]: <span class="cursor" aria-hidden="true"></span>
+  <span class="choice yellow">N</span> - stop the deployment and fix the warnings <span class="dim">(recommended)</span>
+  <span class="choice yellow">Y</span> - continue the deployment <span class="dim">(critical warnings will likely cause it to fail)</span></pre>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+const panels = [...document.querySelectorAll('[role="tabpanel"]')];
+
+function selectTab(nextTab) {
+  tabs.forEach((tab) => {
+    const selected = tab === nextTab;
+    tab.setAttribute('aria-selected', selected);
+    tab.tabIndex = selected ? 0 : -1;
+  });
+
+  panels.forEach((panel) => {
+    const selected = panel.id === nextTab.getAttribute('aria-controls');
+    panel.hidden = !selected;
+    panel.classList.toggle('active', selected);
+  });
+}
+
+tabs.forEach((tab, index) => {
+  tab.addEventListener('click', () => selectTab(tab));
+  tab.addEventListener('keydown', (event) => {
+    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+
+    let nextIndex = index;
+    if (event.key === 'ArrowLeft') nextIndex = (index - 1 + tabs.length) % tabs.length;
+    if (event.key === 'ArrowRight') nextIndex = (index + 1) % tabs.length;
+    if (event.key === 'Home') nextIndex = 0;
+    if (event.key === 'End') nextIndex = tabs.length - 1;
+
+    selectTab(tabs[nextIndex]);
+    tabs[nextIndex].focus();
+  });
+});
+</script>
+</body>
+</html>

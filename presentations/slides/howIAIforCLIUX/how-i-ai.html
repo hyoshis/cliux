@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How I AI — Two design workflows for Azure UX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===========================================
+   THEME — "Blueprint Flow"
+   Dark technical blueprint; cyan = Flow A, amber = Flow B.
+   Change these variables to re-skin the whole deck.
+   =========================================== */
+:root{
+  --stage-bg:#070b12;
+  --slide-bg:#070b12;
+  --panel:#0b111c;
+  --panel-2:#0e1522;
+  --line:#1b2b3f;
+  --line-soft:#132033;
+  --ink:#e8f0f7;
+  --muted:#6d88a3;
+  --muted-2:#43566b;
+  --cyan:#37e0c8;
+  --cyan-dim:#1f7f74;
+  --amber:#ffb454;
+  --amber-dim:#a3702c;
+  --violet:#a988ff;
+  --violet-dim:#6b52b0;
+  --font-display:'Space Grotesk',sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===========================================
+   FIXED 16:9 STAGE — mandatory base (viewport-base.css)
+   =========================================== */
+html,body{width:100%;height:100%;margin:0;overflow:hidden;background:var(--stage-bg);}
+.deck-viewport{position:fixed;inset:0;overflow:hidden;background:var(--stage-bg);}
+.deck-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;overflow:hidden;transform-origin:0 0;background:var(--slide-bg);}
+.slide{position:absolute;inset:0;width:1920px;height:1080px;overflow:hidden;display:block;visibility:hidden;opacity:0;pointer-events:none;background:var(--slide-bg);}
+.slide.active,.slide.visible{visibility:visible;opacity:1;pointer-events:auto;z-index:1;}
+img,video,canvas,svg{max-width:100%;max-height:100%;}
+.deck-controls{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:1000;}
+@media print{
+  html,body{width:1920px;height:auto;overflow:visible;background:#fff;}
+  .deck-viewport{position:static;overflow:visible;background:#fff;}
+  .deck-stage{position:static;width:auto;height:auto;transform:none!important;background:none;}
+  .slide{position:relative;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;width:1920px;height:1080px;break-after:page;page-break-after:always;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .deck-controls{display:none!important;}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.2s!important;}
+}
+
+/* ===========================================
+   SHARED SLIDE FURNITURE
+   Blueprint grid background + corner chrome
+   =========================================== */
+.slide{font-family:var(--font-display);color:var(--ink);
+  background:radial-gradient(1300px 800px at 80% 12%,rgba(55,224,200,.07),transparent 62%),var(--slide-bg);}
+.slide.amber{background:radial-gradient(1300px 800px at 80% 12%,rgba(255,180,84,.08),transparent 62%),var(--slide-bg);}
+.blueprint{position:absolute;inset:0;
+  background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:64px 64px;opacity:.45;
+  -webkit-mask-image:radial-gradient(1200px 900px at 60% 45%,#000,transparent 78%);
+  mask-image:radial-gradient(1200px 900px at 60% 45%,#000,transparent 78%);}
+.chrome-tl{position:absolute;top:64px;left:100px;font-family:var(--font-mono);font-size:22px;letter-spacing:2px;color:var(--cyan);}
+.chrome-tl::before{content:'// ';color:var(--muted-2);}
+.slide.amber .chrome-tl{color:var(--amber);}
+.chrome-br{position:absolute;bottom:60px;right:100px;font-family:var(--font-mono);font-size:22px;color:var(--muted);letter-spacing:1px;}
+.chrome-bl{position:absolute;bottom:60px;left:100px;font-family:var(--font-mono);font-size:22px;color:var(--muted-2);letter-spacing:1px;}
+
+/* Reveal animation — triggered by .visible on active slide */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
+.slide.visible .reveal{opacity:1;transform:none;}
+.slide.visible .reveal.d1{transition-delay:.10s;}
+.slide.visible .reveal.d2{transition-delay:.22s;}
+.slide.visible .reveal.d3{transition-delay:.34s;}
+.slide.visible .reveal.d4{transition-delay:.46s;}
+.slide.visible .reveal.d5{transition-delay:.58s;}
+.slide.visible .reveal.d6{transition-delay:.70s;}
+.slide.visible .reveal.d7{transition-delay:.82s;}
+
+/* ===========================================
+   TITLE SLIDE
+   =========================================== */
+.title-wrap{position:absolute;left:100px;top:290px;}
+.title-h{font-weight:700;font-size:172px;line-height:.92;letter-spacing:-4px;}
+.title-h .hi{color:var(--cyan);}
+.title-sub{margin-top:44px;font-family:var(--font-mono);font-size:34px;color:var(--muted);letter-spacing:1px;}
+.title-flow{position:absolute;right:120px;top:360px;display:flex;flex-direction:column;gap:24px;}
+.mini-node{display:flex;align-items:center;gap:18px;font-family:var(--font-mono);font-size:26px;color:var(--ink);
+  background:var(--panel);border:1px solid var(--line);border-left:4px solid var(--cyan);padding:22px 34px;border-radius:8px;min-width:380px;}
+.mini-node:nth-child(2){border-left-color:var(--amber);}
+.mini-node .dot{width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);}
+.mini-node:nth-child(2) .dot{background:var(--amber);box-shadow:0 0 14px var(--amber);}
+.title-connector{position:absolute;right:308px;top:412px;height:180px;width:2px;background:linear-gradient(var(--cyan),var(--amber));opacity:.5;}
+
+/* ===========================================
+   SECTION / STANDARD HEADINGS
+   =========================================== */
+.eyebrow{font-family:var(--font-mono);font-size:26px;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);}
+.slide.amber .eyebrow{color:var(--amber);}
+.h2{font-weight:700;font-size:96px;line-height:.98;letter-spacing:-2px;margin-top:26px;}
+.lead{margin-top:36px;font-size:38px;line-height:1.4;color:var(--muted);max-width:1180px;font-weight:400;}
+
+/* Section divider big number */
+.sec-num{position:absolute;right:130px;top:150px;font-weight:700;font-size:520px;line-height:1;color:rgba(55,224,200,.07);letter-spacing:-10px;}
+.slide.amber .sec-num{color:rgba(255,180,84,.08);}
+
+/* ===========================================
+   HORIZONTAL FLOW RAIL (pipeline diagrams)
+   =========================================== */
+.rail{position:absolute;left:110px;right:110px;top:560px;display:flex;justify-content:space-between;align-items:flex-start;}
+.rail-line{position:absolute;left:170px;right:170px;top:615px;height:2px;
+  background:linear-gradient(90deg,var(--cyan-dim),var(--cyan));opacity:.55;z-index:0;}
+.slide.amber .rail-line{background:linear-gradient(90deg,var(--amber-dim),var(--amber));}
+.step{position:relative;z-index:1;width:300px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.step .circle{width:112px;height:112px;border-radius:50%;background:var(--panel-2);border:2px solid var(--cyan);
+  display:flex;align-items:center;justify-content:center;font-size:46px;box-shadow:0 0 0 8px rgba(7,11,18,1),0 0 28px rgba(55,224,200,.25);}
+.slide.amber .step .circle{border-color:var(--amber);box-shadow:0 0 0 8px rgba(7,11,18,1),0 0 28px rgba(255,180,84,.28);}
+.step .idx{font-family:var(--font-mono);font-size:20px;color:var(--cyan);margin-top:20px;letter-spacing:2px;}
+.slide.amber .step .idx{color:var(--amber);}
+.step .label{font-weight:600;font-size:31px;margin-top:8px;line-height:1.12;}
+.step .desc{font-family:var(--font-mono);font-size:20px;color:var(--muted);margin-top:14px;line-height:1.35;}
+.step .arrow{display:none;}
+
+/* ===========================================
+   HIGHLIGHT / DETAIL CARDS
+   =========================================== */
+.cards{position:absolute;left:100px;right:100px;top:470px;display:grid;grid-template-columns:1fr 1fr;gap:40px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:48px 52px;border-top:4px solid var(--cyan);}
+.slide.amber .card{border-top-color:var(--amber);}
+.card .k{font-family:var(--font-mono);font-size:22px;color:var(--cyan);letter-spacing:1px;}
+.slide.amber .card .k{color:var(--amber);}
+.card h3{font-weight:600;font-size:42px;margin-top:16px;letter-spacing:-1px;}
+.card p{font-size:29px;line-height:1.5;color:var(--muted);margin-top:20px;}
+.card p b{color:var(--ink);font-weight:600;}
+.card .tag{display:inline-block;font-family:var(--font-mono);font-size:20px;color:var(--ink);background:var(--panel-2);
+  border:1px solid var(--line);border-radius:6px;padding:8px 14px;margin:14px 10px 0 0;}
+
+/* Callout (real example) */
+.callout{position:absolute;left:110px;right:110px;bottom:150px;background:var(--panel);border:1px solid var(--line);
+  border-left:6px solid var(--amber);border-radius:12px;padding:40px 52px;display:flex;align-items:center;gap:34px;}
+.callout .badge{font-family:var(--font-mono);font-size:22px;color:var(--amber);letter-spacing:2px;text-transform:uppercase;white-space:nowrap;}
+.callout .txt{font-size:31px;color:var(--ink);line-height:1.4;}
+.callout .txt b{color:var(--amber);font-weight:600;}
+
+/* ===========================================
+   COMPARISON (when to use which)
+   =========================================== */
+.compare{position:absolute;left:100px;right:100px;top:430px;display:grid;grid-template-columns:1fr 1fr;gap:44px;}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:52px 56px;}
+.col.a{border-top:5px solid var(--cyan);}
+.col.b{border-top:5px solid var(--amber);}
+.col .tag{font-family:var(--font-mono);font-size:24px;letter-spacing:2px;}
+.col.a .tag{color:var(--cyan);}
+.col.b .tag{color:var(--amber);}
+.col h3{font-weight:700;font-size:52px;margin-top:14px;letter-spacing:-1px;}
+.col ul{list-style:none;margin-top:32px;}
+.col li{font-size:30px;line-height:1.4;color:var(--muted);padding:16px 0 16px 44px;position:relative;border-top:1px solid var(--line-soft);}
+.col li:first-child{border-top:none;}
+.col li::before{content:'▹';position:absolute;left:6px;top:16px;font-size:28px;}
+.col.a li::before{color:var(--cyan);}
+.col.b li::before{color:var(--amber);}
+
+/* ===========================================
+   CLOSING / TAKEAWAYS
+   =========================================== */
+.takeaways{position:absolute;left:100px;top:430px;right:100px;display:flex;flex-direction:column;gap:30px;}
+.take{display:flex;align-items:baseline;gap:34px;border-bottom:1px solid var(--line-soft);padding-bottom:26px;}
+.take .n{font-family:var(--font-mono);font-size:32px;color:var(--cyan);min-width:60px;}
+.take .t{font-size:44px;font-weight:500;line-height:1.25;}
+.take .t span{color:var(--muted);font-weight:400;font-size:34px;}
+
+/* ===========================================
+   FLOW C · VIOLET VARIANT
+   =========================================== */
+.slide.violet{background:radial-gradient(1300px 800px at 80% 12%,rgba(169,136,255,.09),transparent 62%),var(--slide-bg);}
+.slide.violet .chrome-tl{color:var(--violet);}
+.slide.violet .eyebrow{color:var(--violet);}
+.slide.violet .sec-num{color:rgba(169,136,255,.08);}
+.slide.violet .rail-line{background:linear-gradient(90deg,var(--violet-dim),var(--violet));}
+.slide.violet .step .circle{border-color:var(--violet);box-shadow:0 0 0 8px rgba(7,11,18,1),0 0 28px rgba(169,136,255,.28);}
+.slide.violet .step .idx{color:var(--violet);}
+.slide.violet .card{border-top-color:var(--violet);}
+.slide.violet .card .k{color:var(--violet);}
+.col.c{border-top:5px solid var(--violet);}
+.col.c .tag{color:var(--violet);}
+.col.c li::before{color:var(--violet);}
+.mini-node:nth-child(3){border-left-color:var(--violet);}
+.mini-node:nth-child(3) .dot{background:var(--violet);box-shadow:0 0 14px var(--violet);}
+
+/* ===========================================
+   PROGRESS + EDIT CHROME
+   =========================================== */
+.progress{position:fixed;left:0;bottom:0;height:4px;background:var(--cyan);z-index:1000;transition:width .4s var(--ease);box-shadow:0 0 12px var(--cyan);}
+.counter{position:fixed;right:26px;bottom:22px;font-family:var(--font-mono);font-size:20px;color:var(--muted);z-index:1000;}
+.hint{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);font-family:var(--font-mono);font-size:18px;color:var(--muted-2);z-index:1000;
+  opacity:1;transition:opacity 1s ease;}
+.hint.gone{opacity:0;}
+.edit-hotzone{position:fixed;top:0;left:0;width:80px;height:80px;z-index:10000;cursor:pointer;}
+.edit-toggle{position:fixed;top:20px;left:20px;width:52px;height:52px;border-radius:10px;border:1px solid var(--line);
+  background:var(--panel);color:var(--ink);font-size:22px;cursor:pointer;opacity:0;pointer-events:none;transition:opacity .3s ease;z-index:10001;}
+.edit-toggle.show,.edit-toggle.active{opacity:1;pointer-events:auto;}
+.edit-toggle.active{border-color:var(--cyan);color:var(--cyan);}
+[contenteditable="true"]{outline:2px dashed var(--cyan-dim);outline-offset:6px;border-radius:4px;cursor:text;}
+.edit-banner{position:fixed;top:20px;left:50%;transform:translateX(-50%);font-family:var(--font-mono);font-size:16px;
+  color:var(--cyan);background:var(--panel);border:1px solid var(--cyan-dim);padding:8px 18px;border-radius:8px;z-index:10001;display:none;}
+.edit-banner.show{display:block;}
+</style>
+</head>
+<body>
+<div class="deck-viewport">
+  <main class="deck-stage" id="deckStage">
+
+    <!-- ========== SLIDE 1 · TITLE ========== -->
+    <section class="slide title-slide active">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">how_i_ai.md</div>
+      <div class="title-wrap">
+        <h1 class="title-h reveal d1">Design,<br>then <span class="hi">ship</span>.</h1>
+        <p class="title-sub reveal d2">Three AI workflows I use for Azure UX — @hyoshis</p>
+      </div>
+      <div class="title-connector reveal d3" style="height:280px;"></div>
+      <div class="title-flow">
+        <div class="mini-node reveal d3"><span class="dot"></span>Flow A · request → prototype</div>
+        <div class="mini-node reveal d4"><span class="dot"></span>Flow B · straight to production</div>
+        <div class="mini-node reveal d5"><span class="dot"></span>Flow C · build the guideline</div>
+      </div>
+      <div class="chrome-br">team share</div>
+    </section>
+
+    <!-- ========== SLIDE 2 · OVERVIEW ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">overview</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">The map</div>
+        <h2 class="h2 reveal d1">Three ways AI shows up<br>in my work</h2>
+      </div>
+      <div class="compare" style="grid-template-columns:1fr 1fr 1fr;gap:32px;top:470px;">
+        <div class="col a reveal d2" style="padding:44px 44px;">
+          <div class="tag">FLOW A</div>
+          <h3 style="font-size:42px;">Explore &amp; prototype</h3>
+          <ul>
+            <li>For most azd UX work</li>
+            <li>Brainstorm → Figma → prototype</li>
+            <li>Deploy a link for buy-in</li>
+          </ul>
+        </div>
+        <div class="col b reveal d3" style="padding:44px 44px;">
+          <div class="tag">FLOW B</div>
+          <h3 style="font-size:42px;">Straight to production</h3>
+          <ul>
+            <li>When a dev has a PR open</li>
+            <li>Add design updates to their branch</li>
+            <li>Push — ships with their work</li>
+          </ul>
+        </div>
+        <div class="col c reveal d4" style="padding:44px 44px;">
+          <div class="tag">FLOW C</div>
+          <h3 style="font-size:42px;">Build the guideline</h3>
+          <ul>
+            <li>Figma → markdown in the prod repo</li>
+            <li>Reconcile design vs. real code</li>
+            <li>A spec agents can consume</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chrome-br">01 · overview</div>
+    </section>
+
+    <!-- ========== SLIDE 3 · FLOW A DIVIDER ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_a</div>
+      <div class="sec-num reveal d1">A</div>
+      <div style="position:absolute;left:100px;top:400px;">
+        <div class="eyebrow reveal d1">Flow A</div>
+        <h2 class="h2 reveal d2">From a design request<br>to a shareable prototype</h2>
+        <p class="lead reveal d3">The path I take for most Azure UX work — AI at both ends: exploring the problem, and building the prototype.</p>
+      </div>
+      <div class="chrome-br">02 · flow A</div>
+    </section>
+
+    <!-- ========== SLIDE 4 · FLOW A PIPELINE ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_a · pipeline</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">Flow A · the pipeline</div>
+        <h2 class="h2 reveal d1" style="font-size:80px;">Request → prototype, in five moves</h2>
+      </div>
+      <div class="rail-line reveal d2"></div>
+      <div class="rail">
+        <div class="step reveal d2"><div class="circle">🎯</div><div class="idx">STEP 01</div><div class="label">Understand<br>the request</div><div class="desc">Get the design ask, frame the real problem</div></div>
+        <div class="step reveal d3"><div class="circle">💬</div><div class="idx">STEP 02</div><div class="label">Brainstorm<br>with AI</div><div class="desc">Copilot &amp; Claude to spar, compare, ask questions</div></div>
+        <div class="step reveal d4"><div class="circle">🎨</div><div class="idx">STEP 03</div><div class="label">Shape it<br>in Figma</div><div class="desc">Initial ideas → flows → clear scenarios</div></div>
+        <div class="step reveal d5"><div class="circle">⚡</div><div class="idx">STEP 04</div><div class="label">Prototype<br>in Copilot</div><div class="desc">Interactive build, iterated with prompts &amp; code</div></div>
+        <div class="step reveal d6"><div class="circle">🚀</div><div class="idx">STEP 05</div><div class="label">Deploy<br>&amp; share</div><div class="desc">Ship a live link to stakeholders</div></div>
+      </div>
+      <div class="chrome-br">02 · flow A</div>
+    </section>
+
+    <!-- ========== SLIDE 5 · FLOW A · WHERE AI DOES THE WORK ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_a · the AI moments</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">Where AI does the heavy lifting</div>
+        <h2 class="h2 reveal d1" style="font-size:82px;">Two moments that changed<br>how I work</h2>
+      </div>
+      <div class="cards">
+        <div class="card reveal d2">
+          <div class="k">STEP 02 · BRAINSTORM</div>
+          <h3>Agents that already know azd</h3>
+          <p>I spar with Copilot, Claude and other agents. In <b>Claude AI</b> I built the <b>azd design system</b> from our design-guideline doc — so it brainstorms with full pattern &amp; context awareness.</p>
+          <div>
+            <span class="tag">Copilot + Claude</span>
+            <span class="tag">azd design system in Claude</span>
+            <span class="tag">context-aware ideas</span>
+          </div>
+        </div>
+        <div class="card reveal d3">
+          <div class="k">STEP 04 · PROTOTYPE</div>
+          <h3>Prompt it, then edit the code</h3>
+          <p>Copilot turns the Figma flows into an interactive prototype. It needs many changes, so I mix prompting with editing the code directly to finish it.</p>
+          <div>
+            <span class="tag">prompt to build</span>
+            <span class="tag">edit code directly</span>
+            <span class="tag">iterate fast</span>
+          </div>
+        </div>
+      </div>
+      <div class="chrome-br">02 · flow A</div>
+    </section>
+
+    <!-- ========== SLIDE 6 · FLOW A · FEEDBACK LOOP ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_a · the loop</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">After I share the link</div>
+        <h2 class="h2 reveal d1" style="font-size:80px;">Feedback isn't the end —<br>it's the loop</h2>
+      </div>
+      <!-- Feedback enters -->
+      <div class="reveal d2" style="position:absolute;top:430px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:20px;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--cyan);border-radius:12px;padding:24px 46px;">
+        <span style="width:12px;height:12px;border-radius:50%;background:var(--cyan);box-shadow:0 0 14px var(--cyan);"></span>
+        <span style="font-size:32px;">Prototype link shared → <b style="color:var(--cyan);">stakeholder feedback comes back</b></span>
+      </div>
+      <!-- Two ways to act on it -->
+      <div style="position:absolute;left:100px;right:100px;top:560px;display:grid;grid-template-columns:1fr 1fr;gap:40px;">
+        <div class="card reveal d3">
+          <div class="k">PATH 1 · WITH THE AGENT</div>
+          <h3>Address it in code</h3>
+          <p>I work with the agent to apply the feedback directly in the prototype code.</p>
+        </div>
+        <div class="card reveal d4">
+          <div class="k">PATH 2 · BACK TO FIGMA</div>
+          <h3>Rework, then re-feed</h3>
+          <p>Or I update Figma and hand the new flows back to the agent to iterate the prototype.</p>
+        </div>
+      </div>
+      <!-- Loops back -->
+      <div class="reveal d5" style="position:absolute;bottom:78px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:16px;font-family:var(--font-mono);font-size:26px;color:var(--cyan);background:var(--panel);border:1px solid var(--cyan-dim);border-radius:40px;padding:16px 40px;">
+        <span style="font-size:30px;">↻</span> iterate the prototype, then share again
+      </div>
+      <div class="chrome-br">02 · flow A</div>
+    </section>
+
+    <!-- ========== SLIDE 7 · FLOW B DIVIDER ========== -->
+    <section class="slide amber">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_b</div>
+      <div class="sec-num reveal d1">B</div>
+      <div style="position:absolute;left:100px;top:400px;">
+        <div class="eyebrow reveal d1">Flow B</div>
+        <h2 class="h2 reveal d2">Design changes,<br>straight into production</h2>
+        <p class="lead reveal d3">No prototype detour. When a developer already has a PR open, I bring my design updates right into their branch.</p>
+      </div>
+      <div class="chrome-br">03 · flow B</div>
+    </section>
+
+    <!-- ========== SLIDE 8 · FLOW B PIPELINE + EXAMPLE ========== -->
+    <section class="slide amber">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_b · pipeline</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">Flow B · the pipeline</div>
+        <h2 class="h2 reveal d1" style="font-size:80px;">Onto their branch, and ship</h2>
+      </div>
+      <div class="rail-line reveal d2" style="left:360px;right:360px;top:555px;"></div>
+      <div class="rail" style="left:250px;right:250px;top:500px;">
+        <div class="step reveal d2"><div class="circle">🔀</div><div class="idx">STEP 01</div><div class="label">Dev opens<br>a PR</div><div class="desc">A developer is already updating the website</div></div>
+        <div class="step reveal d3"><div class="circle">✏️</div><div class="idx">STEP 02</div><div class="label">I add design<br>updates</div><div class="desc">Modify the code in their PR directly</div></div>
+        <div class="step reveal d4"><div class="circle">🚀</div><div class="idx">STEP 03</div><div class="label">Push<br>&amp; ship</div><div class="desc">Design lands with the dev's work — no rework</div></div>
+      </div>
+      <div class="callout reveal d5" style="bottom:96px;">
+        <div class="badge">Real example</div>
+        <div class="txt">I did exactly this for the <b>Awesome azd</b> website — pushed my design updates straight into the open PR.</div>
+      </div>
+      <div class="chrome-br">03 · flow B</div>
+    </section>
+
+    <!-- ========== SLIDE 9 · FLOW C DIVIDER ========== -->
+    <section class="slide violet">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_c</div>
+      <div class="sec-num reveal d1">C</div>
+      <div style="position:absolute;left:100px;top:380px;">
+        <div class="eyebrow reveal d1">Flow C</div>
+        <h2 class="h2 reveal d2" style="font-size:88px;">Turning Figma into a<br>guideline agents can use</h2>
+        <p class="lead reveal d3">I converted our whole design pattern into a markdown guideline — checked into the azd production codebase, built to be read by both people and agents.</p>
+      </div>
+      <div class="chrome-br">04 · flow C</div>
+    </section>
+
+    <!-- ========== SLIDE 10 · FLOW C PIPELINE ========== -->
+    <section class="slide violet">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">flow_c · pipeline</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">Flow C · the pipeline</div>
+        <h2 class="h2 reveal d1" style="font-size:80px;">From frames to a documented spec</h2>
+      </div>
+      <div class="rail-line reveal d2" style="top:555px;"></div>
+      <div class="rail" style="top:500px;">
+        <div class="step reveal d2"><div class="circle">📤</div><div class="idx">STEP 01</div><div class="label">Export<br>the frames</div><div class="desc">Pull the Figma frames as raw source</div></div>
+        <div class="step reveal d3"><div class="circle">📝</div><div class="idx">STEP 02</div><div class="label">Draft<br>the md</div><div class="desc">Copilot turns frames into structured markdown</div></div>
+        <div class="step reveal d4"><div class="circle">🔎</div><div class="idx">STEP 03</div><div class="label">Find<br>the gap</div><div class="desc">Copilot finds Figma ↔ codebase discrepancies</div></div>
+        <div class="step reveal d5"><div class="circle">🐞</div><div class="idx">STEP 04</div><div class="label">Surface<br>issues</div><div class="desc">Bugs to fix &amp; designs to revisit</div></div>
+        <div class="step reveal d6"><div class="circle">🔗</div><div class="idx">STEP 05</div><div class="label">Map to<br>functions</div><div class="desc">Link each pattern to its code, documented</div></div>
+      </div>
+      <div class="callout reveal d7" style="bottom:96px;border-left-color:var(--violet);">
+        <div class="badge" style="color:var(--violet);">The payoff</div>
+        <div class="txt">A guideline structured to be <b style="color:var(--violet);">consumed well by agents</b> — living in the azd production codebase.</div>
+      </div>
+      <div class="chrome-br">04 · flow C</div>
+    </section>
+
+    <!-- ========== SLIDE 11 · WHEN TO USE WHICH ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">when_to_use</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">Choosing a flow</div>
+        <h2 class="h2 reveal d1">Which one, when?</h2>
+      </div>
+      <div class="compare" style="grid-template-columns:1fr 1fr 1fr;gap:32px;top:430px;">
+        <div class="col a reveal d2" style="padding:44px 44px;">
+          <div class="tag">FLOW A</div>
+          <h3 style="font-size:42px;">Explore &amp; prototype</h3>
+          <ul>
+            <li>The problem is still fuzzy</li>
+            <li>I need to compare directions</li>
+            <li>Stakeholders must see &amp; feel it</li>
+          </ul>
+        </div>
+        <div class="col b reveal d3" style="padding:44px 44px;">
+          <div class="tag">FLOW B</div>
+          <h3 style="font-size:42px;">Straight to production</h3>
+          <ul>
+            <li>The direction is already clear</li>
+            <li>A dev has a PR in flight</li>
+            <li>Fastest path to shipped design</li>
+          </ul>
+        </div>
+        <div class="col c reveal d4" style="padding:44px 44px;">
+          <div class="tag">FLOW C</div>
+          <h3 style="font-size:42px;">Build the guideline</h3>
+          <ul>
+            <li>I need one source of truth</li>
+            <li>Figma &amp; code have drifted apart</li>
+            <li>Agents need design context</li>
+          </ul>
+        </div>
+      </div>
+      <div class="chrome-br">05 · when to use</div>
+    </section>
+
+    <!-- ========== SLIDE 12 · TAKEAWAYS / CLOSING ========== -->
+    <section class="slide">
+      <div class="blueprint"></div>
+      <div class="chrome-tl">takeaways</div>
+      <div style="position:absolute;left:100px;top:150px;">
+        <div class="eyebrow reveal d1">What I'd leave you with</div>
+        <h2 class="h2 reveal d1">Design closer to the code</h2>
+      </div>
+      <div class="takeaways">
+        <div class="take reveal d2"><div class="n">01</div><div class="t">AI is my brainstorm partner. <span>Spar with agents before committing to a direction.</span></div></div>
+        <div class="take reveal d3"><div class="n">02</div><div class="t">Prototype in code, not just pixels. <span>Prompt to build, then edit directly to finish.</span></div></div>
+        <div class="take reveal d4"><div class="n">03</div><div class="t">Meet the work where it lives. <span>Sometimes the fastest design tool is the dev's own PR.</span></div></div>
+        <div class="take reveal d5"><div class="n">04</div><div class="t">Make design legible to agents. <span>Ship the spec into the codebase, not just Figma.</span></div></div>
+      </div>
+      <div class="chrome-bl">@hyoshis</div>
+      <div class="chrome-br">thanks — questions?</div>
+    </section>
+
+  </main>
+</div>
+
+<!-- Presentation chrome (outside the stage) -->
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 12</div>
+<div class="hint" id="hint">← → or Space to navigate · E to edit</div>
+
+<!-- Inline editing controls -->
+<div class="edit-hotzone" id="editHotzone"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)">✏️</button>
+<div class="edit-banner" id="editBanner">Edit mode — click any text · Ctrl+S to save</div>
+
+<script>
+/* ===========================================
+   SLIDE PRESENTATION CONTROLLER
+   =========================================== */
+class SlidePresentation{
+  constructor(){
+    this.slides=[...document.querySelectorAll('.slide')];
+    this.stage=document.getElementById('deckStage');
+    this.progress=document.getElementById('progress');
+    this.counter=document.getElementById('counter');
+    this.hint=document.getElementById('hint');
+    this.current=0;
+    this.scaleStage();
+    window.addEventListener('resize',()=>this.scaleStage());
+    this.bindKeys();this.bindTouch();this.bindWheel();
+    this.show(0);
+    setTimeout(()=>this.hint.classList.add('gone'),5000);
+  }
+  scaleStage(){
+    const f=Math.min(window.innerWidth/1920,window.innerHeight/1080);
+    const x=(window.innerWidth-1920*f)/2, y=(window.innerHeight-1080*f)/2;
+    this.stage.style.transform=`translate(${x}px, ${y}px) scale(${f})`;
+  }
+  show(i){
+    this.current=Math.max(0,Math.min(i,this.slides.length-1));
+    this.slides.forEach((s,idx)=>{
+      s.classList.toggle('active',idx===this.current);
+      s.classList.toggle('visible',idx===this.current);
+    });
+    const n=this.current+1,total=this.slides.length;
+    this.counter.textContent=String(n).padStart(2,'0')+' / '+String(total).padStart(2,'0');
+    this.progress.style.width=(n/total*100)+'%';
+  }
+  next(){this.show(this.current+1);}
+  prev(){this.show(this.current-1);}
+  bindKeys(){
+    document.addEventListener('keydown',e=>{
+      if(e.target.getAttribute&&e.target.getAttribute('contenteditable')==='true')return;
+      if(['ArrowRight','ArrowDown','PageDown',' '].includes(e.key)){e.preventDefault();this.next();}
+      else if(['ArrowLeft','ArrowUp','PageUp'].includes(e.key)){e.preventDefault();this.prev();}
+      else if(e.key==='Home'){this.show(0);}else if(e.key==='End'){this.show(this.slides.length-1);}
+    });
+  }
+  bindTouch(){
+    let x0=null;
+    addEventListener('touchstart',e=>{x0=e.touches[0].clientX;},{passive:true});
+    addEventListener('touchend',e=>{
+      if(x0===null)return;const dx=e.changedTouches[0].clientX-x0;
+      if(Math.abs(dx)>60){dx<0?this.next():this.prev();}x0=null;
+    },{passive:true});
+  }
+  bindWheel(){
+    let lock=false;
+    addEventListener('wheel',e=>{
+      if(lock)return;if(Math.abs(e.deltaY)<24)return;
+      lock=true;e.deltaY>0?this.next():this.prev();
+      setTimeout(()=>lock=false,700);
+    },{passive:true});
+  }
+}
+const deck=new SlidePresentation();
+
+/* ===========================================
+   INLINE EDITING (JS hover with grace period)
+   =========================================== */
+const editor={
+  isActive:false,
+  toggle(){
+    this.isActive=!this.isActive;
+    const t=document.getElementById('editToggle');
+    const b=document.getElementById('editBanner');
+    t.classList.toggle('active',this.isActive);
+    b.classList.toggle('show',this.isActive);
+    document.querySelectorAll('.slide h1,.slide h2,.slide h3,.slide p,.slide .label,.slide .desc,.slide li,.slide .t,.slide span').forEach(el=>{
+      el.setAttribute('contenteditable',this.isActive?'true':'false');
+    });
+    if(this.isActive)t.classList.add('show');
+  }
+};
+const toggleBtn=document.getElementById('editToggle');
+const hotzone=document.getElementById('editHotzone');
+let hideTimeout=null;
+toggleBtn.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('click',()=>editor.toggle());
+hotzone.addEventListener('mouseenter',()=>{clearTimeout(hideTimeout);toggleBtn.classList.add('show');});
+hotzone.addEventListener('mouseleave',()=>{hideTimeout=setTimeout(()=>{if(!editor.isActive)toggleBtn.classList.remove('show');},400);});
+toggleBtn.addEventListener('mouseenter',()=>clearTimeout(hideTimeout));
+toggleBtn.addEventListener('mouseleave',()=>{hideTimeout=setTimeout(()=>{if(!editor.isActive)toggleBtn.classList.remove('show');},400);});
+document.addEventListener('keydown',e=>{
+  if((e.key==='e'||e.key==='E')&&e.target.getAttribute('contenteditable')!=='true'){editor.toggle();}
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){
+    e.preventDefault();
+    const html='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+    const blob=new Blob([html],{type:'text/html'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='how-i-ai.html';a.click();
+  }
+});
+</script>
+</body>
+</html>
