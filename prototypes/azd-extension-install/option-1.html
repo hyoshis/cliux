@@ -115,7 +115,7 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .b{color:var(--t-blue)}
 .g{color:var(--t-green)}
 .e{color:var(--t-red)}
-.warn{color:#ffcc00}
+.neutral{color:var(--t-text)}
 .q{color:var(--t-blue)}
 .d{color:var(--t-dim)}
 .w{color:#f2f2f2}
@@ -216,11 +216,11 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     </button>
     <button class="tab" data-s="6">
       <span class="idx">6</span>
-      <span><span class="t-title">YOLO deployment</span><br><span class="t-sub">Install required extensions automatically, then deploy.</span></span>
+      <span><span class="t-title">No-prompt: auto-install enabled</span><br><span class="t-sub">The flag installs required extensions automatically.</span></span>
     </button>
     <button class="tab" data-s="7">
       <span class="idx">7</span>
-      <span><span class="t-title">No-prompt deployment</span><br><span class="t-sub">Continue without prompts or automatic extension installation.</span></span>
+      <span><span class="t-title">No-prompt: auto-install disabled</span><br><span class="t-sub">The same flag does not install required extensions.</span></span>
     </button>
   </div>
 
@@ -305,9 +305,9 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   /* ---------- interaction: Yes / No / Select-individually confirm ---------- */
   // Batch prompt shown once for a set of required extensions.
-  // Resolves to 'y' (install all), 'n' (skip) or 's' (select individually).
+  // Resolves to 'y' (install), 'n' (cancel) or 'c' (customize).
   function confirmYNC(questionHtml, labels){
-    const L = Object.assign({y:'install all (default)', n:'skip', c:'choose for each extension'}, labels||{});
+    const L = Object.assign({y:'install all (default)', n:'cancel', c:'choose for each extension'}, labels||{});
     const el = line(`<span class="q">?</span> ${questionHtml} [Y/n/c]: <span class="caret"></span>`);
     const opts = [
       line(`  <span class="w">Y</span> <span class="d">- ${escapeHtml(L.y)}</span>`),
@@ -402,10 +402,9 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     {name:'azd',     desc:'stable, official releases'},
     {name:'local', desc:'local development registry'}
   ];
-  function selectSource(appliesToAll){
-    // header line + list container + hint (matches Figma layout)
-    line(`<span class="q">?</span> Select a source:`);
-    if(appliesToAll) line(`<span class="d">  This source will apply to all following extension installations.</span>`);
+  function selectSource(forLabel){
+    const heading = forLabel ? `Select a source for ${escapeHtml(forLabel)}:` : `Select a source:`;
+    line(`<span class="q">?</span> ${heading}`);
     line('');
     const listEl = document.createElement('div');
     listEl.className='ln srclist';
@@ -421,8 +420,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
         return `<div class="srcrow${isCur?' cur':''}" data-i="${i}">`+
                `<span class="cursor-col">${isCur?'>':' '}</span>`+
                `<span class="box">[${isCur?'✓':' '}]</span>`+
-               `<span class="name">${s.name.padEnd(9,' ')}</span>`+
-               `<span class="desc">${s.desc}</span>`+
+               `<span class="name">${s.name}</span>`+
                `</div>`;
       }).join('');
       listEl.querySelectorAll('.srcrow').forEach(row=>{
@@ -451,7 +449,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
         // rewrite the header line (last '? Select a source:' becomes answered)
         const headers=[...screen.querySelectorAll('.ln')].filter(n=>n.textContent.trim().startsWith('? Select a source'));
         const h=headers[headers.length-1];
-        if(h) h.innerHTML = `<span class="q">?</span> Select a source: <span class="b">${chosen}</span>`;
+        if(h) h.innerHTML = `<span class="q">?</span> ${heading} <span class="b">${chosen}</span>`;
         // trim any trailing blank line left behind
         const last=screen.lastElementChild;
         if(last && last.classList.contains('blank')) last.remove();
@@ -471,10 +469,11 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     'monitoring-tools':'2.0.13-preview',
     'foundry-agents':'1.0.0-beta.7'
   };
-  async function install(ext, source, addLeadingSpace=true, version=''){
+  async function install(ext, source, addLeadingSpace=true, version='', showSource=false){
     if(addLeadingSpace) line('');
     const resolvedVersion=version||EXTENSION_VERSIONS[ext]||'1.0.0';
-    const target = `'${escapeHtml(ext)}' (${escapeHtml(resolvedVersion)})`;
+    const from = showSource && source ? ` from \`${escapeHtml(source)}\`` : '';
+    const target = `'${escapeHtml(ext)}' (${escapeHtml(resolvedVersion)})${from}`;
     const el = line(`<span class="w">${FRAMES[0]}</span> Installing extension ${target}`);
     clearDock(); 
     const token=runToken; let i=0;
@@ -519,9 +518,14 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     scroll();
     completeFlow();
   }
-  function showSkipWarning(extensionName){
-    const detail = extensionName ? ` for '${escapeHtml(extensionName)}'` : '';
-    line(`<span class="warn">[Warning] Extension installation skipped${detail}. The workflow may fail without it.</span>`);
+  function cancelWorkflow(extensionName){
+    const reason = extensionName
+      ? `required extension isn't installed`
+      : `required extensions aren't installed`;
+    line('');
+    line(`<span class="neutral">Canceled: ${reason}.</span>`);
+    line(`<span class="w">${PROMPT}></span>`);
+    completeFlow();
   }
   /* ===================================================================
      SCENARIO RUNNERS
@@ -530,8 +534,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd', desc:'This extension provides examples.'};
     await intro(ext);
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
-    if(a==='n'){ line(''); showSkipWarning(ext.title); }
-    else { await install(ext.id, ext.source); if(token!==runToken) return; }
+    if(a==='n'){ cancelWorkflow(ext.title); return; }
+    await install(ext.id, ext.source); if(token!==runToken) return;
     envPromptEnd();
   }
 
@@ -539,14 +543,18 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd, local', desc:'This extension provides examples.'};
     const defaultSource='azd';
     await intro(ext, undefined, undefined, 'Sources:');
-    const a = await confirmYNC(
+    const a = await selectAction(
       `Install ${ext.title} from \`${defaultSource}\`?`,
-      {y:'install (recommended)', n:'skip', c:'yes, but change source'}
+      [
+        {value:'y', label:'Install from `azd` (recommended)'},
+        {value:'c', label:'Install from a different source'},
+        {value:'n', label:'Cancel'}
+      ]
     ); if(token!==runToken) return;
-    if(a==='n'){ line(''); showSkipWarning(ext.title); envPromptEnd(); return; }
+    if(a==='n'){ cancelWorkflow(ext.title); return; }
     let src=defaultSource;
     if(a==='c'){ src = await selectSource(); if(token!==runToken) return; }
-    await install(ext.id, src); if(token!==runToken) return;
+    await install(ext.id, src, true, '', true); if(token!==runToken) return;
     envPromptEnd();
   }
 
@@ -557,25 +565,12 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       {title:'Monitoring Tools', id:'monitoring-tools', source:'azd'}
     ];
     await listExtensions(exts, 'Source'); if(token!==runToken) return;
-    const a = await confirmYNC(`Install all ${exts.length} required extensions?`, {
-      y:'install all (recommended)', n:'skip', c:'choose for each extension'
-    }); if(token!==runToken) return;
+    const a = await confirmYN(`Install all ${exts.length} required extensions?`); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
+    if(a==='n'){ cancelWorkflow(); return; }
 
     line('');
-    if(a==='y'){
-      for(const e of exts){ await install(e.id, e.source, false); if(token!==runToken) return; }
-    } else {
-      // Select individually: prompt each extension, then install from its source.
-      for(let k=0;k<exts.length;k++){
-        const e=exts[k];
-        if(k>0) line('');
-        const yn = await confirmYN(`Install ${escapeHtml(e.title)}?`); if(token!==runToken) return;
-        if(yn==='n'){ showSkipWarning(e.title); }
-        else { await install(e.id, e.source); if(token!==runToken) return; }
-      }
-    }
+    for(const e of exts){ await install(e.id, e.source, false); if(token!==runToken) return; }
     envPromptEnd();
   }
 
@@ -590,37 +585,40 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const a = await selectAction(
       `Install all ${exts.length} required extensions from \`${defaultSource}\`?`,
       [
-        {value:'y', label:'Yes, install all from `azd` (recommended)'},
-        {value:'c', label:'Yes, install all but change source'},
-        {value:'s', label:'Choose for each extension'},
-        {value:'n', label:'No, skip installation'}
+        {value:'y', label:'Install all from `azd` (recommended)'},
+        {value:'c', label:'Install all from a different source'},
+        {value:'n', label:'Cancel'}
       ]
     ); if(token!==runToken) return;
 
-    if(a==='n'){ line(''); showSkipWarning(); envPromptEnd(); return; }
+    if(a==='n'){ cancelWorkflow(); return; }
 
     line('');
     if(a==='y'){
-      for(const e of exts){ await install(e.id, defaultSource, false); if(token!==runToken) return; }
-    } else if(a==='c'){
-      const src = await selectSource(true); if(token!==runToken) return;
-      for(let i=0;i<exts.length;i++){
-        const e=exts[i];
-        await install(e.id, src, i===0); if(token!==runToken) return;
-      }
+      for(const e of exts){ await install(e.id, defaultSource, false, '', true); if(token!==runToken) return; }
     } else {
-      // Select individually: prompt each extension, then show source selection (option-1 style).
-      for(let k=0;k<exts.length;k++){
-        const e=exts[k];
-        if(k>0) line('');
-        const yn = await confirmYNC(
-          `Install ${escapeHtml(e.title)} from \`${defaultSource}\`?`,
-          {y:'install (recommended)', n:'skip', c:'yes, but change source'}
-        ); if(token!==runToken) return;
-        if(yn==='n'){ showSkipWarning(e.title); continue; }
-        let src=defaultSource;
-        if(yn==='c'){ src = await selectSource(); if(token!==runToken) return; }
-        await install(e.id, src); if(token!==runToken) return;
+      // Pick a source for the first extension, then offer to reuse it for the rest.
+      const sources=[];
+      const firstSrc = await selectSource(exts[0].title); if(token!==runToken) return;
+      sources.push(firstSrc);
+
+      let applyToAll=false;
+      if(exts.length>1){
+        line('');
+        const reuse = await confirmYN(`Install remaining extensions from \`${firstSrc}\`?`); if(token!==runToken) return;
+        applyToAll = reuse!=='n';
+      }
+
+      for(let i=1;i<exts.length;i++){
+        if(applyToAll){ sources.push(firstSrc); continue; }
+        line('');
+        const src = await selectSource(exts[i].title); if(token!==runToken) return;
+        sources.push(src);
+      }
+
+      line('');
+      for(let i=0;i<exts.length;i++){
+        await install(exts[i].id, sources[i], i===0, '', true); if(token!==runToken) return;
       }
     }
     envPromptEnd();
@@ -642,9 +640,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     await intro(ext, undefined, true, 'Source:', '');
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a==='n'){
-      line('');
-      line(`<span class="e">[Error] Can't run '${escapeHtml(command)}' because the required extension isn't installed.</span>`);
-      completeFlow();
+      cancelWorkflow(ext.title);
       return;
     }
     await install(ext.id, ext.source); if(token!==runToken) return;
@@ -666,10 +662,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
 
   async function scenario6(token){
-    const command='azd up --yolo';
+    const command='azd up --no-prompt';
     const exts=singleSourceExtensions();
     await listExtensions(exts, 'Source', command); if(token!==runToken) return;
-    line(`<span class="d">YOLO mode: installing required extensions automatically.</span>`);
+    line(`<span class="neutral">No-prompt mode: installing required extensions automatically.</span>`);
     for(let i=0;i<exts.length;i++){
       const e=exts[i];
       await install(e.id, e.source, i===0); if(token!==runToken) return;
@@ -687,7 +683,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const command='azd up --no-prompt';
     const exts=singleSourceExtensions();
     await listExtensions(exts, 'Source', command); if(token!==runToken) return;
-    line(`<span class="d">No-prompt mode doesn't install required extensions automatically.</span>`);
+    line(`<span class="neutral">No-prompt mode doesn't install required extensions automatically.</span>`);
     await block([
       `Install them with:`,
       ``,
