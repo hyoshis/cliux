@@ -492,7 +492,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       `Multiple sources available.`
     ], 95);
     if(token!==runToken) return;
-    const a = await confirmYNC(`Install ${escapeHtml(ext.title)} from \`${escapeHtml(defaultSource)}\`?`, {y:'install (recommended)', n:'skip', c:'yes, but change source'}); if(token!==runToken) return;
+    const a = await confirmYNC(`Install ${escapeHtml(ext.title)} from '${escapeHtml(defaultSource)}'?`, {y:'install (recommended)', n:'skip', c:'yes, but change source'}); if(token!==runToken) return;
     if(a==='n'){ line(''); showSkipWarning(ext.title); envPromptEnd(); return; }
     let src = defaultSource;
     if(a==='c'){ src = await selectSource(); if(token!==runToken) return; }
@@ -524,7 +524,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       for(let k=0;k<exts.length;k++){
         const e=exts[k];
         if(k>0) line('');
-        const yn = await confirmYN(`Install ${escapeHtml(e.title)} from \`${escapeHtml(e.source)}\`?`);
+        const yn = await confirmYN(`Install ${escapeHtml(e.title)} from '${escapeHtml(e.source)}'?`);
         if(token!==runToken) return;
         if(yn==='n'){ showSkipWarning(e.title); }
         else { await install(e.id, e.source); if(token!==runToken) return; }
@@ -544,7 +544,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     if(token!==runToken) return;
 
     const a = await confirmChoice(
-      `Install all ${exts.length} required extensions from \`${escapeHtml(defaultSource)}\`?`,
+      `Install all ${exts.length} required extensions from '${escapeHtml(defaultSource)}'?`,
       [
         {key:'Y', label:'install all (default)'},
         {key:'n', label:'skip'},
@@ -570,7 +570,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
         const e=exts[k];
         if(k>0) line('');
         const yn = await confirmYNC(
-          `Install ${escapeHtml(e.title)} from \`${escapeHtml(defaultSource)}\`?`,
+          `Install ${escapeHtml(e.title)} from '${escapeHtml(defaultSource)}'?`,
           {y:'install (recommended)', n:'skip', c:'yes, but change source'}
         );
         if(token!==runToken) return;

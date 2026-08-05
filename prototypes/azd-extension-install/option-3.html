@@ -584,7 +584,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     ], 80);
     if(token!==runToken) return;
 
-    const recNote = single ? ` from \`${escapeHtml(exts[0].sources[0])}\`` : '';
+    const recNote = single ? ` from '${escapeHtml(exts[0].sources[0])}'` : '';
     const question = single
       ? `Install ${escapeHtml(exts[0].title)}${recNote}?`
       : `Install all ${exts.length} required extensions?`;

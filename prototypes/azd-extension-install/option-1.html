@@ -472,7 +472,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   async function install(ext, source, addLeadingSpace=true, version='', showSource=false){
     if(addLeadingSpace) line('');
     const resolvedVersion=version||EXTENSION_VERSIONS[ext]||'1.0.0';
-    const from = showSource && source ? ` from \`${escapeHtml(source)}\`` : '';
+    const from = showSource && source ? ` from '${escapeHtml(source)}'` : '';
     const target = `'${escapeHtml(ext)}' (${escapeHtml(resolvedVersion)})${from}`;
     const el = line(`<span class="w">${FRAMES[0]}</span> Installing extension ${target}`);
     clearDock(); 
@@ -544,9 +544,9 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const defaultSource='azd';
     await intro(ext, undefined, undefined, 'Sources:');
     const a = await selectAction(
-      `Install ${ext.title} from \`${defaultSource}\`?`,
+      `Install ${ext.title} from '${defaultSource}'?`,
       [
-        {value:'y', label:'Install from `azd` (recommended)'},
+        {value:'y', label:"Install from 'azd' (recommended)"},
         {value:'c', label:'Install from a different source'},
         {value:'n', label:'Cancel'}
       ]
@@ -583,9 +583,9 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     const defaultSource='azd';
     await listExtensions(exts, 'Sources'); if(token!==runToken) return;
     const a = await selectAction(
-      `Install all ${exts.length} required extensions from \`${defaultSource}\`?`,
+      `Install all ${exts.length} required extensions from '${defaultSource}'?`,
       [
-        {value:'y', label:'Install all from `azd` (recommended)'},
+        {value:'y', label:"Install all from 'azd' (recommended)"},
         {value:'c', label:'Install all from a different source'},
         {value:'n', label:'Cancel'}
       ]
@@ -605,7 +605,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       let applyToAll=false;
       if(exts.length>1){
         line('');
-        const reuse = await confirmYN(`Install remaining extensions from \`${firstSrc}\`?`); if(token!==runToken) return;
+        const reuse = await confirmYN(`Install remaining extensions from '${firstSrc}'?`); if(token!==runToken) return;
         applyToAll = reuse!=='n';
       }
 
@@ -695,7 +695,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     await runOperation('Deploying services...', 'Deployment stopped', false); if(token!==runToken) return;
     line('');
     line(`<span class="e">[Error] Deployment failed because required extensions aren't installed.</span>`);
-    line(`Run the install commands above, then run \`${command}\` again.`);
+    line(`Run the install commands above, then run '${command}' again.`);
     completeFlow();
   }
 
