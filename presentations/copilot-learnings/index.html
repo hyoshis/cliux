@@ -250,15 +250,6 @@ body {
     to { transform: scale(1); filter: brightness(1); }
 }
 
-.window-bar::after {
-    content: "● LIVE";
-    margin-left: 24px;
-    color: var(--green);
-    font-size: 15px;
-    letter-spacing: 0.08em;
-    text-shadow: 0 0 12px rgba(57, 211, 83, 0.65);
-}
-
 .slide-shell {
     position: absolute;
     inset: 62px 72px 70px;
@@ -434,15 +425,6 @@ li {
     padding: 40px 90px 54px;
 }
 
-.title-kicker {
-    margin-bottom: 30px;
-    color: var(--green);
-    font-size: 22px;
-    font-weight: 800;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-}
-
 .title-content .eyebrow {
     margin-bottom: 42px;
     font-size: 29px;
@@ -459,28 +441,6 @@ li {
     color: var(--muted);
     font-size: 29px;
     line-height: 1.55;
-}
-
-.player-card {
-    display: inline-flex;
-    width: fit-content;
-    margin-top: 34px;
-    border: 1px solid var(--blue);
-    border-radius: 8px;
-    background: var(--blue-soft);
-    align-items: center;
-    gap: 18px;
-    padding: 14px 20px;
-    color: var(--text);
-    font-size: 21px;
-}
-
-.player-card::before {
-    content: "PLAYER 1";
-    color: var(--blue);
-    font-size: 15px;
-    font-weight: 800;
-    letter-spacing: 0.1em;
 }
 
 .cursor {
@@ -1854,16 +1814,14 @@ body.editing [data-editable]:focus {
                 <span class="slide-number">01 / 17</span>
             </div>
             <div class="title-content">
-                <p class="title-kicker reveal" data-editable>AZD FIELD NOTES</p>
                 <h1 class="reveal delay-1" data-editable>
-                    What I learned making changes in a <span class="accent">production codebase.</span><span class="cursor"></span>
+                    Lessons from making changes in <span class="accent">production codebase.</span><span class="cursor"></span>
                 </h1>
                 <p class="title-subtitle reveal delay-2" data-editable>
                     Field notes from changing Azure Developer CLI with GitHub Copilot.
                 </p>
-                <div class="player-card reveal delay-3" data-editable>Hiyo Shin · Azure Developer CLI</div>
                 <div class="title-footer reveal delay-3">
-                    <span data-editable>GitHub Copilot + unfamiliar code</span>
+                    <span data-editable>Hiyo Shin · Azure Developer CLI</span>
                     <span data-editable>PRESS → TO START</span>
                 </div>
             </div>
