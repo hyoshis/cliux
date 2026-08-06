@@ -2160,31 +2160,6 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 8: WHAT SURPRISED ME SECTION BREAK === -->
-<section class="slide" aria-label="What surprised me">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    checkpoint
-                </div>
-                <span class="slide-number">08 / 17</span>
-            </div>
-            <div class="content section-break surprised">
-                <div class="section-break-copy">
-                    <h2 class="reveal" data-editable>What surprised me.</h2>
-                    <p class="reveal delay-1" data-editable>I reviewed it again and again. Then I started finding the things I did not know to question.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
 <!-- === SLIDE 8: THE REAL BLAST RADIUS === -->
 <section class="slide" aria-label="Impact of the rename">
     <div class="slide-shell">
@@ -2198,7 +2173,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / git diff --stat
                 </div>
-                <span class="slide-number">09 / 17</span>
+                <span class="slide-number">08 / 17</span>
             </div>
             <div class="content impact-layout">
                 <div class="impact-number reveal">
@@ -2217,6 +2192,31 @@ body.editing [data-editable]:focus {
                         <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
                         <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 9: WHAT SURPRISED ME SECTION BREAK === -->
+<section class="slide" aria-label="What surprised me">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    checkpoint
+                </div>
+                <span class="slide-number">09 / 17</span>
+            </div>
+            <div class="content section-break surprised">
+                <div class="section-break-copy">
+                    <h2 class="reveal" data-editable>What surprised me.</h2>
+                    <p class="reveal delay-1" data-editable>I reviewed it again and again. Then I started finding the things I did not know to question.</p>
                 </div>
             </div>
         </div>
@@ -2626,7 +2626,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v21";
+        this.storageKey = "copilot-update-learnings-edits-v22";
         this.restore();
     }
 
