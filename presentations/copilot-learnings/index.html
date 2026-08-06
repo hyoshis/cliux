@@ -899,27 +899,6 @@ li {
     color: var(--yellow);
 }
 
-.surprise-label {
-    display: inline-flex;
-    width: fit-content;
-    margin: 0 0 22px;
-    border: 1px solid var(--yellow);
-    border-radius: 999px;
-    align-items: center;
-    gap: 12px;
-    padding: 9px 15px;
-    color: var(--text);
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.surprise-label::before {
-    content: "SURPRISE " attr(data-surprise);
-    color: var(--yellow);
-    font-size: 14px;
-    letter-spacing: 0.08em;
-}
-
 .wins-layout h2 {
     max-width: 1400px;
     margin-bottom: 42px;
@@ -2182,7 +2161,7 @@ body.editing [data-editable]:focus {
                     <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
                 </div>
                 <div class="impact-right">
-                    <p class="surprise-label reveal" data-surprise="01" data-editable>Unexpected scope</p>
+                    <p class="eyebrow reveal" data-editable>unexpected scope</p>
                     <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
                     <div class="surface-grid">
                         <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
@@ -2239,7 +2218,7 @@ body.editing [data-editable]:focus {
                 <span class="slide-number">10 / 17</span>
             </div>
             <div class="content statement-layout">
-                <p class="surprise-label reveal" data-surprise="02" data-editable>Review did not create confidence</p>
+                <p class="eyebrow reveal" data-editable>review did not create confidence</p>
                 <h2 class="reveal delay-1" data-editable>I reviewed it. Then reviewed it again. I still wasn’t sure.</h2>
                 <p class="statement-sub reveal delay-2" data-editable>Nothing looked broken. I still couldn’t say it was correct.</p>
                 <div class="statement-cycles reveal delay-3">
@@ -2275,7 +2254,7 @@ body.editing [data-editable]:focus {
                     <p data-editable>It protected old values before proving anyone used them.</p>
                 </div>
                 <div class="compatibility-findings">
-                    <p class="surprise-label reveal" data-surprise="03" data-editable>Compatibility without evidence</p>
+                    <p class="eyebrow reveal" data-editable>compatibility without evidence</p>
                     <h2 class="reveal delay-1" data-editable>Preserve real contracts — not hypothetical ones.</h2>
                     <div class="compatibility-finding reveal delay-1"><span class="symbol accent">✓</span><div><h3 data-editable>Keep the old command alias</h3><p data-editable>Users and scripts may still call it.</p></div></div>
                     <div class="compatibility-finding reveal delay-2"><span class="symbol red">×</span><div><h3 data-editable>Drop unused JSON protection</h3><p data-editable>We checked: nothing depended on it.</p></div></div>
