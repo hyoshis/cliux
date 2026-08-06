@@ -23,6 +23,8 @@
     --blue-soft: rgba(88, 166, 255, 0.14);
     --yellow: #d29922;
     --yellow-soft: rgba(210, 153, 34, 0.15);
+    --orange: #f0883e;
+    --orange-soft: rgba(240, 136, 62, 0.15);
     --red: #f85149;
     --red-soft: rgba(248, 81, 73, 0.14);
     --purple: #bc8cff;
@@ -593,6 +595,34 @@ li {
     letter-spacing: 0.08em;
 }
 
+.difficulty-meter .meter-result {
+    position: relative;
+    width: 190px;
+    height: 24px;
+    color: transparent;
+}
+
+.meter-result::before,
+.meter-result::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    white-space: nowrap;
+}
+
+.meter-result::before {
+    content: "EASY";
+    color: var(--green);
+    animation: estimate-easy 2.2s steps(1, end) infinite;
+}
+
+.meter-result::after {
+    content: "49 FILES";
+    color: var(--orange);
+    opacity: 0;
+    animation: estimate-reality 2.2s steps(1, end) infinite;
+}
+
 .difficulty-bar {
     position: relative;
     flex: 1;
@@ -612,7 +642,17 @@ li {
 
 @keyframes difficulty-glitch {
     65% { width: 16%; background: var(--green); }
-    72%, 100% { width: calc(100% - 6px); background: var(--red); }
+    72%, 100% { width: calc(100% - 6px); background: var(--orange); }
+}
+
+@keyframes estimate-easy {
+    0%, 65% { opacity: 1; }
+    66%, 100% { opacity: 0; }
+}
+
+@keyframes estimate-reality {
+    0%, 65% { opacity: 0; }
+    66%, 100% { opacity: 1; }
 }
 
 /* === SLIDE 3: BLAST RADIUS === */
@@ -625,9 +665,9 @@ li {
 
 .impact-number {
     display: flex;
-    border: 2px solid var(--green);
+    border: 2px solid var(--orange);
     border-radius: 16px;
-    background: var(--green-soft);
+    background: var(--orange-soft);
     flex-direction: column;
     justify-content: center;
     padding: 42px;
@@ -635,7 +675,7 @@ li {
 
 .impact-number strong {
     display: block;
-    color: var(--green);
+    color: var(--orange);
     font-size: 190px;
     line-height: 0.92;
     letter-spacing: -12px;
@@ -1889,11 +1929,11 @@ body.editing [data-editable]:focus {
             <div class="content simple-change-layout">
                 <p class="eyebrow reveal" data-editable>my first estimate</p>
                 <h2 class="reveal delay-1" data-editable>I thought this was a <span class="accent">simple change.</span></h2>
-                <p class="reveal delay-2" data-editable>Two commands. A few strings. Let Copilot handle the repetition.</p>
+                <p class="reveal delay-2" data-editable>Two commands. A few strings. Estimated difficulty: easy.</p>
                 <div class="difficulty-meter reveal delay-3">
-                    <span data-editable>DIFFICULTY</span>
+                    <span data-editable>MY ESTIMATE</span>
                     <div class="difficulty-bar" aria-hidden="true"></div>
-                    <span data-editable>EASY?</span>
+                    <span class="meter-result" aria-label="Easy, then reality: 49 files">EASY → 49 FILES</span>
                 </div>
             </div>
         </div>
