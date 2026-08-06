@@ -2047,7 +2047,42 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 6: WHAT WORKED WELL === -->
+<!-- === SLIDE 6: PLAN MODE === -->
+<section class="slide" aria-label="Planning before implementation">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / plan before you edit
+                </div>
+                <span class="slide-number">06 / 17</span>
+            </div>
+            <div class="content">
+                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
+                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
+                <div class="plan-layout">
+                    <div class="shot-card reveal delay-1">
+                        <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
+                    </div>
+                    <div class="plan-copy">
+                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
+                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
+                        <div class="shot-card plan-mini-shot reveal delay-4">
+                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 7: WHAT WORKED WELL === -->
 <section class="slide" aria-label="What worked well with Copilot">
     <div class="slide-shell">
         <div class="window">
@@ -2060,7 +2095,7 @@ body.editing [data-editable]:focus {
                     </div>
                     checkpoint / what worked well
                 </div>
-                <span class="slide-number">06 / 17</span>
+                <span class="slide-number">07 / 17</span>
             </div>
             <div class="content wins-layout">
                 <p class="eyebrow reveal" data-editable>what worked well</p>
@@ -2076,7 +2111,7 @@ body.editing [data-editable]:focus {
                         <h3 data-editable>Asked me to set scope</h3>
                         <p data-editable>Customer text only — or JSON, telemetry, aliases, and internals too?</p>
                     </article>
-                    <article class="win-card prompt-win reveal delay-3">
+                    <article class="win-card reveal delay-3">
                         <div class="win-icon">↑</div>
                         <h3 data-editable>Helped me learn</h3>
                         <p data-editable>“Explain the repo and each change like I’m a junior developer.”</p>
@@ -2087,7 +2122,47 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 6: THE REAL BLAST RADIUS === -->
+<!-- === SLIDE 7: BUILD THE MENTAL MODEL === -->
+<section class="slide" aria-label="Prompt for learning the repository and changes">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / teach me the system
+                </div>
+                <span class="slide-number">08 / 17</span>
+            </div>
+            <div class="content">
+                <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
+                <h2 class="reveal delay-1" data-editable>Ask Copilot to build your mental model before explaining the diff.</h2>
+                <div class="deep-prompt-layout">
+                    <div class="deep-prompt reveal delay-1">
+                        <div class="prompt-label" data-editable>MY PROMPT</div>
+                        <blockquote data-editable>
+                            “Build my mental model first. Map the repo, then explain each changed file in simple language.”
+                        </blockquote>
+                    </div>
+                    <div class="repo-tree reveal delay-2">
+                        <div class="tree-label" data-editable>EXAMPLE: CLI/AZD REPOSITORY MAP</div>
+                        <div class="tree-line"><span class="tree-path" data-editable>cli/azd/</span><span class="tree-note" data-editable>Azure Developer CLI source</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- cmd/</span><span class="tree-note" data-editable>Commands, actions, and middleware</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- pkg/</span><span class="tree-note" data-editable>Reusable services and domain logic</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- internal/</span><span class="tree-note" data-editable>Internal telemetry and tracing</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- extensions/</span><span class="tree-note" data-editable>First-party azd extensions</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>`-- test/ + docs/</span><span class="tree-note" data-editable>Validation and guidance</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 8: THE REAL BLAST RADIUS === -->
 <section class="slide" aria-label="Impact of the rename">
     <div class="slide-shell">
         <div class="window">
@@ -2100,7 +2175,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / git diff --stat
                 </div>
-                <span class="slide-number">07 / 17</span>
+                <span class="slide-number">09 / 17</span>
             </div>
             <div class="content impact-layout">
                 <div class="impact-number reveal">
@@ -2138,7 +2213,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / the review loop
                 </div>
-                <span class="slide-number">08 / 17</span>
+                <span class="slide-number">10 / 17</span>
             </div>
             <div class="content statement-layout">
                 <p class="eyebrow reveal" data-editable>where the story actually starts</p>
@@ -2169,7 +2244,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify before preserving
                 </div>
-                <span class="slide-number">09 / 17</span>
+                <span class="slide-number">11 / 17</span>
             </div>
             <div class="content compatibility-layout">
                 <div class="compatibility-hero reveal">
@@ -2200,7 +2275,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify the premise
                 </div>
-                <span class="slide-number">10 / 17</span>
+                <span class="slide-number">12 / 17</span>
             </div>
             <div class="content hallucination-layout">
                 <div class="hallucination-shot reveal">
@@ -2235,7 +2310,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / use the source of truth
                 </div>
-                <span class="slide-number">11 / 17</span>
+                <span class="slide-number">13 / 17</span>
             </div>
             <div class="content generated-layout">
                 <div class="generated-shot reveal">
@@ -2271,7 +2346,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / a human in the loop
                 </div>
-                <span class="slide-number">12 / 17</span>
+                <span class="slide-number">14 / 17</span>
             </div>
             <div class="content helped-layout">
                 <p class="eyebrow reveal" data-editable>the thing that helped most was not a prompt</p>
@@ -2283,81 +2358,6 @@ body.editing [data-editable]:focus {
                     <article class="helped-card reveal delay-3"><span class="step" data-editable>HUMAN JUDGMENT</span><h3 data-editable>New suggestions emerged</h3><p data-editable>The engineer found changes neither Copilot nor I knew to suggest.</p></article>
                 </div>
                 <p class="helped-callout reveal delay-4" data-editable>Copilot showed the files. The engineer explained the system behind them.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 10: PLAN MODE === -->
-<section class="slide" aria-label="Planning before implementation">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    what helped me / plan before you edit
-                </div>
-                <span class="slide-number">13 / 17</span>
-            </div>
-            <div class="content">
-                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
-                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
-                <div class="plan-layout">
-                    <div class="shot-card reveal delay-1">
-                        <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
-                    </div>
-                    <div class="plan-copy">
-                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
-                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
-                        <div class="shot-card plan-mini-shot reveal delay-4">
-                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 9: A GOOD DEEP-EXPLANATION PROMPT === -->
-<section class="slide" aria-label="Prompt for learning the repository and changes">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    what helped me / teach me the system
-                </div>
-                <span class="slide-number">14 / 17</span>
-            </div>
-            <div class="content">
-                <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
-                <h2 class="reveal delay-1" data-editable>Ask Copilot to build your mental model before explaining the diff.</h2>
-                <div class="deep-prompt-layout">
-                    <div class="deep-prompt reveal delay-1">
-                        <div class="prompt-label" data-editable>MY PROMPT</div>
-                        <blockquote data-editable>
-                            “Build my mental model first. Map the repo, then explain each changed file in simple language.”
-                        </blockquote>
-                    </div>
-                    <div class="repo-tree reveal delay-2">
-                        <div class="tree-label" data-editable>EXAMPLE: CLI/AZD REPOSITORY MAP</div>
-                        <div class="tree-line"><span class="tree-path" data-editable>cli/azd/</span><span class="tree-note" data-editable>Azure Developer CLI source</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- cmd/</span><span class="tree-note" data-editable>Commands, actions, and middleware</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- pkg/</span><span class="tree-note" data-editable>Reusable services and domain logic</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- internal/</span><span class="tree-note" data-editable>Internal telemetry and tracing</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- extensions/</span><span class="tree-note" data-editable>First-party azd extensions</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>`-- test/ + docs/</span><span class="tree-note" data-editable>Validation and guidance</span></div>
-                    </div>
-                </div>
             </div>
         </div>
     </div>
@@ -2603,7 +2603,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v17";
+        this.storageKey = "copilot-update-learnings-edits-v19";
         this.restore();
     }
 
