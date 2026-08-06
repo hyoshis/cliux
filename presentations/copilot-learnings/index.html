@@ -617,8 +617,8 @@ li {
 }
 
 .meter-result::after {
-    content: "49 FILES";
-    color: var(--orange);
+    content: "DIFFICULT";
+    color: var(--red);
     opacity: 0;
     animation: estimate-reality 2.2s steps(1, end) infinite;
 }
@@ -642,7 +642,7 @@ li {
 
 @keyframes difficulty-glitch {
     65% { width: 16%; background: var(--green); }
-    72%, 100% { width: calc(100% - 6px); background: var(--orange); }
+    72%, 100% { width: calc(100% - 6px); background: var(--red); }
 }
 
 @keyframes estimate-easy {
@@ -1933,7 +1933,7 @@ body.editing [data-editable]:focus {
                 <div class="difficulty-meter reveal delay-3">
                     <span data-editable>MY ESTIMATE</span>
                     <div class="difficulty-bar" aria-hidden="true"></div>
-                    <span class="meter-result" aria-label="Easy, then reality: 49 files">EASY → 49 FILES</span>
+                    <span class="meter-result" aria-label="Easy, then difficult">EASY → DIFFICULT</span>
                 </div>
             </div>
         </div>
