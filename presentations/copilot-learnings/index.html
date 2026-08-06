@@ -882,6 +882,19 @@ li {
     color: var(--green);
 }
 
+.section-break-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-break-copy p {
+    max-width: 1050px;
+    margin: 30px 0 0;
+    color: var(--muted);
+    font-size: 27px;
+}
+
 .wins-layout h2 {
     max-width: 1400px;
     margin-bottom: 42px;
@@ -2122,8 +2135,8 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 7: BUILD THE MENTAL MODEL === -->
-<section class="slide" aria-label="Prompt for learning the repository and changes">
+<!-- === SLIDE 8: WHAT SURPRISED ME SECTION BREAK === -->
+<section class="slide" aria-label="What surprised me">
     <div class="slide-shell">
         <div class="window">
             <div class="window-bar">
@@ -2133,29 +2146,14 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    what helped me / teach me the system
+                    checkpoint
                 </div>
                 <span class="slide-number">08 / 17</span>
             </div>
-            <div class="content">
-                <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
-                <h2 class="reveal delay-1" data-editable>Ask Copilot to build your mental model before explaining the diff.</h2>
-                <div class="deep-prompt-layout">
-                    <div class="deep-prompt reveal delay-1">
-                        <div class="prompt-label" data-editable>MY PROMPT</div>
-                        <blockquote data-editable>
-                            “Build my mental model first. Map the repo, then explain each changed file in simple language.”
-                        </blockquote>
-                    </div>
-                    <div class="repo-tree reveal delay-2">
-                        <div class="tree-label" data-editable>EXAMPLE: CLI/AZD REPOSITORY MAP</div>
-                        <div class="tree-line"><span class="tree-path" data-editable>cli/azd/</span><span class="tree-note" data-editable>Azure Developer CLI source</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- cmd/</span><span class="tree-note" data-editable>Commands, actions, and middleware</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- pkg/</span><span class="tree-note" data-editable>Reusable services and domain logic</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- internal/</span><span class="tree-note" data-editable>Internal telemetry and tracing</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>|-- extensions/</span><span class="tree-note" data-editable>First-party azd extensions</span></div>
-                        <div class="tree-line"><span class="tree-path" data-editable>`-- test/ + docs/</span><span class="tree-note" data-editable>Validation and guidance</span></div>
-                    </div>
+            <div class="content section-break">
+                <div class="section-break-copy">
+                    <h2 class="reveal" data-editable>What surprised me.</h2>
+                    <p class="reveal delay-1" data-editable>I reviewed it again and again. Then I started finding the things I did not know to question.</p>
                 </div>
             </div>
         </div>
@@ -2603,7 +2601,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v19";
+        this.storageKey = "copilot-update-learnings-edits-v20";
         this.restore();
     }
 
