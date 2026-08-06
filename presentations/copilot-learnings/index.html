@@ -789,16 +789,6 @@ li {
     line-height: 1;
 }
 
-.stat-card.file-stat {
-    border: 2px solid var(--muted);
-    background: var(--panel-strong);
-    box-shadow: 0 0 28px rgba(139, 148, 158, 0.12);
-}
-
-.stat-card.file-stat strong {
-    color: var(--text);
-}
-
 .stat-card span {
     color: var(--muted);
     font-size: 18px;
@@ -2011,7 +2001,7 @@ body.editing [data-editable]:focus {
                 </div>
                 <div class="stats-grid">
                     <article class="stat-card reveal delay-1"><strong data-editable>4×</strong><span data-editable>review and quality passes</span></article>
-                    <article class="stat-card file-stat reveal delay-2"><strong data-editable>47</strong><span data-editable>files changed</span></article>
+                    <article class="stat-card reveal delay-2"><strong data-editable>47</strong><span data-editable>files changed</span></article>
                     <article class="stat-card reveal delay-3"><strong data-editable>706</strong><span data-editable>changed lines</span></article>
                     <article class="stat-card reveal delay-4"><strong data-editable>20</strong><span data-editable>test or snapshot files</span></article>
                 </div>
@@ -2020,8 +2010,8 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 6: THE REAL BLAST RADIUS === -->
-<section class="slide" aria-label="Impact of the rename">
+<!-- === SLIDE 5: WHAT WORKED WELL === -->
+<section class="slide" aria-label="What worked well with Copilot">
     <div class="slide-shell">
         <div class="window">
             <div class="window-bar">
@@ -2031,50 +2021,12 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    intro / git diff --stat
+                    checkpoint / what worked well
                 </div>
                 <span class="slide-number">05 / 16</span>
             </div>
-            <div class="content impact-layout">
-                <div class="impact-number reveal">
-                    <strong data-editable>47</strong>
-                    <span data-editable>changed files</span>
-                    <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
-                </div>
-                <div class="impact-right">
-                    <p class="eyebrow reveal" data-editable>the blast radius</p>
-                    <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
-                    <div class="surface-grid">
-                        <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
-                        <article class="surface reveal delay-2"><div class="icon">◫</div><h3 data-editable>Tests</h3><p data-editable>Behavior and output expectations.</p></article>
-                        <article class="surface reveal delay-3"><div class="icon">↻</div><h3 data-editable>Snapshots</h3><p data-editable>Generated help and completions.</p></article>
-                        <article class="surface reveal delay-2"><div class="icon">◉</div><h3 data-editable>Telemetry</h3><p data-editable>Future events should say “update.”</p></article>
-                        <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
-                        <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 6: WHAT WENT WELL === -->
-<section class="slide" aria-label="What went well with Copilot">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    checkpoint / what went well
-                </div>
-                <span class="slide-number">06 / 16</span>
-            </div>
             <div class="content wins-layout">
-                <p class="eyebrow reveal" data-editable>checkpoint cleared</p>
+                <p class="eyebrow reveal" data-editable>what worked well</p>
                 <h2 class="reveal delay-1" data-editable>Copilot found more than I knew to look for.</h2>
                 <div class="wins-grid">
                     <article class="win-card reveal delay-1">
@@ -2097,6 +2049,44 @@ body.editing [data-editable]:focus {
                         <h3 data-editable>Helped me learn</h3>
                         <p data-editable>“Explain the repo and each change like I’m a junior developer.”</p>
                     </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 6: THE REAL BLAST RADIUS === -->
+<section class="slide" aria-label="Impact of the rename">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    intro / git diff --stat
+                </div>
+                <span class="slide-number">06 / 16</span>
+            </div>
+            <div class="content impact-layout">
+                <div class="impact-number reveal">
+                    <strong data-editable>47</strong>
+                    <span data-editable>changed files</span>
+                    <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
+                </div>
+                <div class="impact-right">
+                    <p class="eyebrow reveal" data-editable>the blast radius</p>
+                    <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
+                    <div class="surface-grid">
+                        <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◫</div><h3 data-editable>Tests</h3><p data-editable>Behavior and output expectations.</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">↻</div><h3 data-editable>Snapshots</h3><p data-editable>Generated help and completions.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◉</div><h3 data-editable>Telemetry</h3><p data-editable>Future events should say “update.”</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
+                        <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2581,7 +2571,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v15";
+        this.storageKey = "copilot-update-learnings-edits-v16";
         this.restore();
     }
 
