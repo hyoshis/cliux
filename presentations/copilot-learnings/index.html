@@ -895,6 +895,31 @@ li {
     font-size: 27px;
 }
 
+.section-break.surprised h2 {
+    color: var(--yellow);
+}
+
+.surprise-label {
+    display: inline-flex;
+    width: fit-content;
+    margin: 0 0 22px;
+    border: 1px solid var(--yellow);
+    border-radius: 999px;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 15px;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 700;
+}
+
+.surprise-label::before {
+    content: "SURPRISE " attr(data-surprise);
+    color: var(--yellow);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+}
+
 .wins-layout h2 {
     max-width: 1400px;
     margin-bottom: 42px;
@@ -2060,42 +2085,7 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 6: PLAN MODE === -->
-<section class="slide" aria-label="Planning before implementation">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    what helped me / plan before you edit
-                </div>
-                <span class="slide-number">06 / 17</span>
-            </div>
-            <div class="content">
-                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
-                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
-                <div class="plan-layout">
-                    <div class="shot-card reveal delay-1">
-                        <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
-                    </div>
-                    <div class="plan-copy">
-                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
-                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
-                        <div class="shot-card plan-mini-shot reveal delay-4">
-                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 7: WHAT WORKED WELL === -->
+<!-- === SLIDE 6: WHAT WORKED WELL === -->
 <section class="slide" aria-label="What worked well with Copilot">
     <div class="slide-shell">
         <div class="window">
@@ -2108,7 +2098,7 @@ body.editing [data-editable]:focus {
                     </div>
                     checkpoint / what worked well
                 </div>
-                <span class="slide-number">07 / 17</span>
+                <span class="slide-number">06 / 17</span>
             </div>
             <div class="content wins-layout">
                 <p class="eyebrow reveal" data-editable>what worked well</p>
@@ -2135,6 +2125,41 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
+<!-- === SLIDE 7: PLAN MODE === -->
+<section class="slide" aria-label="Planning before implementation">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / plan before you edit
+                </div>
+                <span class="slide-number">07 / 17</span>
+            </div>
+            <div class="content">
+                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
+                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
+                <div class="plan-layout">
+                    <div class="shot-card reveal delay-1">
+                        <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
+                    </div>
+                    <div class="plan-copy">
+                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
+                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
+                        <div class="shot-card plan-mini-shot reveal delay-4">
+                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
 <!-- === SLIDE 8: WHAT SURPRISED ME SECTION BREAK === -->
 <section class="slide" aria-label="What surprised me">
     <div class="slide-shell">
@@ -2150,7 +2175,7 @@ body.editing [data-editable]:focus {
                 </div>
                 <span class="slide-number">08 / 17</span>
             </div>
-            <div class="content section-break">
+            <div class="content section-break surprised">
                 <div class="section-break-copy">
                     <h2 class="reveal" data-editable>What surprised me.</h2>
                     <p class="reveal delay-1" data-editable>I reviewed it again and again. Then I started finding the things I did not know to question.</p>
@@ -2182,7 +2207,7 @@ body.editing [data-editable]:focus {
                     <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
                 </div>
                 <div class="impact-right">
-                    <p class="eyebrow reveal" data-editable>the blast radius</p>
+                    <p class="surprise-label reveal" data-surprise="01" data-editable>Unexpected scope</p>
                     <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
                     <div class="surface-grid">
                         <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
@@ -2214,7 +2239,7 @@ body.editing [data-editable]:focus {
                 <span class="slide-number">10 / 17</span>
             </div>
             <div class="content statement-layout">
-                <p class="eyebrow reveal" data-editable>where the story actually starts</p>
+                <p class="surprise-label reveal" data-surprise="02" data-editable>Review did not create confidence</p>
                 <h2 class="reveal delay-1" data-editable>I reviewed it. Then reviewed it again. I still wasn’t sure.</h2>
                 <p class="statement-sub reveal delay-2" data-editable>Nothing looked broken. I still couldn’t say it was correct.</p>
                 <div class="statement-cycles reveal delay-3">
@@ -2250,7 +2275,7 @@ body.editing [data-editable]:focus {
                     <p data-editable>It protected old values before proving anyone used them.</p>
                 </div>
                 <div class="compatibility-findings">
-                    <p class="eyebrow reveal" data-editable>what the investigation showed</p>
+                    <p class="surprise-label reveal" data-surprise="03" data-editable>Compatibility without evidence</p>
                     <h2 class="reveal delay-1" data-editable>Preserve real contracts — not hypothetical ones.</h2>
                     <div class="compatibility-finding reveal delay-1"><span class="symbol accent">✓</span><div><h3 data-editable>Keep the old command alias</h3><p data-editable>Users and scripts may still call it.</p></div></div>
                     <div class="compatibility-finding reveal delay-2"><span class="symbol red">×</span><div><h3 data-editable>Drop unused JSON protection</h3><p data-editable>We checked: nothing depended on it.</p></div></div>
@@ -2601,7 +2626,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v20";
+        this.storageKey = "copilot-update-learnings-edits-v21";
         this.restore();
     }
 
