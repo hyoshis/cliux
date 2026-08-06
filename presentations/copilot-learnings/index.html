@@ -244,10 +244,10 @@ body {
 }
 
 .slide.visible .window {
-    animation: level-in 0.55s var(--ease) both;
+    animation: slide-in 0.55s var(--ease) both;
 }
 
-@keyframes level-in {
+@keyframes slide-in {
     from { transform: scale(0.985); filter: brightness(0.78); }
     to { transform: scale(1); filter: brightness(1); }
 }
@@ -709,9 +709,9 @@ li {
 
 .stats-hero {
     display: flex;
-    border: 2px solid var(--green);
+    border: 2px solid var(--orange);
     border-radius: 14px;
-    background: var(--green-soft);
+    background: var(--orange-soft);
     flex-direction: column;
     justify-content: center;
     padding: 46px;
@@ -719,14 +719,14 @@ li {
 
 .stats-hero .stat-label {
     margin-bottom: 20px;
-    color: var(--green);
+    color: var(--orange);
     font-size: 18px;
     font-weight: 800;
     letter-spacing: 0.1em;
 }
 
 .stats-hero strong {
-    color: var(--green);
+    color: var(--orange);
     font-size: 178px;
     line-height: 0.9;
     letter-spacing: -12px;
@@ -1700,41 +1700,9 @@ li {
     width: 0;
     height: 100%;
     border-radius: 999px;
-    background: var(--green);
-    transition: width 0.3s var(--ease);
-}
-
-/* === 8-BIT HUD ACCENTS (SUBTLE) === */
-.hud-stage {
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    opacity: 0.65;
-}
-
-.hud-coins {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--muted);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    opacity: 0.75;
-}
-
-/* Pixel coin drawn with box-shadow — 2px blocks, no external assets. */
-.pixel-coin {
-    width: 2px;
-    height: 2px;
-    background: transparent;
-    box-shadow:
-        2px 0 0 var(--yellow), 4px 0 0 var(--yellow),
-        0 2px 0 var(--yellow), 2px 2px 0 var(--yellow), 4px 2px 0 var(--yellow), 6px 2px 0 var(--yellow),
-        0 4px 0 var(--yellow), 2px 4px 0 #8a6109, 4px 4px 0 var(--yellow), 6px 4px 0 var(--yellow),
-        0 6px 0 var(--yellow), 2px 6px 0 #8a6109, 4px 6px 0 var(--yellow), 6px 6px 0 var(--yellow),
-        0 8px 0 var(--yellow), 2px 8px 0 var(--yellow), 4px 8px 0 var(--yellow), 6px 8px 0 var(--yellow),
-        2px 10px 0 var(--yellow), 4px 10px 0 var(--yellow);
-    transform: translateY(-5px);
+    background: var(--progress-color, var(--green));
+    box-shadow: 0 0 12px color-mix(in srgb, var(--progress-color, var(--green)) 55%, transparent);
+    transition: width 0.3s var(--ease), background-color 0.3s ease;
 }
 
 /* Pixel step marker that walks the progress track as slides advance. */
@@ -1744,11 +1712,12 @@ li {
     left: 0;
     width: 3px;
     height: 3px;
-    background: var(--green);
+    background: var(--progress-color, var(--green));
     box-shadow:
-        3px 0 0 var(--green),
-        0 -3px 0 var(--green), 3px -3px 0 var(--green);
-    transition: left 0.32s var(--ease);
+        3px 0 0 var(--progress-color, var(--green)),
+        0 -3px 0 var(--progress-color, var(--green)),
+        3px -3px 0 var(--progress-color, var(--green));
+    transition: left 0.32s var(--ease), background-color 0.3s ease;
 }
 
 .pixel-runner.hop {
@@ -1761,28 +1730,67 @@ li {
     100% { transform: translateY(0); }
 }
 
-/* Brief coin blip on slide advance. */
-.coin-blip {
+.deck-controls.finished::after {
     position: absolute;
-    bottom: 14px;
-    width: 2px;
-    height: 2px;
+    top: -36px;
+    left: 50%;
+    content: "QUEST COMPLETE";
+    color: var(--purple);
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    white-space: nowrap;
     opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%);
+    animation: quest-complete 1.8s steps(8, end) both;
+}
+
+.progress-track::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 4px;
+    height: 4px;
+    content: "";
+    opacity: 0;
+    background: var(--purple);
     pointer-events: none;
 }
 
-.coin-blip.pop {
-    animation: coin-pop 0.66s steps(6, end);
+.deck-controls.finished .progress-track::after {
+    animation: pixel-celebration 1s steps(6, end) both;
 }
 
-@keyframes coin-pop {
-    0% { opacity: 0.9; transform: translateY(0) scale(1); }
-    100% { opacity: 0; transform: translateY(-24px) scale(0.6); }
+@keyframes quest-complete {
+    0% { opacity: 0; transform: translate(-50%, 8px); }
+    18%, 78% { opacity: 1; transform: translate(-50%, 0); }
+    100% { opacity: 0; transform: translate(-50%, -8px); }
+}
+
+@keyframes pixel-celebration {
+    0% {
+        opacity: 1;
+        box-shadow: 0 0 var(--purple);
+        transform: translate(0, 0);
+    }
+    100% {
+        opacity: 0;
+        box-shadow:
+            -18px -22px var(--purple),
+            3px -32px var(--blue),
+            22px -18px var(--green),
+            26px 8px var(--yellow),
+            4px 24px var(--purple),
+            -20px 15px var(--blue);
+        transform: translate(0, -4px);
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
     .pixel-runner.hop,
-    .coin-blip.pop {
+    .deck-controls.finished::after,
+    .deck-controls.finished .progress-track::after {
         animation: none;
     }
 }
@@ -1940,8 +1948,8 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 3: THE REAL BLAST RADIUS === -->
-<section class="slide" aria-label="Impact of the rename">
+<!-- === SLIDE 4: THE STARTING PROMPT === -->
+<section class="slide" aria-label="The starting prompt">
     <div class="slide-shell">
         <div class="window">
             <div class="window-bar">
@@ -1951,27 +1959,16 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    intro / git diff --stat
+                    intro / my first prompt
                 </div>
                 <span class="slide-number">04 / 17</span>
             </div>
-            <div class="content impact-layout">
-                <div class="impact-number reveal">
-                    <strong data-editable>49</strong>
-                    <span data-editable>changed files</span>
-                    <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
-                </div>
-                <div class="impact-right">
-                    <p class="eyebrow reveal" data-editable>the blast radius</p>
-                    <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
-                    <div class="surface-grid">
-                        <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
-                        <article class="surface reveal delay-2"><div class="icon">◫</div><h3 data-editable>Tests</h3><p data-editable>Behavior and output expectations.</p></article>
-                        <article class="surface reveal delay-3"><div class="icon">↻</div><h3 data-editable>Snapshots</h3><p data-editable>Generated help and completions.</p></article>
-                        <article class="surface reveal delay-2"><div class="icon">◉</div><h3 data-editable>Telemetry</h3><p data-editable>Future events should say “update.”</p></article>
-                        <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
-                        <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
-                    </div>
+            <div class="content prompt-only-layout">
+                <div class="prompt-only-card reveal">
+                    <div class="label" data-editable>MY STARTING PROMPT</div>
+                    <blockquote data-editable>
+                        “Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”
+                    </blockquote>
                 </div>
             </div>
         </div>
@@ -2002,7 +1999,7 @@ body.editing [data-editable]:focus {
                 </div>
                 <div class="stats-grid">
                     <article class="stat-card reveal delay-1"><strong data-editable>4×</strong><span data-editable>review and quality passes</span></article>
-                    <article class="stat-card reveal delay-2"><strong data-editable>49</strong><span data-editable>files changed</span></article>
+                    <article class="stat-card reveal delay-2"><strong data-editable>47</strong><span data-editable>files changed</span></article>
                     <article class="stat-card reveal delay-3"><strong data-editable>706</strong><span data-editable>changed lines</span></article>
                     <article class="stat-card reveal delay-4"><strong data-editable>20</strong><span data-editable>test or snapshot files</span></article>
                 </div>
@@ -2011,8 +2008,8 @@ body.editing [data-editable]:focus {
     </div>
 </section>
 
-<!-- === SLIDE 4: THE STARTING PROMPT === -->
-<section class="slide" aria-label="The starting prompt">
+<!-- === SLIDE 6: THE REAL BLAST RADIUS === -->
+<section class="slide" aria-label="Impact of the rename">
     <div class="slide-shell">
         <div class="window">
             <div class="window-bar">
@@ -2022,16 +2019,27 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    intro / my first prompt
+                    intro / git diff --stat
                 </div>
                 <span class="slide-number">06 / 17</span>
             </div>
-            <div class="content prompt-only-layout">
-                <div class="prompt-only-card reveal">
-                    <div class="label" data-editable>MY STARTING PROMPT</div>
-                    <blockquote data-editable>
-                        “Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”
-                    </blockquote>
+            <div class="content impact-layout">
+                <div class="impact-number reveal">
+                    <strong data-editable>47</strong>
+                    <span data-editable>changed files</span>
+                    <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
+                </div>
+                <div class="impact-right">
+                    <p class="eyebrow reveal" data-editable>the blast radius</p>
+                    <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
+                    <div class="surface-grid">
+                        <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◫</div><h3 data-editable>Tests</h3><p data-editable>Behavior and output expectations.</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">↻</div><h3 data-editable>Snapshots</h3><p data-editable>Generated help and completions.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◉</div><h3 data-editable>Telemetry</h3><p data-editable>Future events should say “update.”</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
+                        <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
+                    </div>
                 </div>
             </div>
         </div>
@@ -2139,7 +2147,6 @@ body.editing [data-editable]:focus {
                     <h2 class="reveal delay-1" data-editable>Preserve real contracts — not hypothetical ones.</h2>
                     <div class="compatibility-finding reveal delay-1"><span class="symbol accent">✓</span><div><h3 data-editable>Keep the old command alias</h3><p data-editable>Users and scripts may still call it.</p></div></div>
                     <div class="compatibility-finding reveal delay-2"><span class="symbol red">×</span><div><h3 data-editable>Drop unused JSON protection</h3><p data-editable>We checked: nothing depended on it.</p></div></div>
-                    <div class="compatibility-finding reveal delay-3"><span class="symbol accent">✓</span><div><h3 data-editable>Align the value</h3><p data-editable>It could safely say “update.”</p></div></div>
                 </div>
             </div>
         </div>
@@ -2417,14 +2424,11 @@ body.editing [data-editable]:focus {
 <!-- === OUTSIDE-STAGE PRESENTATION CONTROLS === -->
 <nav class="deck-controls" aria-label="Presentation controls">
     <button id="prevButton" aria-label="Previous slide">←</button>
-    <span class="hud-stage" aria-hidden="true">LEVEL</span>
     <span id="pageCounter">1 / 17</span>
     <div class="progress-track" aria-hidden="true">
         <div class="progress-fill" id="progressFill"></div>
         <span class="pixel-runner" id="pixelRunner"></span>
-        <span class="coin-blip" id="coinBlip"><span class="pixel-coin"></span></span>
     </div>
-    <span class="hud-coins" aria-hidden="true" title="files changed"><span class="pixel-coin"></span>×49</span>
     <button id="nextButton" aria-label="Next slide">→</button>
 </nav>
 
@@ -2517,25 +2521,38 @@ class SlidePresentation {
         this.updateHud(ratio, previous !== this.currentSlide);
     }
 
-    /* Moves the pixel marker along the progress track and pops a coin on advance. */
+    /* Moves the marker, shifts green toward purple, and celebrates completion. */
     updateHud(ratio, moved) {
         const runner = document.getElementById("pixelRunner");
-        const coin = document.getElementById("coinBlip");
-        if (!runner || !coin) {
+        const controls = document.querySelector(".deck-controls");
+        if (!runner || !controls) {
             return;
         }
+        const start = [57, 211, 83];
+        const end = [188, 140, 255];
+        const blend = Math.pow(ratio, 1.35);
+        const color = start.map((value, index) =>
+            Math.round(value + (end[index] - value) * blend)
+        );
+        controls.style.setProperty("--progress-color", `rgb(${color.join(",")})`);
+
         const track = runner.parentElement.clientWidth;
         const left = Math.max(0, Math.min(track - 6, ratio * track - 6));
         runner.style.left = `${left}px`;
+
+        const finished = ratio === 1;
+        if (finished && moved) {
+            controls.classList.remove("finished");
+            void controls.offsetWidth;
+        }
+        controls.classList.toggle("finished", finished);
+
         if (!moved) {
             return;
         }
-        coin.style.left = `${left}px`;
         runner.classList.remove("hop");
-        coin.classList.remove("pop");
         void runner.offsetWidth;
         runner.classList.add("hop");
-        coin.classList.add("pop");
     }
 
     next() {
@@ -2552,7 +2569,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v13";
+        this.storageKey = "copilot-update-learnings-edits-v14";
         this.restore();
     }
 
