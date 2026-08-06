@@ -1107,8 +1107,8 @@ li {
 .plan-layout {
     display: grid;
     height: calc(100% - 112px);
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 34px;
+    grid-template-columns: 1.18fr 0.82fr;
+    gap: 40px;
 }
 
 .shot-card {
@@ -1128,7 +1128,7 @@ li {
 .plan-copy {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    justify-content: center;
 }
 
 .plan-point {
@@ -1150,6 +1150,27 @@ li {
     color: var(--muted);
     font-size: 19px;
     line-height: 1.42;
+}
+
+.scope-list {
+    display: flex;
+    margin-top: 30px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.scope-chip {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: #0b0f14;
+    padding: 10px 14px;
+    color: var(--muted);
+    font-size: 15px;
+}
+
+.scope-chip.active {
+    border-color: var(--green);
+    color: var(--green);
 }
 
 .plan-mini-shot {
@@ -1228,6 +1249,16 @@ li {
     line-height: 1.45;
 }
 
+.lesson-callout.tip {
+    border-left-color: var(--green);
+    background: var(--green-soft);
+}
+
+.lesson-callout.tip::before {
+    content: "TIP  ";
+    color: var(--green);
+}
+
 /* === SLIDE 6: GENERATED FILES === */
 .generated-layout {
     display: grid;
@@ -1298,6 +1329,10 @@ li {
     gap: 28px;
 }
 
+.deep-prompt-layout.repo-only {
+    grid-template-columns: 1fr;
+}
+
 .deep-prompt {
     display: flex;
     border: 2px solid var(--blue);
@@ -1358,6 +1393,45 @@ li {
     color: var(--muted);
 }
 
+.repo-only .repo-tree {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 42px 56px;
+}
+
+.repo-only .repo-tree .tree-label {
+    margin-bottom: 28px;
+}
+
+.repo-only .tree-line {
+    display: grid;
+    min-height: auto;
+    margin: 0;
+    border: 0;
+    border-bottom: 1px solid rgba(48, 54, 61, 0.72);
+    border-radius: 0;
+    background: transparent;
+    grid-template-columns: 390px 1fr;
+    align-items: center;
+    gap: 28px;
+    padding: 16px 8px;
+}
+
+.repo-only .tree-line:last-child {
+    border-bottom: 0;
+}
+
+.repo-only .tree-path {
+    font-size: 23px;
+    font-weight: 700;
+}
+
+.repo-only .tree-note {
+    font-size: 19px;
+}
+
+
 /* === SLIDE 9: REUSABLE PROMPTS === */
 .prompt-cards {
     display: grid;
@@ -1405,6 +1479,48 @@ li {
     padding: 2px 5px;
     color: #07120b;
     font-weight: 800;
+}
+
+/* === LEARNING PLAYBOOK === */
+.tips-layout h2 {
+    margin-bottom: 34px;
+    font-size: 56px;
+}
+
+.tips-grid {
+    display: grid;
+    height: calc(100% - 112px);
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.tip-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 22px;
+}
+
+.tip-card .tip-num {
+    display: block;
+    margin-bottom: 14px;
+    color: var(--green);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.tip-card h3 {
+    margin-bottom: 9px;
+    font-size: 21px;
+}
+
+.tip-card p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 16px;
+    line-height: 1.4;
 }
 
 /* === SLIDE 8: WORKING LOOP === */
@@ -1571,6 +1687,10 @@ li {
     font-size: 27px;
 }
 
+.statement-turn.yellow {
+    color: var(--yellow);
+}
+
 /* === HELPED / MOVING FORWARD SLIDES === */
 .helped-layout {
     display: flex;
@@ -1596,6 +1716,19 @@ li {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
+}
+
+.helped-grid.two-up {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.helped-grid.two-up .helped-card {
+    min-height: 310px;
+}
+
+.helped-grid.single {
+    max-width: 760px;
+    grid-template-columns: 1fr;
 }
 
 .helped-card {
@@ -1637,6 +1770,58 @@ li {
     color: var(--text);
     font-size: 24px;
     line-height: 1.45;
+}
+
+.context-focus {
+    display: grid;
+    min-height: 360px;
+    border: 1px solid var(--blue);
+    border-radius: 16px;
+    background: var(--blue-soft);
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: center;
+    gap: 44px;
+    padding: 42px 48px;
+}
+
+.context-focus .step {
+    display: block;
+    margin-bottom: 22px;
+    color: var(--blue);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.context-focus h3 {
+    margin: 0;
+    font-size: 44px;
+    line-height: 1.2;
+}
+
+.context-details {
+    display: grid;
+    gap: 14px;
+}
+
+.context-detail {
+    display: grid;
+    border-bottom: 1px solid var(--border);
+    grid-template-columns: 38px 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 0;
+    color: var(--text);
+    font-size: 21px;
+}
+
+.context-detail:last-child {
+    border-bottom: 0;
+}
+
+.context-detail strong {
+    color: var(--green);
+    font-size: 22px;
 }
 
 /* === SLIDE 11: DISCUSSION === */
@@ -1787,20 +1972,30 @@ li {
 
 .deck-controls.finished::after {
     position: absolute;
-    top: -36px;
+    top: -62px;
     left: 50%;
     content: "QUEST COMPLETE";
-    color: var(--green);
-    font-size: 12px;
+    border: 2px solid var(--green);
+    border-radius: 7px;
+    background: #092512;
+    box-shadow: 0 0 26px rgba(57, 211, 83, 0.48);
+    padding: 11px 18px;
+    color: var(--text);
+    font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.14em;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
     transform: translateX(-50%);
-    animation: quest-complete 1.8s steps(8, end) both;
+    animation: quest-complete 1.65s cubic-bezier(0.1, 0.9, 0.2, 1) both;
 }
 
+.deck-controls.finished {
+    animation: hud-victory 0.58s cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+.progress-track::before,
 .progress-track::after {
     position: absolute;
     top: 50%;
@@ -1814,13 +2009,24 @@ li {
 }
 
 .deck-controls.finished .progress-track::after {
-    animation: pixel-celebration 1s steps(6, end) both;
+    animation: pixel-celebration 0.9s steps(6, end) both;
+}
+
+.deck-controls.finished .progress-track::before {
+    animation: pixel-celebration-wide 1.05s 0.08s steps(7, end) both;
 }
 
 @keyframes quest-complete {
-    0% { opacity: 0; transform: translate(-50%, 8px); }
-    18%, 78% { opacity: 1; transform: translate(-50%, 0); }
-    100% { opacity: 0; transform: translate(-50%, -8px); }
+    0% { opacity: 0; transform: translate(-50%, 14px) scale(0.62); }
+    18% { opacity: 1; transform: translate(-50%, -4px) scale(1.1); }
+    28%, 76% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+    100% { opacity: 0; transform: translate(-50%, -10px) scale(0.96); }
+}
+
+@keyframes hud-victory {
+    0% { transform: translateX(-50%) scale(1); }
+    35% { transform: translateX(-50%) scale(1.08); border-color: var(--green); }
+    100% { transform: translateX(-50%) scale(1); }
 }
 
 @keyframes pixel-celebration {
@@ -1842,9 +2048,32 @@ li {
     }
 }
 
+@keyframes pixel-celebration-wide {
+    0% {
+        opacity: 1;
+        box-shadow: 0 0 var(--yellow);
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        box-shadow:
+            -44px -32px var(--yellow),
+            -30px 22px var(--green),
+            -12px -44px var(--blue),
+            14px -50px var(--green),
+            34px -28px var(--yellow),
+            48px 12px var(--blue),
+            22px 34px var(--green),
+            -20px 38px var(--yellow);
+        transform: translate(0, -8px) scale(0.7);
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .pixel-runner.hop,
+    .deck-controls.finished,
     .deck-controls.finished::after,
+    .deck-controls.finished .progress-track::before,
     .deck-controls.finished .progress-track::after {
         animation: none;
     }
@@ -1914,7 +2143,7 @@ body.editing [data-editable]:focus {
                     </div>
                     azd / production-codebase-learnings
                 </div>
-                <span class="slide-number">01 / 17</span>
+                <span class="slide-number">01 / 15</span>
             </div>
             <div class="title-content">
                 <h1 class="reveal delay-1" data-editable>
@@ -1945,7 +2174,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / the change I actually wanted
                 </div>
-                <span class="slide-number">02 / 17</span>
+                <span class="slide-number">02 / 15</span>
             </div>
             <div class="content command-change-layout">
                 <p class="eyebrow reveal" data-editable>mission objective</p>
@@ -1987,7 +2216,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / estimated difficulty
                 </div>
-                <span class="slide-number">03 / 17</span>
+                <span class="slide-number">03 / 15</span>
             </div>
             <div class="content simple-change-layout">
                 <div>
@@ -2022,7 +2251,7 @@ body.editing [data-editable]:focus {
                     </div>
                     run summary / by the numbers
                 </div>
-                <span class="slide-number">04 / 17</span>
+                <span class="slide-number">04 / 15</span>
             </div>
             <div class="content stats-layout">
                 <div class="stats-hero reveal">
@@ -2055,7 +2284,7 @@ body.editing [data-editable]:focus {
                     </div>
                     checkpoint
                 </div>
-                <span class="slide-number">05 / 17</span>
+                <span class="slide-number">05 / 15</span>
             </div>
             <div class="content section-break">
                 <h2 class="reveal" data-editable>What worked well.</h2>
@@ -2077,20 +2306,26 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / plan before you edit
                 </div>
-                <span class="slide-number">06 / 17</span>
+                <span class="slide-number">06 / 15</span>
             </div>
             <div class="content">
-                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
-                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
+                <p class="eyebrow reveal" data-editable>planning helped me think before editing</p>
+                <h2 class="reveal delay-1" data-editable>Copilot helped me brainstorm the scope — and Plan Mode made it useful.</h2>
                 <div class="plan-layout">
                     <div class="shot-card reveal delay-1">
                         <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
                     </div>
                     <div class="plan-copy">
-                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
-                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
-                        <div class="shot-card plan-mini-shot reveal delay-4">
-                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
+                        <div class="plan-point reveal delay-2">
+                            <strong data-editable>Think it through together</strong>
+                            <span data-editable>It asked what the rename should include, then shaped the answers into a reviewable plan.</span>
+                            <div class="scope-list" aria-label="Scope areas">
+                                <span class="scope-chip active" data-editable>customer text</span>
+                                <span class="scope-chip" data-editable>telemetry</span>
+                                <span class="scope-chip" data-editable>JSON</span>
+                                <span class="scope-chip" data-editable>aliases</span>
+                                <span class="scope-chip" data-editable>internals</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2112,18 +2347,12 @@ body.editing [data-editable]:focus {
                     </div>
                     what worked well / teach me the system
                 </div>
-                <span class="slide-number">07 / 17</span>
+                <span class="slide-number">07 / 15</span>
             </div>
             <div class="content">
                 <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
                 <h2 class="reveal delay-1" data-editable>Explain it to me like I’m a junior developer.</h2>
-                <div class="deep-prompt-layout">
-                    <div class="deep-prompt reveal delay-1">
-                        <div class="prompt-label" data-editable>MY PROMPT</div>
-                        <blockquote data-editable>
-                            “Walk me through the repository structure and each change in simple language, with examples.”
-                        </blockquote>
-                    </div>
+                <div class="deep-prompt-layout repo-only">
                     <div class="repo-tree reveal delay-2">
                         <div class="tree-label" data-editable>EXAMPLE: CLI/AZD REPOSITORY MAP</div>
                         <div class="tree-line"><span class="tree-path" data-editable>cli/azd/</span><span class="tree-note" data-editable>Azure Developer CLI source</span></div>
@@ -2152,7 +2381,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / git diff --stat
                 </div>
-                <span class="slide-number">08 / 17</span>
+                <span class="slide-number">08 / 15</span>
             </div>
             <div class="content impact-layout">
                 <div class="impact-number reveal">
@@ -2161,7 +2390,7 @@ body.editing [data-editable]:focus {
                     <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
                 </div>
                 <div class="impact-right">
-                    <p class="eyebrow reveal" data-editable>unexpected scope</p>
+                    <p class="eyebrow reveal" data-editable>comprehensive scope</p>
                     <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
                     <div class="surface-grid">
                         <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
@@ -2171,31 +2400,6 @@ body.editing [data-editable]:focus {
                         <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
                         <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
                     </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 9: WHAT SURPRISED ME SECTION BREAK === -->
-<section class="slide" aria-label="What surprised me">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    checkpoint
-                </div>
-                <span class="slide-number">09 / 17</span>
-            </div>
-            <div class="content section-break surprised">
-                <div class="section-break-copy">
-                    <h2 class="reveal" data-editable>What surprised me.</h2>
-                    <p class="reveal delay-1" data-editable>I reviewed it again and again. Then I started finding the things I did not know to question.</p>
                 </div>
             </div>
         </div>
@@ -2215,19 +2419,12 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / the review loop
                 </div>
-                <span class="slide-number">10 / 17</span>
+                <span class="slide-number">09 / 15</span>
             </div>
             <div class="content statement-layout">
                 <p class="eyebrow reveal" data-editable>review did not create confidence</p>
-                <h2 class="reveal delay-1" data-editable>I reviewed it. Then reviewed it again. I still wasn’t sure.</h2>
-                <p class="statement-sub reveal delay-2" data-editable>Nothing looked broken. I still couldn’t say it was correct.</p>
-                <div class="statement-cycles reveal delay-3">
-                    <span class="cycle-chip" data-editable>pass 1 — read the diff</span>
-                    <span class="cycle-chip" data-editable>pass 2 — Copilot re-review</span>
-                    <span class="cycle-chip" data-editable>pass 3 — pull request</span>
-                    <span class="cycle-chip unsure" data-editable>still unsure</span>
-                </div>
-                <p class="statement-turn reveal delay-4" data-editable>Then I started finding things that genuinely surprised me.</p>
+                <h2 class="reveal delay-1" data-editable>I reviewed it again and again. I still wasn’t sure.</h2>
+                <p class="statement-turn yellow reveal delay-4" data-editable>Then I started finding things that genuinely surprised me.</p>
             </div>
         </div>
     </div>
@@ -2246,7 +2443,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify before preserving
                 </div>
-                <span class="slide-number">11 / 17</span>
+                <span class="slide-number">10 / 15</span>
             </div>
             <div class="content compatibility-layout">
                 <div class="compatibility-hero reveal">
@@ -2277,7 +2474,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify the premise
                 </div>
-                <span class="slide-number">12 / 17</span>
+                <span class="slide-number">11 / 15</span>
             </div>
             <div class="content hallucination-layout">
                 <div class="hallucination-shot reveal">
@@ -2290,8 +2487,8 @@ body.editing [data-editable]:focus {
                     <div class="story-step reveal delay-2"><span class="story-index">2</span><div><h3 data-editable>Copilot accepted the premise</h3></div></div>
                     <div class="story-step reveal delay-3"><span class="story-index">3</span><div><h3 data-editable>The hooks did not exist</h3></div></div>
                     <div class="story-step reveal delay-4"><span class="story-index">4</span><div><h3 data-editable>We reverted the fix</h3></div></div>
-                    <div class="lesson-callout reveal delay-5" data-editable>
-                        Treat review feedback as a hypothesis. Verify the premise first.
+                    <div class="lesson-callout tip reveal delay-5" data-editable>
+                        Challenge review comments: “Fix it only if technically correct. Verify the premise first.”
                     </div>
                 </div>
             </div>
@@ -2312,7 +2509,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / use the source of truth
                 </div>
-                <span class="slide-number">13 / 17</span>
+                <span class="slide-number">12 / 15</span>
             </div>
             <div class="content generated-layout">
                 <div class="generated-shot reveal">
@@ -2325,41 +2522,7 @@ body.editing [data-editable]:focus {
                         <article class="workflow-card bad reveal delay-2"><h3 class="red" data-editable>Wrong path</h3><p data-editable>Edit snapshots by hand.</p></article>
                         <article class="workflow-card good reveal delay-3"><h3 class="accent" data-editable>Right path</h3><p data-editable>Run the canonical generator.</p></article>
                     </div>
-                    <div class="code regen-command reveal delay-4" data-editable>
-                        UPDATE_SNAPSHOTS=true go test ./cmd<br>
-                        -run 'TestFigSpec|TestUsage'
-                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 9: REVIEWING WITH AN ENGINEER === -->
-<section class="slide" aria-label="Reviewing the change with an engineer">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
-                    </div>
-                    what helped me / a human in the loop
-                </div>
-                <span class="slide-number">14 / 17</span>
-            </div>
-            <div class="content helped-layout">
-                <p class="eyebrow reveal" data-editable>the thing that helped most was not a prompt</p>
-                <h2 class="reveal delay-1" data-editable>I flagged the files I questioned — then reviewed them with an engineer.</h2>
-                <p class="helped-sub reveal delay-1" data-editable>The missing context was not visible in the diff.</p>
-                <div class="helped-grid">
-                    <article class="helped-card reveal delay-1"><span class="step" data-editable>MY REVIEW</span><h3 data-editable>Mark what looks questionable</h3><p data-editable>I did not explain every file. I brought the ones I could not confidently judge.</p></article>
-                    <article class="helped-card reveal delay-2"><span class="step" data-editable>ENGINEERING CONTEXT</span><h3 data-editable>Usage was not obvious</h3><p data-editable>Some files were unused. Telemetry mappings mixed hard-coded and derived keys.</p></article>
-                    <article class="helped-card reveal delay-3"><span class="step" data-editable>HUMAN JUDGMENT</span><h3 data-editable>New suggestions emerged</h3><p data-editable>The engineer found changes neither Copilot nor I knew to suggest.</p></article>
-                </div>
-                <p class="helped-callout reveal delay-4" data-editable>Copilot showed the files. The engineer explained the system behind them.</p>
             </div>
         </div>
     </div>
@@ -2376,18 +2539,15 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    what helped me / make the judgment explicit
+                    what surprised me / hidden context and guardrails
                 </div>
-                <span class="slide-number">15 / 17</span>
+                <span class="slide-number">13 / 15</span>
             </div>
-            <div class="content prompts-layout">
-                <p class="eyebrow reveal" data-editable>prompts I would reuse</p>
-                <h2 class="reveal delay-1" data-editable>Tell Copilot what to protect, verify, and report.</h2>
-                <div class="prompt-cards">
-                    <article class="prompt-card reveal delay-1"><h3 data-editable>Define scope</h3><p data-editable>“Inventory aliases, JSON, telemetry, internals, and history. Preserve only real contracts.”</p></article>
-                    <article class="prompt-card reveal delay-2"><h3 data-editable>Challenge review comments</h3><p data-editable>“Fix it <span class="prompt-highlight">only if technically correct</span>. Verify the premise first.”</p></article>
-                    <article class="prompt-card reveal delay-3"><h3 data-editable>Get fresh eyes</h3><p data-editable>“Compare with main. Flag scope creep, breaks, and missing tests.”</p></article>
-                    <article class="prompt-card reveal delay-4"><h3 data-editable>Control the handoff</h3><p data-editable>“<span class="prompt-highlight">Do not push.</span> Summarize changes, reasons, non-changes, and validation.”</p></article>
+            <div class="content helped-layout">
+                <h2 class="reveal delay-1" data-editable>Important behavior was hidden outside the diff.</h2>
+                <div class="helped-grid two-up">
+                    <article class="helped-card reveal delay-1"><h3 data-editable>Hidden context matters</h3><p data-editable>An engineer clarified that some telemetry keys follow command names while others are hard-coded.</p></article>
+                    <article class="helped-card reveal delay-2"><h3 data-editable>Control when it pushes</h3><p data-editable>YOLO mode pushed every commit. I had to explicitly say when to push — and when not to.</p></article>
                 </div>
             </div>
         </div>
@@ -2405,20 +2565,23 @@ body.editing [data-editable]:focus {
                         <span class="window-dot yellow"></span>
                         <span class="window-dot green"></span>
                     </div>
-                    moving forward / what I actually took away
+                    moving forward / my playbook
                 </div>
-                <span class="slide-number">16 / 17</span>
+                <span class="slide-number">14 / 15</span>
             </div>
-            <div class="content helped-layout">
-                <p class="eyebrow reveal" data-editable>what I would tell myself before starting</p>
-                <h2 class="reveal delay-1" data-editable>The tool removed the typing. It did not remove the need to understand.</h2>
-                <p class="helped-sub reveal delay-1" data-editable>Easy to generate does not mean safe to ship.</p>
-                <div class="helped-grid">
-                    <article class="helped-card reveal delay-1"><span class="step" data-editable>01</span><h3 data-editable>Context is still the job</h3><p data-editable>Copilot writes code; people understand dependencies.</p></article>
-                    <article class="helped-card reveal delay-2"><span class="step" data-editable>02</span><h3 data-editable>Know the failure modes</h3><p data-editable>Generated files, confident feedback, speculative compatibility.</p></article>
-                    <article class="helped-card warn reveal delay-3"><span class="step" data-editable>03</span><h3 data-editable>I tested one model</h3><p data-editable>A second opinion might have changed the outcome.</p></article>
+            <div class="content tips-layout">
+                <p class="eyebrow reveal" data-editable>tips I would use next time</p>
+                <h2 class="reveal delay-1" data-editable>My Copilot implementation playbook.</h2>
+                <div class="tips-grid">
+                    <article class="tip-card reveal delay-1"><span class="tip-num">01</span><h3 data-editable>Set scope first</h3><p data-editable>Include or exclude telemetry, JSON, aliases, internals, and history.</p></article>
+                    <article class="tip-card reveal delay-1"><span class="tip-num">02</span><h3 data-editable>Use Plan Mode</h3><p data-editable>Brainstorm decisions and non-goals before editing.</p></article>
+                    <article class="tip-card reveal delay-2"><span class="tip-num">03</span><h3 data-editable>Build a mental model</h3><p data-editable>Ask for the repository structure in simple language.</p></article>
+                    <article class="tip-card reveal delay-2"><span class="tip-num">04</span><h3 data-editable>Verify review comments</h3><p data-editable>Fix feedback only when its premise is technically correct.</p></article>
+                    <article class="tip-card reveal delay-3"><span class="tip-num">05</span><h3 data-editable>Use the source of truth</h3><p data-editable>Regenerate generated files; never hand-edit the output.</p></article>
+                    <article class="tip-card reveal delay-3"><span class="tip-num">06</span><h3 data-editable>Ask for human context</h3><p data-editable>Usage and telemetry contracts may not be visible in the diff.</p></article>
+                    <article class="tip-card reveal delay-4"><span class="tip-num">07</span><h3 data-editable>Control the handoff</h3><p data-editable>Say explicitly when to push, stop, summarize, and validate.</p></article>
+                    <article class="tip-card reveal delay-4"><span class="tip-num">08</span><h3 data-editable>Get a second opinion</h3><p data-editable>Use fresh eyes — another reviewer, agent, or model.</p></article>
                 </div>
-                <p class="helped-callout reveal delay-4" data-editable>Being a builder now means knowing what to verify, not just what to ask for.</p>
             </div>
         </div>
     </div>
@@ -2437,18 +2600,16 @@ body.editing [data-editable]:focus {
                     </div>
                     discussion / open questions
                 </div>
-                <span class="slide-number">17 / 17</span>
+                <span class="slide-number">15 / 15</span>
             </div>
             <div class="content discussion-layout">
                 <p class="eyebrow reveal" data-editable>open questions</p>
-                <h2 class="reveal delay-1" data-editable>How do you build in a codebase you don’t know yet?</h2>
-                <p class="discussion-sub reveal delay-1" data-editable>Three questions I’m carrying forward.</p>
+                <h2 class="reveal delay-1" data-editable>What does confident building look like for us?</h2>
                 <div class="discussion-grid">
-                    <article class="discussion-card reveal delay-1"><span class="q-mark" data-editable>01</span><h3 data-editable>What earns confidence?</h3></article>
-                    <article class="discussion-card blue-edge reveal delay-2"><span class="q-mark" data-editable>02</span><h3 data-editable>When do we pair or hand off?</h3></article>
-                    <article class="discussion-card yellow-edge reveal delay-3"><span class="q-mark" data-editable>03</span><h3 data-editable>How do we catch confident errors?</h3></article>
+                    <article class="discussion-card reveal delay-1"><span class="q-mark" data-editable>01</span><h3 data-editable>How do you build confidently in an unfamiliar codebase?</h3></article>
+                    <article class="discussion-card blue-edge reveal delay-2"><span class="q-mark" data-editable>02</span><h3 data-editable>How do you choose models, reasoning, and context?</h3></article>
+                    <article class="discussion-card yellow-edge reveal delay-3"><span class="q-mark" data-editable>03</span><h3 data-editable>How can designers become confident builders?</h3></article>
                 </div>
-                <p class="discussion-line reveal delay-4" data-editable>What works for you?</p>
             </div>
         </div>
     </div>
@@ -2460,7 +2621,7 @@ body.editing [data-editable]:focus {
 <!-- === OUTSIDE-STAGE PRESENTATION CONTROLS === -->
 <nav class="deck-controls" aria-label="Presentation controls">
     <button id="prevButton" aria-label="Previous slide">←</button>
-    <span id="pageCounter">1 / 17</span>
+    <span id="pageCounter">1 / 15</span>
     <div class="progress-track" aria-hidden="true">
         <div class="progress-fill" id="progressFill"></div>
         <span class="pixel-runner" id="pixelRunner"></span>
@@ -2605,7 +2766,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v24";
+        this.storageKey = "copilot-update-learnings-edits-v26";
         this.restore();
     }
 
