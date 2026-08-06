@@ -561,17 +561,18 @@ li {
 
 /* === SLIDE 3: SIMPLE-CHANGE REVEAL === */
 .simple-change-layout {
-    display: flex;
+    display: grid;
     height: 100%;
-    flex-direction: column;
-    justify-content: center;
+    grid-template-columns: 1.05fr 0.95fr;
+    align-items: center;
+    gap: 64px;
     padding: 20px 90px;
 }
 
 .simple-change-layout h2 {
-    max-width: 1500px;
+    max-width: 920px;
     margin-bottom: 34px;
-    font-size: 98px;
+    font-size: 82px;
 }
 
 .simple-change-layout p {
@@ -586,6 +587,28 @@ li {
     margin-top: 54px;
     align-items: center;
     gap: 18px;
+}
+
+.simple-prompt {
+    border: 2px solid var(--blue);
+    border-radius: 14px;
+    background: var(--blue-soft);
+    padding: 42px;
+}
+
+.simple-prompt .label {
+    margin-bottom: 24px;
+    color: var(--blue);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.simple-prompt blockquote {
+    margin: 0;
+    font-size: 31px;
+    line-height: 1.5;
+    font-weight: 700;
 }
 
 .difficulty-meter span {
@@ -1735,7 +1758,7 @@ li {
     top: -36px;
     left: 50%;
     content: "QUEST COMPLETE";
-    color: var(--purple);
+    color: var(--green);
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.14em;
@@ -1754,7 +1777,7 @@ li {
     height: 4px;
     content: "";
     opacity: 0;
-    background: var(--purple);
+    background: var(--green);
     pointer-events: none;
 }
 
@@ -1771,18 +1794,18 @@ li {
 @keyframes pixel-celebration {
     0% {
         opacity: 1;
-        box-shadow: 0 0 var(--purple);
+        box-shadow: 0 0 var(--green);
         transform: translate(0, 0);
     }
     100% {
         opacity: 0;
         box-shadow:
-            -18px -22px var(--purple),
-            3px -32px var(--blue),
+            -18px -22px var(--green),
+            3px -32px var(--yellow),
             22px -18px var(--green),
             26px 8px var(--yellow),
-            4px 24px var(--purple),
-            -20px 15px var(--blue);
+            4px 24px var(--green),
+            -20px 15px var(--yellow);
         transform: translate(0, -4px);
     }
 }
@@ -1859,7 +1882,7 @@ body.editing [data-editable]:focus {
                     </div>
                     azd / production-codebase-learnings
                 </div>
-                <span class="slide-number">01 / 17</span>
+                <span class="slide-number">01 / 16</span>
             </div>
             <div class="title-content">
                 <h1 class="reveal delay-1" data-editable>
@@ -1890,7 +1913,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / the change I actually wanted
                 </div>
-                <span class="slide-number">02 / 17</span>
+                <span class="slide-number">02 / 16</span>
             </div>
             <div class="content command-change-layout">
                 <p class="eyebrow reveal" data-editable>mission objective</p>
@@ -1932,43 +1955,22 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / estimated difficulty
                 </div>
-                <span class="slide-number">03 / 17</span>
+                <span class="slide-number">03 / 16</span>
             </div>
             <div class="content simple-change-layout">
-                <p class="eyebrow reveal" data-editable>my first estimate</p>
-                <h2 class="reveal delay-1" data-editable>I thought this was a <span class="accent">simple change.</span></h2>
-                <p class="reveal delay-2" data-editable>Two commands. A few strings. Estimated difficulty: easy.</p>
-                <div class="difficulty-meter reveal delay-3">
-                    <span data-editable>MY ESTIMATE</span>
-                    <div class="difficulty-bar" aria-hidden="true"></div>
-                    <span class="meter-result" aria-label="Easy, then difficult">EASY → DIFFICULT</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- === SLIDE 4: THE STARTING PROMPT === -->
-<section class="slide" aria-label="The starting prompt">
-    <div class="slide-shell">
-        <div class="window">
-            <div class="window-bar">
-                <div class="window-title">
-                    <div class="window-dots">
-                        <span class="window-dot red"></span>
-                        <span class="window-dot yellow"></span>
-                        <span class="window-dot green"></span>
+                <div>
+                    <p class="eyebrow reveal" data-editable>my first estimate</p>
+                    <h2 class="reveal delay-1" data-editable>I thought this was a <span class="accent">simple change.</span></h2>
+                    <p class="reveal delay-2" data-editable>Two commands. A few strings. Estimated difficulty: easy.</p>
+                    <div class="difficulty-meter reveal delay-3">
+                        <span data-editable>MY ESTIMATE</span>
+                        <div class="difficulty-bar" aria-hidden="true"></div>
+                        <span class="meter-result" aria-label="Easy, then difficult">EASY → DIFFICULT</span>
                     </div>
-                    intro / my first prompt
                 </div>
-                <span class="slide-number">04 / 17</span>
-            </div>
-            <div class="content prompt-only-layout">
-                <div class="prompt-only-card reveal">
+                <div class="simple-prompt reveal delay-2">
                     <div class="label" data-editable>MY STARTING PROMPT</div>
-                    <blockquote data-editable>
-                        “Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”
-                    </blockquote>
+                    <blockquote data-editable>“Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”</blockquote>
                 </div>
             </div>
         </div>
@@ -1988,7 +1990,7 @@ body.editing [data-editable]:focus {
                     </div>
                     run summary / by the numbers
                 </div>
-                <span class="slide-number">05 / 17</span>
+                <span class="slide-number">04 / 16</span>
             </div>
             <div class="content stats-layout">
                 <div class="stats-hero reveal">
@@ -2021,7 +2023,7 @@ body.editing [data-editable]:focus {
                     </div>
                     intro / git diff --stat
                 </div>
-                <span class="slide-number">06 / 17</span>
+                <span class="slide-number">05 / 16</span>
             </div>
             <div class="content impact-layout">
                 <div class="impact-number reveal">
@@ -2059,7 +2061,7 @@ body.editing [data-editable]:focus {
                     </div>
                     checkpoint / what went well
                 </div>
-                <span class="slide-number">07 / 17</span>
+                <span class="slide-number">06 / 16</span>
             </div>
             <div class="content wins-layout">
                 <p class="eyebrow reveal" data-editable>checkpoint cleared</p>
@@ -2104,7 +2106,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / the review loop
                 </div>
-                <span class="slide-number">08 / 17</span>
+                <span class="slide-number">07 / 16</span>
             </div>
             <div class="content statement-layout">
                 <p class="eyebrow reveal" data-editable>where the story actually starts</p>
@@ -2135,7 +2137,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify before preserving
                 </div>
-                <span class="slide-number">09 / 17</span>
+                <span class="slide-number">08 / 16</span>
             </div>
             <div class="content compatibility-layout">
                 <div class="compatibility-hero reveal">
@@ -2166,7 +2168,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / verify the premise
                 </div>
-                <span class="slide-number">10 / 17</span>
+                <span class="slide-number">09 / 16</span>
             </div>
             <div class="content hallucination-layout">
                 <div class="hallucination-shot reveal">
@@ -2201,7 +2203,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what surprised me / use the source of truth
                 </div>
-                <span class="slide-number">11 / 17</span>
+                <span class="slide-number">10 / 16</span>
             </div>
             <div class="content generated-layout">
                 <div class="generated-shot reveal">
@@ -2237,18 +2239,18 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / a human in the loop
                 </div>
-                <span class="slide-number">12 / 17</span>
+                <span class="slide-number">11 / 16</span>
             </div>
             <div class="content helped-layout">
                 <p class="eyebrow reveal" data-editable>the thing that helped most was not a prompt</p>
-                <h2 class="reveal delay-1" data-editable>I sat down with an engineer and walked the change together.</h2>
-                <p class="helped-sub reveal delay-1" data-editable>One meeting beat three solo review passes.</p>
+                <h2 class="reveal delay-1" data-editable>I flagged the files I questioned — then reviewed them with an engineer.</h2>
+                <p class="helped-sub reveal delay-1" data-editable>The missing context was not visible in the diff.</p>
                 <div class="helped-grid">
-                    <article class="helped-card reveal delay-1"><span class="step" data-editable>CO-OP MODE</span><h3 data-editable>Explain each file</h3><p data-editable>I said what I thought; an engineer corrected the gaps.</p></article>
-                    <article class="helped-card reveal delay-2"><span class="step" data-editable>RISK MAP</span><h3 data-editable>Files are not equal</h3><p data-editable>Copy, generated output, and contracts need different review.</p></article>
-                    <article class="helped-card reveal delay-3"><span class="step" data-editable>OWNERSHIP</span><h3 data-editable>Know which questions are yours</h3><p data-editable>I owned UX; experts answered compatibility.</p></article>
+                    <article class="helped-card reveal delay-1"><span class="step" data-editable>MY REVIEW</span><h3 data-editable>Mark what looks questionable</h3><p data-editable>I did not explain every file. I brought the ones I could not confidently judge.</p></article>
+                    <article class="helped-card reveal delay-2"><span class="step" data-editable>ENGINEERING CONTEXT</span><h3 data-editable>Usage was not obvious</h3><p data-editable>Some files were unused. Telemetry mappings mixed hard-coded and derived keys.</p></article>
+                    <article class="helped-card reveal delay-3"><span class="step" data-editable>HUMAN JUDGMENT</span><h3 data-editable>New suggestions emerged</h3><p data-editable>The engineer found changes neither Copilot nor I knew to suggest.</p></article>
                 </div>
-                <p class="helped-callout reveal delay-4" data-editable>Copilot got me to a change. A conversation got me to confidence.</p>
+                <p class="helped-callout reveal delay-4" data-editable>Copilot showed the files. The engineer explained the system behind them.</p>
             </div>
         </div>
     </div>
@@ -2267,7 +2269,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / plan before you edit
                 </div>
-                <span class="slide-number">13 / 17</span>
+                <span class="slide-number">12 / 16</span>
             </div>
             <div class="content">
                 <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
@@ -2302,7 +2304,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / teach me the system
                 </div>
-                <span class="slide-number">14 / 17</span>
+                <span class="slide-number">13 / 16</span>
             </div>
             <div class="content">
                 <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
@@ -2342,7 +2344,7 @@ body.editing [data-editable]:focus {
                     </div>
                     what helped me / make the judgment explicit
                 </div>
-                <span class="slide-number">15 / 17</span>
+                <span class="slide-number">14 / 16</span>
             </div>
             <div class="content prompts-layout">
                 <p class="eyebrow reveal" data-editable>prompts I would reuse</p>
@@ -2371,7 +2373,7 @@ body.editing [data-editable]:focus {
                     </div>
                     moving forward / what I actually took away
                 </div>
-                <span class="slide-number">16 / 17</span>
+                <span class="slide-number">15 / 16</span>
             </div>
             <div class="content helped-layout">
                 <p class="eyebrow reveal" data-editable>what I would tell myself before starting</p>
@@ -2401,7 +2403,7 @@ body.editing [data-editable]:focus {
                     </div>
                     discussion / open questions
                 </div>
-                <span class="slide-number">17 / 17</span>
+                <span class="slide-number">16 / 16</span>
             </div>
             <div class="content discussion-layout">
                 <p class="eyebrow reveal" data-editable>open questions</p>
@@ -2424,7 +2426,7 @@ body.editing [data-editable]:focus {
 <!-- === OUTSIDE-STAGE PRESENTATION CONTROLS === -->
 <nav class="deck-controls" aria-label="Presentation controls">
     <button id="prevButton" aria-label="Previous slide">←</button>
-    <span id="pageCounter">1 / 17</span>
+    <span id="pageCounter">1 / 16</span>
     <div class="progress-track" aria-hidden="true">
         <div class="progress-fill" id="progressFill"></div>
         <span class="pixel-runner" id="pixelRunner"></span>
@@ -2528,8 +2530,8 @@ class SlidePresentation {
         if (!runner || !controls) {
             return;
         }
-        const start = [57, 211, 83];
-        const end = [188, 140, 255];
+        const start = [210, 153, 34];
+        const end = [57, 211, 83];
         const blend = Math.pow(ratio, 1.35);
         const color = start.map((value, index) =>
             Math.round(value + (end[index] - value) * blend)
@@ -2569,7 +2571,7 @@ class InlineEditor {
     constructor() {
         this.isActive = false;
         this.items = [...document.querySelectorAll("[data-editable]")];
-        this.storageKey = "copilot-update-learnings-edits-v14";
+        this.storageKey = "copilot-update-learnings-edits-v15";
         this.restore();
     }
 
