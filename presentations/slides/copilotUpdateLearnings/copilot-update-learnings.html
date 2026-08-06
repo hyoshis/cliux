@@ -1,0 +1,2640 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>From Upgrade to Update: What I Learned Working with Copilot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* === THEME TOKENS === */
+:root {
+    --stage-bg: #05080d;
+    --slide-bg: #0d1117;
+    --panel: #161b22;
+    --panel-strong: #1c2430;
+    --border: #30363d;
+    --text: #f0f6fc;
+    --muted: #8b949e;
+    --green: #39d353;
+    --green-soft: rgba(57, 211, 83, 0.14);
+    --blue: #58a6ff;
+    --blue-soft: rgba(88, 166, 255, 0.14);
+    --yellow: #d29922;
+    --yellow-soft: rgba(210, 153, 34, 0.15);
+    --red: #f85149;
+    --red-soft: rgba(248, 81, 73, 0.14);
+    --purple: #bc8cff;
+    --font: "JetBrains Mono", monospace;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.surface:hover,
+.helped-card:hover,
+.prompt-card:hover,
+.discussion-card:hover {
+    border-color: var(--green);
+    box-shadow: 0 0 0 2px var(--green-soft), 0 0 28px rgba(57, 211, 83, 0.12);
+    transform: translateY(-4px);
+}
+
+.surface,
+.helped-card,
+.prompt-card,
+.discussion-card {
+    transition: transform 0.2s var(--ease), border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* === RESET === */
+* {
+    box-sizing: border-box;
+}
+
+.story-index::before {
+    content: "LV.";
+    margin-right: 2px;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+/* ===========================================
+   FIXED 16:9 STAGE: MANDATORY BASE STYLES
+   Include this ENTIRE file in every presentation.
+   Slides are authored at 1920×1080 and scaled as a whole.
+   =========================================== */
+
+/* 1. Lock the browser viewport */
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+.lesson-callout::before,
+.helped-callout::before {
+    content: "ACHIEVEMENT UNLOCKED  ";
+    color: var(--green);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+/* 2. Full-window deck viewport */
+.deck-viewport {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    background: var(--stage-bg, #000);
+}
+
+.plan-point strong::before {
+    content: "QUEST ";
+    color: var(--yellow);
+    font-size: 14px;
+    letter-spacing: 0.08em;
+}
+
+/* 3. Fixed 16:9 design canvas.
+   JavaScript sets transform: translate(...) scale(...). */
+.deck-stage {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    transform-origin: 0 0;
+    background: var(--slide-bg, #fff);
+}
+
+.cycle-chip.unsure {
+    animation: warning-pulse 1.4s steps(2, end) infinite;
+}
+
+@keyframes warning-pulse {
+    50% { box-shadow: 0 0 22px rgba(210, 153, 34, 0.32); }
+}
+
+/* 4. Slides stack inside the fixed stage.
+   Content must be laid out at 1920×1080, not reflowed per device. */
+.slide {
+    position: absolute;
+    inset: 0;
+    width: 1920px;
+    height: 1080px;
+    overflow: hidden;
+    display: block;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    background: var(--slide-bg, #fff);
+}
+
+.slide.active,
+.slide.visible {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 1;
+}
+
+/* 5. Keep media inside authored slide bounds */
+img,
+video,
+canvas,
+svg {
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* 6. Presentation chrome stays outside the slide design system */
+.deck-controls {
+    position: fixed;
+    left: 50%;
+    bottom: 22px;
+    transform: translateX(-50%);
+    z-index: 1000;
+}
+
+/* 7. Print one fixed-size slide per page */
+@media print {
+    html,
+    body {
+        width: 1920px;
+        height: auto;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-viewport {
+        position: static;
+        overflow: visible;
+        background: #fff;
+    }
+
+    .deck-stage {
+        position: static;
+        width: auto;
+        height: auto;
+        transform: none !important;
+        background: none;
+    }
+
+    .slide {
+        position: relative;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        width: 1920px;
+        height: 1080px;
+        break-after: page;
+        page-break-after: always;
+    }
+
+    .slide:last-child {
+        break-after: auto;
+        page-break-after: auto;
+    }
+
+    .deck-controls {
+        display: none !important;
+    }
+}
+
+/* 8. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.2s !important;
+    }
+}
+
+/* === SHARED SLIDE ATMOSPHERE === */
+body {
+    color: var(--text);
+    font-family: var(--font);
+}
+
+.slide::before {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background-image:
+        linear-gradient(rgba(57, 211, 83, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(57, 211, 83, 0.035) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+}
+
+.slide::after {
+    position: absolute;
+    inset: 0;
+    content: "";
+    background: repeating-linear-gradient(0deg, transparent 0 5px, rgba(255, 255, 255, 0.014) 6px);
+    pointer-events: none;
+}
+
+.slide.visible .window {
+    animation: level-in 0.55s var(--ease) both;
+}
+
+@keyframes level-in {
+    from { transform: scale(0.985); filter: brightness(0.78); }
+    to { transform: scale(1); filter: brightness(1); }
+}
+
+.window-bar::after {
+    content: "● LIVE";
+    margin-left: 24px;
+    color: var(--green);
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    text-shadow: 0 0 12px rgba(57, 211, 83, 0.65);
+}
+
+.slide-shell {
+    position: absolute;
+    inset: 62px 72px 70px;
+    z-index: 1;
+}
+
+.window {
+    height: 100%;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    border-radius: 18px;
+    background: rgba(13, 17, 23, 0.965);
+    box-shadow: 0 32px 100px rgba(0, 0, 0, 0.42);
+}
+
+.window-bar {
+    height: 70px;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    color: var(--muted);
+    font-size: 22px;
+}
+
+.window-title {
+    display: flex;
+    align-items: center;
+}
+
+.window-dots {
+    display: flex;
+    gap: 13px;
+    margin-right: 24px;
+}
+
+.window-dot {
+    width: 17px;
+    height: 17px;
+    border-radius: 5px;
+}
+
+.window-dot.red { background: #ff5f56; }
+.window-dot.yellow { background: #ffbd2e; }
+.window-dot.green { background: #27c93f; }
+
+.slide-number {
+    color: var(--green);
+}
+
+.content {
+    position: relative;
+    height: calc(100% - 70px);
+    padding: 56px 66px;
+}
+
+.eyebrow {
+    margin: 0 0 22px;
+    color: var(--blue);
+    font-size: 24px;
+    font-weight: 600;
+}
+
+.eyebrow::before {
+    content: "> ";
+    color: var(--green);
+}
+
+h1,
+h2,
+h3,
+p {
+    margin-top: 0;
+}
+
+h1 {
+    margin-bottom: 34px;
+    font-size: 90px;
+    line-height: 1.06;
+    letter-spacing: -5px;
+}
+
+h2 {
+    margin-bottom: 28px;
+    font-size: 62px;
+    line-height: 1.08;
+    letter-spacing: -3px;
+}
+
+h3 {
+    margin-bottom: 14px;
+    font-size: 29px;
+    line-height: 1.25;
+}
+
+p,
+li {
+    font-size: 26px;
+    line-height: 1.5;
+}
+
+.accent {
+    color: var(--green);
+}
+
+.blue {
+    color: var(--blue);
+}
+
+.red {
+    color: var(--red);
+}
+
+.yellow {
+    color: #e3b341;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.terminal-prompt::before {
+    content: "$ ";
+    color: var(--green);
+}
+
+.tag {
+    display: inline-block;
+    border: 1px solid currentColor;
+    border-radius: 999px;
+    padding: 9px 15px;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.code {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: #090c10;
+    padding: 24px 28px;
+    color: #d2a8ff;
+    font-size: 24px;
+    line-height: 1.5;
+}
+
+/* === REVEAL ANIMATIONS === */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+        opacity 0.58s var(--ease),
+        transform 0.58s var(--ease);
+}
+
+.slide.visible .reveal {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.delay-1 { transition-delay: 0.08s; }
+.delay-2 { transition-delay: 0.18s; }
+.delay-3 { transition-delay: 0.28s; }
+.delay-4 { transition-delay: 0.38s; }
+.delay-5 { transition-delay: 0.48s; }
+
+/* === SLIDE 1: TITLE === */
+.title-content {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 40px 90px 54px;
+}
+
+.title-kicker {
+    margin-bottom: 30px;
+    color: var(--green);
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.title-content .eyebrow {
+    margin-bottom: 42px;
+    font-size: 29px;
+}
+
+.title-content h1 {
+    max-width: 1540px;
+    margin-bottom: 36px;
+    font-size: 96px;
+}
+
+.title-subtitle {
+    max-width: 1250px;
+    color: var(--muted);
+    font-size: 29px;
+    line-height: 1.55;
+}
+
+.player-card {
+    display: inline-flex;
+    width: fit-content;
+    margin-top: 34px;
+    border: 1px solid var(--blue);
+    border-radius: 8px;
+    background: var(--blue-soft);
+    align-items: center;
+    gap: 18px;
+    padding: 14px 20px;
+    color: var(--text);
+    font-size: 21px;
+}
+
+.player-card::before {
+    content: "PLAYER 1";
+    color: var(--blue);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.cursor {
+    display: inline-block;
+    width: 19px;
+    height: 59px;
+    margin-left: 13px;
+    animation: blink 1s steps(1) infinite;
+    background: var(--green);
+    vertical-align: -8px;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+.title-footer {
+    position: absolute;
+    right: 90px;
+    bottom: 48px;
+    left: 90px;
+    display: flex;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 20px;
+}
+
+/* === SLIDE 2: BLAST RADIUS === */
+.command-change-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.command-change-layout h2 {
+    max-width: 1400px;
+    margin-bottom: 46px;
+}
+
+.command-compare {
+    display: grid;
+    flex: 1;
+    grid-template-columns: 1fr 74px 1fr;
+    align-items: center;
+    gap: 30px;
+}
+
+.command-panel {
+    display: flex;
+    border-top: 2px solid var(--border);
+    border-bottom: 2px solid var(--border);
+    background: transparent;
+    flex-direction: column;
+    padding: 30px 0;
+}
+
+.command-panel.before {
+    border-color: var(--border);
+}
+
+.command-panel.after {
+    border-color: var(--border);
+}
+
+.command-panel .panel-label {
+    margin-bottom: 22px;
+    color: var(--muted);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.command-line {
+    margin-bottom: 18px;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    padding: 8px 0;
+    font-size: 31px;
+    font-weight: 700;
+}
+
+.command-line::before {
+    content: "$ ";
+    color: var(--green);
+}
+
+.command-panel.before .command-line strong {
+    color: var(--text);
+    text-decoration: line-through;
+    text-decoration-color: var(--muted);
+}
+
+.command-panel.after .command-line strong {
+    color: var(--green);
+}
+
+.output-label {
+    margin: 11px 0 12px;
+    color: var(--blue);
+    font-size: 18px;
+}
+
+.output-line {
+    margin: 0 0 9px;
+    color: var(--muted);
+    font-size: 21px;
+}
+
+.command-arrow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    font-size: 56px;
+}
+
+/* === SLIDE 3: SIMPLE-CHANGE REVEAL === */
+.simple-change-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 90px;
+}
+
+.simple-change-layout h2 {
+    max-width: 1500px;
+    margin-bottom: 34px;
+    font-size: 98px;
+}
+
+.simple-change-layout p {
+    max-width: 1180px;
+    color: var(--muted);
+    font-size: 29px;
+}
+
+.difficulty-meter {
+    display: flex;
+    width: 720px;
+    margin-top: 54px;
+    align-items: center;
+    gap: 18px;
+}
+
+.difficulty-meter span {
+    color: var(--green);
+    font-size: 17px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+}
+
+.difficulty-bar {
+    position: relative;
+    flex: 1;
+    height: 18px;
+    border: 2px solid var(--border);
+    background: #090c10;
+}
+
+.difficulty-bar::before {
+    position: absolute;
+    inset: 3px;
+    width: 16%;
+    content: "";
+    background: var(--green);
+    animation: difficulty-glitch 2.2s steps(2, end) infinite;
+}
+
+@keyframes difficulty-glitch {
+    65% { width: 16%; background: var(--green); }
+    72%, 100% { width: calc(100% - 6px); background: var(--red); }
+}
+
+/* === SLIDE 3: BLAST RADIUS === */
+.impact-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 510px 1fr;
+    gap: 48px;
+}
+
+.impact-number {
+    display: flex;
+    border: 2px solid var(--green);
+    border-radius: 16px;
+    background: var(--green-soft);
+    flex-direction: column;
+    justify-content: center;
+    padding: 42px;
+}
+
+.impact-number strong {
+    display: block;
+    color: var(--green);
+    font-size: 190px;
+    line-height: 0.92;
+    letter-spacing: -12px;
+}
+
+.impact-number span {
+    margin-top: 24px;
+    font-size: 35px;
+    font-weight: 700;
+}
+
+.impact-number small {
+    margin-top: 24px;
+    color: var(--muted);
+    font-size: 20px;
+    line-height: 1.5;
+}
+
+.impact-right {
+    display: flex;
+    flex-direction: column;
+}
+
+/* === SLIDE 5: RUN STATS === */
+.stats-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 0.9fr 1.1fr;
+    gap: 54px;
+}
+
+.stats-hero {
+    display: flex;
+    border: 2px solid var(--green);
+    border-radius: 14px;
+    background: var(--green-soft);
+    flex-direction: column;
+    justify-content: center;
+    padding: 46px;
+}
+
+.stats-hero .stat-label {
+    margin-bottom: 20px;
+    color: var(--green);
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+}
+
+.stats-hero strong {
+    color: var(--green);
+    font-size: 178px;
+    line-height: 0.9;
+    letter-spacing: -12px;
+}
+
+.stats-hero h2 {
+    margin: 28px 0 14px;
+    font-size: 42px;
+}
+
+.stats-hero p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 20px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.stat-card {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    flex-direction: column;
+    justify-content: center;
+    padding: 26px;
+}
+
+.stat-card strong {
+    margin-bottom: 10px;
+    color: var(--blue);
+    font-size: 48px;
+    line-height: 1;
+}
+
+.stat-card span {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.35;
+}
+
+.impact-right h2 {
+    margin-bottom: 30px;
+}
+
+.surface-grid {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.surface {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 25px 24px;
+}
+
+.surface .icon {
+    margin-bottom: 17px;
+    color: var(--green);
+    font-size: 30px;
+}
+
+.surface h3 {
+    font-size: 24px;
+}
+
+.surface p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+/* === SLIDE 3: FIRST PROMPT === */
+.prompt-only-layout {
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+}
+
+.prompt-only-card {
+    width: 1450px;
+    border: 2px solid var(--blue);
+    border-radius: 18px;
+    background: var(--blue-soft);
+    padding: 76px 86px;
+}
+
+.prompt-only-card .label {
+    margin-bottom: 38px;
+    color: var(--blue);
+    font-size: 24px;
+    font-weight: 700;
+}
+
+.prompt-only-card blockquote {
+    margin: 0;
+    font-size: 52px;
+    line-height: 1.42;
+    font-weight: 700;
+}
+
+/* === SLIDE 6: WHAT WENT WELL === */
+.wins-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.wins-layout h2 {
+    max-width: 1400px;
+    margin-bottom: 42px;
+}
+
+.wins-grid {
+    display: grid;
+    flex: 1;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.win-card {
+    position: relative;
+    display: flex;
+    min-height: 380px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    flex-direction: column;
+    padding: 30px 28px;
+}
+
+.win-card::after {
+    position: absolute;
+    right: 20px;
+    bottom: 14px;
+    content: "+XP";
+    color: var(--green);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    opacity: 0.65;
+}
+
+.win-icon {
+    margin-bottom: 28px;
+    color: var(--green);
+    font-size: 42px;
+}
+
+.win-card h3 {
+    margin-bottom: 18px;
+    font-size: 27px;
+}
+
+.win-card p {
+    color: var(--muted);
+    font-size: 19px;
+    line-height: 1.45;
+}
+
+.win-card.prompt-win {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+}
+
+.win-card.prompt-win p {
+    color: var(--text);
+}
+
+.compatibility-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 0.88fr 1.12fr;
+    gap: 48px;
+}
+
+.compatibility-hero {
+    display: flex;
+    border: 2px solid var(--yellow);
+    border-radius: 16px;
+    background: var(--yellow-soft);
+    flex-direction: column;
+    justify-content: center;
+    padding: 48px;
+}
+
+.compatibility-hero .big-word {
+    margin-bottom: 28px;
+    color: #e3b341;
+    font-size: 66px;
+    line-height: 1;
+    font-weight: 800;
+    letter-spacing: -4px;
+}
+
+.compatibility-hero p {
+    margin-bottom: 0;
+    color: var(--text);
+    font-size: 26px;
+}
+
+.compatibility-findings {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.compatibility-finding {
+    display: grid;
+    border-bottom: 1px solid var(--border);
+    grid-template-columns: 54px 1fr;
+    gap: 18px;
+    padding: 24px 0;
+}
+
+.compatibility-finding:last-child {
+    border-bottom: 0;
+}
+
+.compatibility-finding .symbol {
+    font-size: 30px;
+}
+
+.compatibility-finding h3 {
+    margin-bottom: 7px;
+    font-size: 26px;
+}
+
+.compatibility-finding p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 19px;
+}
+
+.prompt-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 48px;
+}
+
+.prompt-quote {
+    display: flex;
+    border: 2px solid var(--blue);
+    border-radius: 16px;
+    background: var(--blue-soft);
+    flex-direction: column;
+    justify-content: center;
+    padding: 52px;
+}
+
+.prompt-quote .label {
+    margin-bottom: 30px;
+    color: var(--blue);
+    font-size: 21px;
+}
+
+.prompt-quote blockquote {
+    margin: 0;
+    font-size: 38px;
+    line-height: 1.45;
+    font-weight: 700;
+}
+
+.danger-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.prompt-layout .danger-list h2 {
+    margin-bottom: 14px;
+    font-size: 49px;
+}
+
+.danger-item {
+    display: grid;
+    border-bottom: 1px solid var(--border);
+    grid-template-columns: 42px 1fr;
+    gap: 18px;
+    padding: 13px 0;
+}
+
+.danger-item:last-child {
+    border-bottom: 0;
+}
+
+.danger-item .mark {
+    color: var(--red);
+    font-size: 28px;
+}
+
+.danger-item .mark.good {
+    color: var(--green);
+}
+
+.danger-item .mark.note {
+    color: #e3b341;
+}
+
+.danger-item h3 {
+    margin-bottom: 4px;
+    font-size: 21px;
+}
+
+.danger-item p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 16px;
+}
+
+/* === SLIDE 4: PLAN MODE === */
+.plan-layout {
+    display: grid;
+    height: calc(100% - 112px);
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 34px;
+}
+
+.shot-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: #070a0e;
+}
+
+.shot-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.plan-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.plan-point {
+    flex: 1;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--panel);
+    padding: 24px 26px;
+}
+
+.plan-point strong {
+    display: block;
+    margin-bottom: 9px;
+    color: var(--green);
+    font-size: 23px;
+}
+
+.plan-point span {
+    color: var(--muted);
+    font-size: 19px;
+    line-height: 1.42;
+}
+
+.plan-mini-shot {
+    height: 220px;
+}
+
+/* === SLIDE 5: HALLUCINATION === */
+.hallucination-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 610px 1fr;
+    gap: 52px;
+}
+
+.hallucination-shot {
+    display: flex;
+    overflow: hidden;
+    border: 2px solid var(--red);
+    border-radius: 16px;
+    background: #080b0f;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.hallucination-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.story-flow {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.story-step {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    gap: 20px;
+    padding: 17px 0;
+}
+
+.story-index {
+    display: flex;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    color: var(--green);
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.story-step h3 {
+    margin-bottom: 5px;
+    font-size: 24px;
+}
+
+.story-step p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 18px;
+}
+
+.lesson-callout {
+    margin-top: 20px;
+    border-left: 5px solid var(--red);
+    background: var(--red-soft);
+    padding: 20px 24px;
+    color: var(--text);
+    font-size: 22px;
+    line-height: 1.45;
+}
+
+/* === SLIDE 6: GENERATED FILES === */
+.generated-layout {
+    display: grid;
+    height: 100%;
+    grid-template-columns: 1.34fr 0.66fr;
+    gap: 34px;
+}
+
+.generated-shot {
+    overflow: hidden;
+    border: 2px solid var(--yellow);
+    border-radius: 14px;
+    background: #080b0f;
+}
+
+.generated-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.generated-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.wrong-right {
+    display: grid;
+    gap: 18px;
+}
+
+.workflow-card {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+}
+
+.workflow-card.bad {
+    background: var(--red-soft);
+}
+
+.workflow-card.good {
+    background: var(--green-soft);
+}
+
+.workflow-card h3 {
+    margin-bottom: 8px;
+    font-size: 24px;
+}
+
+.workflow-card p {
+    margin-bottom: 0;
+    color: var(--muted);
+    font-size: 18px;
+}
+
+.regen-command {
+    margin-top: 20px;
+    font-size: 18px;
+}
+
+/* === SLIDE 7: BETTER PROMPTS === */
+.deep-prompt-layout {
+    display: grid;
+    height: calc(100% - 112px);
+    grid-template-columns: 0.78fr 1.22fr;
+    gap: 28px;
+}
+
+.deep-prompt {
+    display: flex;
+    border: 2px solid var(--blue);
+    border-radius: 14px;
+    background: var(--blue-soft);
+    flex-direction: column;
+    justify-content: center;
+    padding: 34px 38px;
+}
+
+.deep-prompt .prompt-label {
+    margin-bottom: 20px;
+    color: var(--blue);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.deep-prompt blockquote {
+    margin: 0;
+    color: var(--text);
+    font-size: 34px;
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.repo-tree {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #090c10;
+    flex-direction: column;
+    justify-content: center;
+    padding: 32px 36px;
+}
+
+.repo-tree .tree-label {
+    margin-bottom: 22px;
+    color: var(--blue);
+    font-size: 19px;
+    font-weight: 700;
+}
+
+.tree-line {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 20px;
+    margin-bottom: 12px;
+    font-size: 19px;
+    line-height: 1.35;
+}
+
+.tree-path {
+    color: var(--green);
+    white-space: pre;
+}
+
+.tree-note {
+    color: var(--muted);
+}
+
+/* === SLIDE 9: REUSABLE PROMPTS === */
+.prompt-cards {
+    display: grid;
+    height: calc(100% - 112px);
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.prompts-layout h2 {
+    font-size: 52px;
+}
+
+.prompt-card {
+    position: relative;
+    border: 1px solid var(--border);
+    border-radius: 13px;
+    background: var(--panel);
+    padding: 25px 28px 24px 54px;
+}
+
+.prompt-card::before {
+    position: absolute;
+    top: 24px;
+    left: 24px;
+    content: ">";
+    color: var(--green);
+    font-weight: 800;
+}
+
+.prompt-card h3 {
+    color: var(--blue);
+    font-size: 21px;
+}
+
+.prompt-card p {
+    margin-bottom: 0;
+    color: var(--text);
+    font-size: 18px;
+    line-height: 1.42;
+}
+
+.prompt-highlight {
+    border-radius: 4px;
+    background: var(--green);
+    padding: 2px 5px;
+    color: #07120b;
+    font-weight: 800;
+}
+
+/* === SLIDE 8: WORKING LOOP === */
+.loop {
+    position: relative;
+    display: grid;
+    height: 480px;
+    margin-top: 60px;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 30px 58px;
+}
+
+.loop::before {
+    position: absolute;
+    top: 50%;
+    right: 40px;
+    left: 40px;
+    height: 2px;
+    content: "";
+    background: var(--border);
+}
+
+.loop-node {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    flex-direction: column;
+    justify-content: center;
+    padding: 26px;
+}
+
+.loop-node .num {
+    margin-bottom: 10px;
+    color: var(--green);
+    font-size: 19px;
+}
+
+.loop-node strong {
+    margin-bottom: 8px;
+    font-size: 27px;
+}
+
+.loop-node span {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.4;
+}
+
+.loop-node.human {
+    border-color: var(--blue);
+    background: var(--blue-soft);
+}
+
+.loop-caption {
+    margin-top: 38px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 23px;
+}
+
+/* === SLIDE 9: CLOSING === */
+.closing-content {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 86px;
+}
+
+.closing-content h2 {
+    max-width: 1430px;
+    margin-bottom: 48px;
+    font-size: 74px;
+}
+
+.closing-rules {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+}
+
+.closing-rule {
+    min-height: 220px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    padding: 30px;
+}
+
+.closing-rule .rule-num {
+    display: block;
+    margin-bottom: 22px;
+    color: var(--green);
+    font-size: 24px;
+}
+
+.closing-rule strong {
+    display: block;
+    margin-bottom: 13px;
+    font-size: 27px;
+}
+
+.closing-rule span {
+    color: var(--muted);
+    font-size: 19px;
+    line-height: 1.45;
+}
+
+.closing-line {
+    margin-top: 48px;
+    color: var(--blue);
+    font-size: 25px;
+}
+
+/* === SECTION STATEMENT SLIDE === */
+.statement-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 86px;
+}
+
+.statement-layout h2 {
+    max-width: 1520px;
+    margin-bottom: 26px;
+    font-size: 72px;
+}
+
+.statement-sub {
+    max-width: 1340px;
+    color: var(--muted);
+    font-size: 26px;
+    line-height: 1.55;
+}
+
+.statement-cycles {
+    display: flex;
+    margin-top: 44px;
+    gap: 14px;
+}
+
+.cycle-chip {
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--panel);
+    padding: 12px 26px;
+    color: var(--muted);
+    font-size: 20px;
+}
+
+.cycle-chip.unsure {
+    border-color: var(--yellow);
+    color: var(--yellow);
+}
+
+.statement-turn {
+    margin-top: 46px;
+    color: var(--green);
+    font-size: 27px;
+}
+
+/* === HELPED / MOVING FORWARD SLIDES === */
+.helped-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 86px;
+}
+
+.helped-layout h2 {
+    max-width: 1520px;
+    margin-bottom: 10px;
+    font-size: 54px;
+}
+
+.helped-sub {
+    margin-bottom: 34px;
+    color: var(--muted);
+    font-size: 22px;
+}
+
+.helped-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.helped-card {
+    min-height: 268px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: var(--panel);
+    padding: 26px 28px;
+}
+
+.helped-card .step {
+    display: block;
+    margin-bottom: 16px;
+    color: var(--blue);
+    font-size: 20px;
+    letter-spacing: 0.06em;
+}
+
+.helped-card.warn .step {
+    color: var(--yellow);
+}
+
+.helped-card h3 {
+    margin-bottom: 12px;
+    font-size: 25px;
+    line-height: 1.25;
+}
+
+.helped-card p {
+    color: var(--muted);
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.helped-callout {
+    margin-top: 32px;
+    border-left: 3px solid var(--green);
+    padding-left: 22px;
+    color: var(--text);
+    font-size: 24px;
+    line-height: 1.45;
+}
+
+/* === SLIDE 11: DISCUSSION === */
+.discussion-layout {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px 86px;
+}
+
+.discussion-layout h2 {
+    max-width: 1500px;
+    margin-bottom: 12px;
+    font-size: 52px;
+}
+
+.discussion-sub {
+    margin-bottom: 28px;
+    color: var(--muted);
+    font-size: 21px;
+}
+
+.discussion-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.discussion-card {
+    display: flex;
+    min-height: 188px;
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--green);
+    border-radius: 14px;
+    background: var(--panel);
+    flex-direction: column;
+    gap: 10px;
+    padding: 22px 24px;
+}
+
+.discussion-card .q-mark {
+    color: var(--green);
+    font-size: 20px;
+    letter-spacing: 0.08em;
+}
+
+.discussion-card h3 {
+    font-size: 24px;
+    line-height: 1.25;
+}
+
+.discussion-card p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.discussion-card.blue-edge {
+    border-left-color: var(--blue);
+}
+
+.discussion-card.blue-edge .q-mark {
+    color: var(--blue);
+}
+
+.discussion-card.yellow-edge {
+    border-left-color: var(--yellow);
+}
+
+.discussion-card.yellow-edge .q-mark {
+    color: var(--yellow);
+}
+
+.discussion-line {
+    margin-top: 28px;
+    color: var(--blue);
+    font-size: 22px;
+}
+
+/* === DECK CONTROLS === */
+.deck-controls {
+    display: flex;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: rgba(13, 17, 23, 0.9);
+    align-items: center;
+    gap: 14px;
+    padding: 8px 14px;
+    color: var(--muted);
+    font-family: var(--font);
+    font-size: 14px;
+    backdrop-filter: blur(10px);
+}
+
+.deck-controls button {
+    width: 34px;
+    height: 34px;
+    border: 0;
+    border-radius: 50%;
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    font-family: var(--font);
+}
+
+.progress-track {
+    position: relative;
+    width: 160px;
+    height: 5px;
+    border-radius: 999px;
+    background: var(--border);
+}
+
+.progress-fill {
+    width: 0;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--green);
+    transition: width 0.3s var(--ease);
+}
+
+/* === 8-BIT HUD ACCENTS (SUBTLE) === */
+.hud-stage {
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    opacity: 0.65;
+}
+
+.hud-coins {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    opacity: 0.75;
+}
+
+/* Pixel coin drawn with box-shadow — 2px blocks, no external assets. */
+.pixel-coin {
+    width: 2px;
+    height: 2px;
+    background: transparent;
+    box-shadow:
+        2px 0 0 var(--yellow), 4px 0 0 var(--yellow),
+        0 2px 0 var(--yellow), 2px 2px 0 var(--yellow), 4px 2px 0 var(--yellow), 6px 2px 0 var(--yellow),
+        0 4px 0 var(--yellow), 2px 4px 0 #8a6109, 4px 4px 0 var(--yellow), 6px 4px 0 var(--yellow),
+        0 6px 0 var(--yellow), 2px 6px 0 #8a6109, 4px 6px 0 var(--yellow), 6px 6px 0 var(--yellow),
+        0 8px 0 var(--yellow), 2px 8px 0 var(--yellow), 4px 8px 0 var(--yellow), 6px 8px 0 var(--yellow),
+        2px 10px 0 var(--yellow), 4px 10px 0 var(--yellow);
+    transform: translateY(-5px);
+}
+
+/* Pixel step marker that walks the progress track as slides advance. */
+.pixel-runner {
+    position: absolute;
+    bottom: 7px;
+    left: 0;
+    width: 3px;
+    height: 3px;
+    background: var(--green);
+    box-shadow:
+        3px 0 0 var(--green),
+        0 -3px 0 var(--green), 3px -3px 0 var(--green);
+    transition: left 0.32s var(--ease);
+}
+
+.pixel-runner.hop {
+    animation: pixel-hop 0.42s steps(4, end);
+}
+
+@keyframes pixel-hop {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+    100% { transform: translateY(0); }
+}
+
+/* Brief coin blip on slide advance. */
+.coin-blip {
+    position: absolute;
+    bottom: 14px;
+    width: 2px;
+    height: 2px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.coin-blip.pop {
+    animation: coin-pop 0.66s steps(6, end);
+}
+
+@keyframes coin-pop {
+    0% { opacity: 0.9; transform: translateY(0) scale(1); }
+    100% { opacity: 0; transform: translateY(-24px) scale(0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pixel-runner.hop,
+    .coin-blip.pop {
+        animation: none;
+    }
+}
+
+/* === INLINE EDITING UI === */
+.edit-hotzone {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 10000;
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+}
+
+.edit-toggle {
+    position: fixed;
+    top: 18px;
+    left: 18px;
+    z-index: 10001;
+    width: 44px;
+    height: 44px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    opacity: 0;
+    background: var(--panel);
+    color: var(--text);
+    cursor: pointer;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+.edit-toggle.show,
+.edit-toggle.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+body.editing [data-editable] {
+    border-radius: 5px;
+    outline: 1px dashed var(--blue);
+    outline-offset: 4px;
+}
+
+body.editing [data-editable]:focus {
+    background: rgba(88, 166, 255, 0.09);
+    outline: 2px solid var(--blue);
+}
+</style>
+</head>
+<body>
+<!-- === FIXED PRESENTATION STAGE === -->
+<div class="deck-viewport">
+<main class="deck-stage" id="deckStage">
+
+<!-- === SLIDE 1: THE DECEPTIVELY SIMPLE ASK === -->
+<section class="slide active" aria-label="Title slide">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    azd / production-codebase-learnings
+                </div>
+                <span class="slide-number">01 / 17</span>
+            </div>
+            <div class="title-content">
+                <p class="title-kicker reveal" data-editable>AZD FIELD NOTES</p>
+                <h1 class="reveal delay-1" data-editable>
+                    What I learned making changes in a <span class="accent">production codebase.</span><span class="cursor"></span>
+                </h1>
+                <p class="title-subtitle reveal delay-2" data-editable>
+                    Field notes from changing Azure Developer CLI with GitHub Copilot.
+                </p>
+                <div class="player-card reveal delay-3" data-editable>Hiyo Shin · Azure Developer CLI</div>
+                <div class="title-footer reveal delay-3">
+                    <span data-editable>GitHub Copilot + unfamiliar code</span>
+                    <span data-editable>PRESS → TO START</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 2: THE COMMANDS AND OUTPUT === -->
+<section class="slide" aria-label="Commands and output to rename">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    intro / the change I actually wanted
+                </div>
+                <span class="slide-number">02 / 17</span>
+            </div>
+            <div class="content command-change-layout">
+                <p class="eyebrow reveal" data-editable>mission objective</p>
+                <h2 class="reveal delay-1" data-editable>Rename two commands and their customer-facing text.</h2>
+                <div class="command-compare">
+                    <article class="command-panel before reveal delay-1">
+                        <div class="panel-label" data-editable>CURRENT</div>
+                        <div class="command-line" data-editable>azd extension <strong>upgrade</strong></div>
+                        <div class="command-line" data-editable>azd tool <strong>upgrade</strong></div>
+                        <div class="output-label" data-editable>CUSTOMER-FACING TEXT</div>
+                        <p class="output-line" data-editable>“Upgrading extension…”</p>
+                        <p class="output-line" data-editable>“Check for tool upgrades.”</p>
+                    </article>
+                    <div class="command-arrow reveal delay-2">→</div>
+                    <article class="command-panel after reveal delay-3">
+                        <div class="panel-label" data-editable>TARGET</div>
+                        <div class="command-line" data-editable>azd extension <strong>update</strong></div>
+                        <div class="command-line" data-editable>azd tool <strong>update</strong></div>
+                        <div class="output-label" data-editable>CUSTOMER-FACING TEXT</div>
+                        <p class="output-line" data-editable>“Updating extension…”</p>
+                        <p class="output-line" data-editable>“Check for tool updates.”</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 3: I THOUGHT THIS WAS SIMPLE === -->
+<section class="slide" aria-label="The change looked simple">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    intro / estimated difficulty
+                </div>
+                <span class="slide-number">03 / 17</span>
+            </div>
+            <div class="content simple-change-layout">
+                <p class="eyebrow reveal" data-editable>my first estimate</p>
+                <h2 class="reveal delay-1" data-editable>I thought this was a <span class="accent">simple change.</span></h2>
+                <p class="reveal delay-2" data-editable>Two commands. A few strings. Let Copilot handle the repetition.</p>
+                <div class="difficulty-meter reveal delay-3">
+                    <span data-editable>DIFFICULTY</span>
+                    <div class="difficulty-bar" aria-hidden="true"></div>
+                    <span data-editable>EASY?</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 3: THE REAL BLAST RADIUS === -->
+<section class="slide" aria-label="Impact of the rename">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    intro / git diff --stat
+                </div>
+                <span class="slide-number">04 / 17</span>
+            </div>
+            <div class="content impact-layout">
+                <div class="impact-number reveal">
+                    <strong data-editable>49</strong>
+                    <span data-editable>changed files</span>
+                    <small data-editable>365 additions · 341 deletions<br>706 lines of churn</small>
+                </div>
+                <div class="impact-right">
+                    <p class="eyebrow reveal" data-editable>the blast radius</p>
+                    <h2 class="reveal delay-1" data-editable>It touched every layer around the command.</h2>
+                    <div class="surface-grid">
+                        <article class="surface reveal delay-1"><div class="icon">⌘</div><h3 data-editable>Commands</h3><p data-editable>Aliases, help, flags, prompts.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◫</div><h3 data-editable>Tests</h3><p data-editable>Behavior and output expectations.</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">↻</div><h3 data-editable>Snapshots</h3><p data-editable>Generated help and completions.</p></article>
+                        <article class="surface reveal delay-2"><div class="icon">◉</div><h3 data-editable>Telemetry</h3><p data-editable>Future events should say “update.”</p></article>
+                        <article class="surface reveal delay-3"><div class="icon">{ }</div><h3 data-editable>Compatibility</h3><p data-editable>Preserve only real contracts.</p></article>
+                        <article class="surface reveal delay-4"><div class="icon">§</div><h3 data-editable>Docs</h3><p data-editable>Examples and error guidance.</p></article>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 5: RUN STATS === -->
+<section class="slide" aria-label="Copilot usage and code impact metrics">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    run summary / by the numbers
+                </div>
+                <span class="slide-number">05 / 17</span>
+            </div>
+            <div class="content stats-layout">
+                <div class="stats-hero reveal">
+                    <span class="stat-label" data-editable>COPILOT TOOL EXECUTIONS</span>
+                    <strong data-editable>672</strong>
+                    <h2 data-editable>664 succeeded</h2>
+                    <p data-editable>8 diagnostic or unsuccessful attempts</p>
+                </div>
+                <div class="stats-grid">
+                    <article class="stat-card reveal delay-1"><strong data-editable>42</strong><span data-editable>rename-related prompts</span></article>
+                    <article class="stat-card reveal delay-2"><strong data-editable>4×</strong><span data-editable>review and quality passes</span></article>
+                    <article class="stat-card reveal delay-2"><strong data-editable>2×</strong><span data-editable>CI failure investigations</span></article>
+                    <article class="stat-card reveal delay-3"><strong data-editable>1×</strong><span data-editable>independent fresh-eyes review</span></article>
+                    <article class="stat-card reveal delay-3"><strong data-editable>20</strong><span data-editable>test or snapshot files</span></article>
+                    <article class="stat-card reveal delay-4"><strong data-editable>11</strong><span data-editable>documentation files</span></article>
+                    <article class="stat-card reveal delay-4"><strong data-editable>13</strong><span data-editable>commits in the journey</span></article>
+                    <article class="stat-card reveal delay-5"><strong data-editable>706</strong><span data-editable>total lines changed</span></article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 4: THE STARTING PROMPT === -->
+<section class="slide" aria-label="The starting prompt">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    intro / my first prompt
+                </div>
+                <span class="slide-number">06 / 17</span>
+            </div>
+            <div class="content prompt-only-layout">
+                <div class="prompt-only-card reveal">
+                    <div class="label" data-editable>MY STARTING PROMPT</div>
+                    <blockquote data-editable>
+                        “Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”
+                    </blockquote>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 6: WHAT WENT WELL === -->
+<section class="slide" aria-label="What went well with Copilot">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    checkpoint / what went well
+                </div>
+                <span class="slide-number">07 / 17</span>
+            </div>
+            <div class="content wins-layout">
+                <p class="eyebrow reveal" data-editable>checkpoint cleared</p>
+                <h2 class="reveal delay-1" data-editable>Copilot found more than I knew to look for.</h2>
+                <div class="wins-grid">
+                    <article class="win-card reveal delay-1">
+                        <div class="win-icon">◎</div>
+                        <h3 data-editable>Mapped the blast radius</h3>
+                        <p data-editable>Commands, tests, snapshots, telemetry, docs, and extensions.</p>
+                    </article>
+                    <article class="win-card reveal delay-2">
+                        <div class="win-icon">⛨</div>
+                        <h3 data-editable>Protected compatibility</h3>
+                        <p data-editable>It kept old command aliases working for users and scripts.</p>
+                    </article>
+                    <article class="win-card reveal delay-3">
+                        <div class="win-icon">?</div>
+                        <h3 data-editable>Asked me to set scope</h3>
+                        <p data-editable>Customer text only — or JSON, telemetry, aliases, and internals too?</p>
+                    </article>
+                    <article class="win-card prompt-win reveal delay-4">
+                        <div class="win-icon">↑</div>
+                        <h3 data-editable>Helped me learn</h3>
+                        <p data-editable>“Explain the repo and each change like I’m a junior developer.”</p>
+                    </article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 5: STILL NOT SURE (SECTION TURN) === -->
+<section class="slide" aria-label="Reviewing and still not being sure">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what surprised me / the review loop
+                </div>
+                <span class="slide-number">08 / 17</span>
+            </div>
+            <div class="content statement-layout">
+                <p class="eyebrow reveal" data-editable>where the story actually starts</p>
+                <h2 class="reveal delay-1" data-editable>I reviewed it. Then reviewed it again. I still wasn’t sure.</h2>
+                <p class="statement-sub reveal delay-2" data-editable>Nothing looked broken. I still couldn’t say it was correct.</p>
+                <div class="statement-cycles reveal delay-3">
+                    <span class="cycle-chip" data-editable>pass 1 — read the diff</span>
+                    <span class="cycle-chip" data-editable>pass 2 — Copilot re-review</span>
+                    <span class="cycle-chip" data-editable>pass 3 — pull request</span>
+                    <span class="cycle-chip unsure" data-editable>still unsure</span>
+                </div>
+                <p class="statement-turn reveal delay-4" data-editable>Then I started finding things that genuinely surprised me.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 6: UNNECESSARY BACKWARD COMPATIBILITY === -->
+<section class="slide" aria-label="Copilot overprotected backward compatibility">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what surprised me / verify before preserving
+                </div>
+                <span class="slide-number">09 / 17</span>
+            </div>
+            <div class="content compatibility-layout">
+                <div class="compatibility-hero reveal">
+                    <div class="big-word" data-editable>Copilot was too safe.</div>
+                    <p data-editable>It protected old values before proving anyone used them.</p>
+                </div>
+                <div class="compatibility-findings">
+                    <p class="eyebrow reveal" data-editable>what the investigation showed</p>
+                    <h2 class="reveal delay-1" data-editable>Preserve real contracts — not hypothetical ones.</h2>
+                    <div class="compatibility-finding reveal delay-1"><span class="symbol accent">✓</span><div><h3 data-editable>Keep the old command alias</h3><p data-editable>Users and scripts may still call it.</p></div></div>
+                    <div class="compatibility-finding reveal delay-2"><span class="symbol red">×</span><div><h3 data-editable>Drop unused JSON protection</h3><p data-editable>We checked: nothing depended on it.</p></div></div>
+                    <div class="compatibility-finding reveal delay-3"><span class="symbol accent">✓</span><div><h3 data-editable>Align the value</h3><p data-editable>It could safely say “update.”</p></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 6: REVIEW COMMENT HALLUCINATION === -->
+<section class="slide" aria-label="Review comment hallucination lesson">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what surprised me / verify the premise
+                </div>
+                <span class="slide-number">10 / 17</span>
+            </div>
+            <div class="content hallucination-layout">
+                <div class="hallucination-shot reveal">
+                    <img src="assets/copilotHallucinatingonHooksNameThatDonotExistBasedOnBotCommentPRreview.png" alt="Review bot comment claiming legacy command hooks existed">
+                </div>
+                <div class="story-flow">
+                    <p class="eyebrow reveal" data-editable>the funny hallucination loop</p>
+                    <h2 class="reveal delay-1" data-editable>A confident comment became a “fact” — until we checked.</h2>
+                    <div class="story-step reveal delay-1"><span class="story-index">1</span><div><h3 data-editable>The bot claimed hooks would break</h3></div></div>
+                    <div class="story-step reveal delay-2"><span class="story-index">2</span><div><h3 data-editable>Copilot accepted the premise</h3></div></div>
+                    <div class="story-step reveal delay-3"><span class="story-index">3</span><div><h3 data-editable>The hooks did not exist</h3></div></div>
+                    <div class="story-step reveal delay-4"><span class="story-index">4</span><div><h3 data-editable>We reverted the fix</h3></div></div>
+                    <div class="lesson-callout reveal delay-5" data-editable>
+                        Treat review feedback as a hypothesis. Verify the premise first.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 7: GENERATED SNAPSHOTS === -->
+<section class="slide" aria-label="Generated tests lesson">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what surprised me / use the source of truth
+                </div>
+                <span class="slide-number">11 / 17</span>
+            </div>
+            <div class="content generated-layout">
+                <div class="generated-shot reveal">
+                    <img src="assets/testsShouldBeRegneneratedInsteadOfModifiedByCopilotManually.png" alt="Generated TestFigSpec file manually edited in a pull request">
+                </div>
+                <div class="generated-copy">
+                    <p class="eyebrow reveal" data-editable>the generated-files mistake</p>
+                    <h2 class="reveal delay-1" data-editable>Copilot edited the output instead of running the generator.</h2>
+                    <div class="wrong-right">
+                        <article class="workflow-card bad reveal delay-2"><h3 class="red" data-editable>Wrong path</h3><p data-editable>Edit snapshots by hand.</p></article>
+                        <article class="workflow-card good reveal delay-3"><h3 class="accent" data-editable>Right path</h3><p data-editable>Run the canonical generator.</p></article>
+                    </div>
+                    <div class="code regen-command reveal delay-4" data-editable>
+                        UPDATE_SNAPSHOTS=true go test ./cmd<br>
+                        -run 'TestFigSpec|TestUsage'
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 9: REVIEWING WITH AN ENGINEER === -->
+<section class="slide" aria-label="Reviewing the change with an engineer">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / a human in the loop
+                </div>
+                <span class="slide-number">12 / 17</span>
+            </div>
+            <div class="content helped-layout">
+                <p class="eyebrow reveal" data-editable>the thing that helped most was not a prompt</p>
+                <h2 class="reveal delay-1" data-editable>I sat down with an engineer and walked the change together.</h2>
+                <p class="helped-sub reveal delay-1" data-editable>One meeting beat three solo review passes.</p>
+                <div class="helped-grid">
+                    <article class="helped-card reveal delay-1"><span class="step" data-editable>CO-OP MODE</span><h3 data-editable>Explain each file</h3><p data-editable>I said what I thought; an engineer corrected the gaps.</p></article>
+                    <article class="helped-card reveal delay-2"><span class="step" data-editable>RISK MAP</span><h3 data-editable>Files are not equal</h3><p data-editable>Copy, generated output, and contracts need different review.</p></article>
+                    <article class="helped-card reveal delay-3"><span class="step" data-editable>OWNERSHIP</span><h3 data-editable>Know which questions are yours</h3><p data-editable>I owned UX; experts answered compatibility.</p></article>
+                </div>
+                <p class="helped-callout reveal delay-4" data-editable>Copilot got me to a change. A conversation got me to confidence.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 10: PLAN MODE === -->
+<section class="slide" aria-label="Planning before implementation">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / plan before you edit
+                </div>
+                <span class="slide-number">13 / 17</span>
+            </div>
+            <div class="content">
+                <p class="eyebrow reveal" data-editable>planning changed the quality of the work</p>
+                <h2 class="reveal delay-1" data-editable>Brainstorm first. Inventory the system. Then implement.</h2>
+                <div class="plan-layout">
+                    <div class="shot-card reveal delay-1">
+                        <img src="assets/useThePlanModeForDeveloping.png" alt="Copilot plan-mode discussion about telemetry scope">
+                    </div>
+                    <div class="plan-copy">
+                        <div class="plan-point reveal delay-2"><strong data-editable>1. Find the real decision</strong><span data-editable>Text only — or telemetry, JSON, aliases, and internals?</span></div>
+                        <div class="plan-point reveal delay-3"><strong data-editable>2. Write non-goals</strong><span data-editable>Protect contracts and history intentionally.</span></div>
+                        <div class="shot-card plan-mini-shot reveal delay-4">
+                            <img src="assets/copilotShowingReadyPlan.png" alt="Copilot showing a ready-for-review implementation plan">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 9: A GOOD DEEP-EXPLANATION PROMPT === -->
+<section class="slide" aria-label="Prompt for learning the repository and changes">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / teach me the system
+                </div>
+                <span class="slide-number">14 / 17</span>
+            </div>
+            <div class="content">
+                <p class="eyebrow reveal" data-editable>a prompt that helped me learn, not just approve</p>
+                <h2 class="reveal delay-1" data-editable>Ask Copilot to build your mental model before explaining the diff.</h2>
+                <div class="deep-prompt-layout">
+                    <div class="deep-prompt reveal delay-1">
+                        <div class="prompt-label" data-editable>MY PROMPT</div>
+                        <blockquote data-editable>
+                            “Build my mental model first. Map the repo, then explain each changed file in simple language.”
+                        </blockquote>
+                    </div>
+                    <div class="repo-tree reveal delay-2">
+                        <div class="tree-label" data-editable>EXAMPLE: CLI/AZD REPOSITORY MAP</div>
+                        <div class="tree-line"><span class="tree-path" data-editable>cli/azd/</span><span class="tree-note" data-editable>Azure Developer CLI source</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- cmd/</span><span class="tree-note" data-editable>Commands, actions, and middleware</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- pkg/</span><span class="tree-note" data-editable>Reusable services and domain logic</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- internal/</span><span class="tree-note" data-editable>Internal telemetry and tracing</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>|-- extensions/</span><span class="tree-note" data-editable>First-party azd extensions</span></div>
+                        <div class="tree-line"><span class="tree-path" data-editable>`-- test/ + docs/</span><span class="tree-note" data-editable>Validation and guidance</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 10: PROMPTS THAT WORKED BETTER === -->
+<section class="slide" aria-label="Reusable prompt patterns">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    what helped me / make the judgment explicit
+                </div>
+                <span class="slide-number">15 / 17</span>
+            </div>
+            <div class="content prompts-layout">
+                <p class="eyebrow reveal" data-editable>prompts I would reuse</p>
+                <h2 class="reveal delay-1" data-editable>Tell Copilot what to protect, verify, and report.</h2>
+                <div class="prompt-cards">
+                    <article class="prompt-card reveal delay-1"><h3 data-editable>Define scope</h3><p data-editable>“Inventory aliases, JSON, telemetry, internals, and history. Preserve only real contracts.”</p></article>
+                    <article class="prompt-card reveal delay-2"><h3 data-editable>Challenge review comments</h3><p data-editable>“Fix it <span class="prompt-highlight">only if technically correct</span>. Verify the premise first.”</p></article>
+                    <article class="prompt-card reveal delay-3"><h3 data-editable>Get fresh eyes</h3><p data-editable>“Compare with main. Flag scope creep, breaks, and missing tests.”</p></article>
+                    <article class="prompt-card reveal delay-4"><h3 data-editable>Control the handoff</h3><p data-editable>“<span class="prompt-highlight">Do not push.</span> Summarize changes, reasons, non-changes, and validation.”</p></article>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 13: MOVING FORWARD === -->
+<section class="slide" aria-label="Moving forward">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    moving forward / what I actually took away
+                </div>
+                <span class="slide-number">16 / 17</span>
+            </div>
+            <div class="content helped-layout">
+                <p class="eyebrow reveal" data-editable>what I would tell myself before starting</p>
+                <h2 class="reveal delay-1" data-editable>The tool removed the typing. It did not remove the need to understand.</h2>
+                <p class="helped-sub reveal delay-1" data-editable>Easy to generate does not mean safe to ship.</p>
+                <div class="helped-grid">
+                    <article class="helped-card reveal delay-1"><span class="step" data-editable>01</span><h3 data-editable>Context is still the job</h3><p data-editable>Copilot writes code; people understand dependencies.</p></article>
+                    <article class="helped-card reveal delay-2"><span class="step" data-editable>02</span><h3 data-editable>Know the failure modes</h3><p data-editable>Generated files, confident feedback, speculative compatibility.</p></article>
+                    <article class="helped-card warn reveal delay-3"><span class="step" data-editable>03</span><h3 data-editable>I tested one model</h3><p data-editable>A second opinion might have changed the outcome.</p></article>
+                </div>
+                <p class="helped-callout reveal delay-4" data-editable>Being a builder now means knowing what to verify, not just what to ask for.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- === SLIDE 14: DISCUSSION === -->
+<section class="slide" aria-label="Discussion points">
+    <div class="slide-shell">
+        <div class="window">
+            <div class="window-bar">
+                <div class="window-title">
+                    <div class="window-dots">
+                        <span class="window-dot red"></span>
+                        <span class="window-dot yellow"></span>
+                        <span class="window-dot green"></span>
+                    </div>
+                    discussion / open questions
+                </div>
+                <span class="slide-number">17 / 17</span>
+            </div>
+            <div class="content discussion-layout">
+                <p class="eyebrow reveal" data-editable>open questions</p>
+                <h2 class="reveal delay-1" data-editable>How do you build in a codebase you don’t know yet?</h2>
+                <p class="discussion-sub reveal delay-1" data-editable>Three questions I’m carrying forward.</p>
+                <div class="discussion-grid">
+                    <article class="discussion-card reveal delay-1"><span class="q-mark" data-editable>01</span><h3 data-editable>What earns confidence?</h3></article>
+                    <article class="discussion-card blue-edge reveal delay-2"><span class="q-mark" data-editable>02</span><h3 data-editable>When do we pair or hand off?</h3></article>
+                    <article class="discussion-card yellow-edge reveal delay-3"><span class="q-mark" data-editable>03</span><h3 data-editable>How do we catch confident errors?</h3></article>
+                </div>
+                <p class="discussion-line reveal delay-4" data-editable>What works for you?</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+</main>
+</div>
+
+<!-- === OUTSIDE-STAGE PRESENTATION CONTROLS === -->
+<nav class="deck-controls" aria-label="Presentation controls">
+    <button id="prevButton" aria-label="Previous slide">←</button>
+    <span class="hud-stage" aria-hidden="true">LEVEL</span>
+    <span id="pageCounter">1 / 17</span>
+    <div class="progress-track" aria-hidden="true">
+        <div class="progress-fill" id="progressFill"></div>
+        <span class="pixel-runner" id="pixelRunner"></span>
+        <span class="coin-blip" id="coinBlip"><span class="pixel-coin"></span></span>
+    </div>
+    <span class="hud-coins" aria-hidden="true" title="files changed"><span class="pixel-coin"></span>×49</span>
+    <button id="nextButton" aria-label="Next slide">→</button>
+</nav>
+
+<!-- === INLINE EDITING CONTROLS === -->
+<div class="edit-hotzone" aria-hidden="true"></div>
+<button class="edit-toggle" id="editToggle" title="Edit mode (E)" aria-label="Toggle edit mode">✎</button>
+
+<script>
+/* === SLIDE PRESENTATION CONTROLLER === */
+class SlidePresentation {
+    constructor() {
+        this.slides = [...document.querySelectorAll(".slide")];
+        this.stage = document.getElementById("deckStage");
+        this.currentSlide = 0;
+        this.wheelLocked = false;
+        this.touchStartX = 0;
+        this.setupStageScale();
+        this.setupNavigation();
+        const requestedSlide = Number(new URLSearchParams(window.location.search).get("slide"));
+        this.showSlide(Number.isFinite(requestedSlide) && requestedSlide > 0 ? requestedSlide - 1 : 0);
+    }
+
+    setupStageScale() {
+        const scale = () => {
+            const factor = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            const x = (window.innerWidth - 1920 * factor) / 2;
+            const y = (window.innerHeight - 1080 * factor) / 2;
+            this.stage.style.transform = `translate(${x}px, ${y}px) scale(${factor})`;
+        };
+        scale();
+        window.addEventListener("resize", scale);
+    }
+
+    setupNavigation() {
+        document.getElementById("prevButton").addEventListener("click", () => this.previous());
+        document.getElementById("nextButton").addEventListener("click", () => this.next());
+
+        document.addEventListener("keydown", (event) => {
+            if (event.target.getAttribute("contenteditable") === "true") {
+                return;
+            }
+            if (["ArrowRight", "ArrowDown", "PageDown", " "].includes(event.key)) {
+                event.preventDefault();
+                this.next();
+            }
+            if (["ArrowLeft", "ArrowUp", "PageUp"].includes(event.key)) {
+                event.preventDefault();
+                this.previous();
+            }
+            if (event.key === "Home") {
+                this.showSlide(0);
+            }
+            if (event.key === "End") {
+                this.showSlide(this.slides.length - 1);
+            }
+        });
+
+        window.addEventListener("wheel", (event) => {
+            if (this.wheelLocked || Math.abs(event.deltaY) < 20) {
+                return;
+            }
+            this.wheelLocked = true;
+            event.deltaY > 0 ? this.next() : this.previous();
+            window.setTimeout(() => { this.wheelLocked = false; }, 500);
+        }, { passive: true });
+
+        window.addEventListener("touchstart", (event) => {
+            this.touchStartX = event.changedTouches[0].screenX;
+        }, { passive: true });
+
+        window.addEventListener("touchend", (event) => {
+            const delta = event.changedTouches[0].screenX - this.touchStartX;
+            if (Math.abs(delta) > 60) {
+                delta < 0 ? this.next() : this.previous();
+            }
+        }, { passive: true });
+    }
+
+    showSlide(index) {
+        const previous = this.currentSlide;
+        this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+        this.slides.forEach((slide, slideIndex) => {
+            const active = slideIndex === this.currentSlide;
+            slide.classList.toggle("active", active);
+            slide.classList.toggle("visible", active);
+        });
+        const ratio = (this.currentSlide + 1) / this.slides.length;
+        document.getElementById("pageCounter").textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+        document.getElementById("progressFill").style.width = `${ratio * 100}%`;
+        this.updateHud(ratio, previous !== this.currentSlide);
+    }
+
+    /* Moves the pixel marker along the progress track and pops a coin on advance. */
+    updateHud(ratio, moved) {
+        const runner = document.getElementById("pixelRunner");
+        const coin = document.getElementById("coinBlip");
+        if (!runner || !coin) {
+            return;
+        }
+        const track = runner.parentElement.clientWidth;
+        const left = Math.max(0, Math.min(track - 6, ratio * track - 6));
+        runner.style.left = `${left}px`;
+        if (!moved) {
+            return;
+        }
+        coin.style.left = `${left}px`;
+        runner.classList.remove("hop");
+        coin.classList.remove("pop");
+        void runner.offsetWidth;
+        runner.classList.add("hop");
+        coin.classList.add("pop");
+    }
+
+    next() {
+        this.showSlide(this.currentSlide + 1);
+    }
+
+    previous() {
+        this.showSlide(this.currentSlide - 1);
+    }
+}
+
+/* === INLINE TEXT EDITOR === */
+class InlineEditor {
+    constructor() {
+        this.isActive = false;
+        this.items = [...document.querySelectorAll("[data-editable]")];
+        this.storageKey = "copilot-update-learnings-edits-v13";
+        this.restore();
+    }
+
+    toggleEditMode() {
+        this.isActive = !this.isActive;
+        document.body.classList.toggle("editing", this.isActive);
+        document.getElementById("editToggle").classList.toggle("active", this.isActive);
+        this.items.forEach((item) => {
+            item.contentEditable = this.isActive ? "true" : "false";
+        });
+        if (!this.isActive) {
+            this.save();
+        }
+    }
+
+    save() {
+        const content = this.items.map((item) => item.innerHTML);
+        localStorage.setItem(this.storageKey, JSON.stringify(content));
+    }
+
+    restore() {
+        const raw = localStorage.getItem(this.storageKey);
+        if (!raw) {
+            return;
+        }
+        try {
+            const content = JSON.parse(raw);
+            this.items.forEach((item, index) => {
+                if (content[index] !== undefined) {
+                    item.innerHTML = content[index];
+                }
+            });
+        } catch {
+            localStorage.removeItem(this.storageKey);
+        }
+    }
+}
+
+/* === APPLICATION BOOTSTRAP === */
+const presentation = new SlidePresentation();
+const editor = new InlineEditor();
+const hotzone = document.querySelector(".edit-hotzone");
+const editToggle = document.getElementById("editToggle");
+let hideTimeout = null;
+
+editToggle.addEventListener("click", () => editor.toggleEditMode());
+hotzone.addEventListener("click", () => editor.toggleEditMode());
+hotzone.addEventListener("mouseenter", () => {
+    window.clearTimeout(hideTimeout);
+    editToggle.classList.add("show");
+});
+hotzone.addEventListener("mouseleave", () => {
+    hideTimeout = window.setTimeout(() => {
+        if (!editor.isActive) {
+            editToggle.classList.remove("show");
+        }
+    }, 400);
+});
+editToggle.addEventListener("mouseenter", () => window.clearTimeout(hideTimeout));
+editToggle.addEventListener("mouseleave", () => {
+    hideTimeout = window.setTimeout(() => {
+        if (!editor.isActive) {
+            editToggle.classList.remove("show");
+        }
+    }, 400);
+});
+document.addEventListener("keydown", (event) => {
+    if ((event.key === "e" || event.key === "E") &&
+        event.target.getAttribute("contenteditable") !== "true") {
+        editor.toggleEditMode();
+    }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        editor.save();
+    }
+});
+</script>
+</body>
+</html>
