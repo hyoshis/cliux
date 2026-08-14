@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Foundry DevPack · Single-tab installation prototype</title>
+<style>
+:root {
+  color-scheme: dark;
+  --page: #090b10;
+  --page-glow: rgba(40, 120, 255, 0.12);
+  --panel: #11141a;
+  --panel-border: #292d35;
+  --text: #f2f3f5;
+  --muted: #a9afb9;
+  --quiet: #727a87;
+  --accent: #6cb8ff;
+  --accent-strong: #1688f4;
+  --accent-soft: rgba(22, 136, 244, 0.14);
+  --success: #55d36a;
+  --terminal: #0c0c0c;
+  --terminal-bar: #2d2d2d;
+  --terminal-tab: #0c0c0c;
+  --terminal-text: #cccccc;
+  --terminal-dim: #858585;
+  --terminal-link: #3b8eea;
+  --terminal-cyan: #61d6d6;
+  --terminal-yellow: #f9f1a5;
+  --terminal-green: #16c60c;
+  --terminal-border: #3c3c3c;
+  --sans: "Segoe UI Variable Text", "Segoe UI", sans-serif;
+  --mono: "Cascadia Code", "Cascadia Mono", Consolas, monospace;
+  --ease-out: cubic-bezier(0.1, 0.9, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--page);
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  color: var(--text);
+  font-family: var(--sans);
+  background:
+    radial-gradient(900px 500px at 50% -160px, var(--page-glow), transparent 72%),
+    linear-gradient(180deg, #0d1016 0%, var(--page) 54%);
+}
+
+button {
+  font: inherit;
+}
+
+.page {
+  width: min(1180px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 42px 0 52px;
+}
+
+.intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 28px;
+  align-items: end;
+  margin: 0 4px 24px;
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 10px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.eyebrow::before {
+  width: 18px;
+  height: 2px;
+  content: "";
+  background: currentColor;
+}
+
+h1 {
+  max-width: 720px;
+  margin: 0;
+  font-size: clamp(28px, 4vw, 46px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+}
+
+.description {
+  max-width: 660px;
+  margin: 13px 0 0;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+.flow-note {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  justify-self: end;
+  padding: 8px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+}
+
+.flow-note svg {
+  width: 16px;
+  height: 16px;
+  color: var(--success);
+}
+
+.experience-tabs {
+  display: inline-flex;
+  gap: 4px;
+  margin: 0 4px 14px;
+  padding: 4px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid var(--panel-border);
+  border-radius: 9px;
+}
+
+.experience-tab {
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 140ms var(--ease-out),
+    background 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out);
+}
+
+.experience-tab:hover {
+  color: var(--text);
+}
+
+.experience-tab[aria-selected="true"] {
+  color: var(--text);
+  background: #242933;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
+}
+
+.experience-tab:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.experience-panel[hidden] {
+  display: none;
+}
+
+.prototype {
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.48),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.current-experience {
+  display: grid;
+  gap: 18px;
+  padding: 18px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  box-shadow:
+    0 36px 90px rgba(0, 0, 0, 0.48),
+    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.current-experience img {
+  display: block;
+  width: 100%;
+  height: auto;
+  background: var(--terminal);
+  border: 1px solid var(--terminal-border);
+  border-radius: 9px;
+}
+
+.prototype-meta {
+  display: flex;
+  min-height: 49px;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 14px 9px 18px;
+  border-bottom: 1px solid var(--panel-border);
+}
+
+.prototype-label {
+  display: flex;
+  min-width: 0;
+  gap: 10px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.prototype-label strong {
+  overflow: hidden;
+  color: var(--text);
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  flex: none;
+  gap: 7px;
+  align-items: center;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.status-dot {
+  width: 7px;
+  height: 7px;
+  background: var(--quiet);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(114, 122, 135, 0.12);
+  transition:
+    background 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out);
+}
+
+.status[data-state="running"] .status-dot {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(108, 184, 255, 0.14);
+  animation: status-pulse 1.3s ease-in-out infinite;
+}
+
+.status[data-state="complete"] .status-dot {
+  background: var(--success);
+  box-shadow: 0 0 0 3px rgba(85, 211, 106, 0.14);
+}
+
+.terminal-window {
+  min-height: 610px;
+  background: var(--terminal);
+}
+
+.window-bar {
+  position: relative;
+  display: flex;
+  height: 48px;
+  align-items: stretch;
+  background: var(--terminal-bar);
+  user-select: none;
+}
+
+.terminal-tab {
+  display: flex;
+  width: 340px;
+  gap: 11px;
+  align-items: center;
+  padding: 0 15px;
+  color: #f5f5f5;
+  background: var(--terminal-tab);
+  border-radius: 9px 9px 0 0;
+}
+
+.powershell-icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  flex: none;
+  color: white;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #315d89, #122b43);
+  border: 1px solid #7398b9;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px #000;
+  transform: skewX(-5deg);
+}
+
+.tab-title {
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tab-close {
+  width: 28px;
+  height: 28px;
+  margin-left: auto;
+  color: #d7d7d7;
+  font-size: 18px;
+  line-height: 24px;
+  text-align: center;
+  background: transparent;
+  border: 0;
+  border-radius: 4px;
+}
+
+.new-tab,
+.tab-menu {
+  display: grid;
+  width: 43px;
+  color: #e2e2e2;
+  place-items: center;
+  font-size: 23px;
+  background: transparent;
+  border: 0;
+}
+
+.tab-menu {
+  width: 34px;
+  font-size: 16px;
+}
+
+.window-controls {
+  display: flex;
+  margin-left: auto;
+}
+
+.window-control {
+  display: grid;
+  width: 46px;
+  color: #c5c5c5;
+  place-items: center;
+  font-size: 17px;
+}
+
+.window-control.close {
+  font-size: 22px;
+}
+
+.terminal-screen {
+  height: 562px;
+  overflow-y: auto;
+  padding: 13px 12px 32px;
+  color: var(--terminal-text);
+  font-family: var(--mono);
+  font-size: clamp(13px, 1.45vw, 16px);
+  font-variant-ligatures: none;
+  line-height: 1.42;
+  scrollbar-color: #424242 transparent;
+  scrollbar-width: thin;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.terminal-screen:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.line {
+  min-height: 1.42em;
+  opacity: 0;
+  transform: translateY(3px);
+  animation: line-enter 180ms var(--ease-out) forwards;
+}
+
+.line.static {
+  opacity: 1;
+  transform: none;
+  animation: none;
+}
+
+.terminal-heading {
+  color: #f2f2f2;
+  font-weight: 700;
+}
+
+.prompt,
+.command {
+  color: #f3f3f3;
+}
+
+.command {
+  font-weight: 700;
+}
+
+.cyan {
+  color: var(--terminal-cyan);
+}
+
+.link {
+  color: var(--terminal-link);
+}
+
+.yellow {
+  color: var(--terminal-yellow);
+}
+
+.green {
+  color: var(--terminal-green);
+}
+
+.dim {
+  color: var(--terminal-dim);
+}
+
+.progress {
+  color: #f2f2f2;
+}
+
+.success {
+  color: var(--terminal-green);
+  font-weight: 700;
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.58em;
+  height: 1.12em;
+  margin-left: 2px;
+  vertical-align: -0.18em;
+  background: #f1f1f1;
+  animation: cursor-blink 1.05s steps(1) infinite;
+}
+
+.prototype-actions {
+  display: flex;
+  min-height: 68px;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px 12px 18px;
+  border-top: 1px solid var(--panel-border);
+}
+
+.interaction-hint {
+  color: var(--quiet);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.interaction-hint kbd {
+  padding: 2px 6px;
+  color: var(--muted);
+  font: inherit;
+  background: #171a20;
+  border: 1px solid #343944;
+  border-bottom-color: #444a56;
+  border-radius: 4px;
+}
+
+.action-button {
+  display: inline-flex;
+  min-height: 40px;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  color: #06121e;
+  font-size: 14px;
+  font-weight: 650;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  cursor: pointer;
+  transition:
+    background 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+.action-button:hover {
+  background: #86c6ff;
+  border-color: #86c6ff;
+}
+
+.action-button:active {
+  transform: scale(0.98);
+}
+
+.action-button:focus-visible {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+
+.action-button[disabled] {
+  color: var(--quiet);
+  background: #20242b;
+  border-color: #30353e;
+  cursor: wait;
+}
+
+.action-button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.footnote {
+  margin: 14px 4px 0;
+  color: var(--quiet);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@keyframes line-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cursor-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes status-pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(108, 184, 255, 0.04);
+  }
+}
+
+@media (max-width: 760px) {
+  .page {
+    width: min(100% - 20px, 1180px);
+    padding-top: 24px;
+  }
+
+  .intro {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .flow-note {
+    justify-self: start;
+  }
+
+  .prototype {
+    border-radius: 11px;
+  }
+
+  .experience-tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: calc(100% - 8px);
+  }
+
+  .current-experience {
+    gap: 10px;
+    padding: 10px;
+    border-radius: 11px;
+  }
+
+  .prototype-label span {
+    display: none;
+  }
+
+  .terminal-tab {
+    width: min(260px, 62vw);
+  }
+
+  .window-controls {
+    display: none;
+  }
+
+  .terminal-window {
+    min-height: 560px;
+  }
+
+  .terminal-screen {
+    height: 512px;
+    padding-inline: 9px;
+    font-size: 12px;
+  }
+
+  .prototype-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .action-button {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+<main class="page">
+  <header class="intro">
+    <div>
+      <p class="eyebrow">Foundry DevPack install</p>
+      <h1>One terminal tab, from command to ready.</h1>
+      <p class="description">The DevPack download and environment setup now run as one uninterrupted flow, with azd-style progress making each operation easier to follow.</p>
+    </div>
+    <div class="flow-note">
+      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="m5 10 3.1 3L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Single-tab flow
+    </div>
+  </header>
+
+  <div class="experience-tabs" role="tablist" aria-label="Installation experience">
+    <button
+      class="experience-tab"
+      id="proposedTab"
+      type="button"
+      role="tab"
+      aria-selected="true"
+      aria-controls="proposedPanel"
+    >Proposed experience</button>
+    <button
+      class="experience-tab"
+      id="currentTab"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="currentPanel"
+      tabindex="-1"
+    >Current experience</button>
+  </div>
+
+  <div class="experience-panel" id="proposedPanel" role="tabpanel" aria-labelledby="proposedTab">
+    <section class="prototype" aria-labelledby="prototype-title">
+      <div class="prototype-meta">
+        <div class="prototype-label">
+          <strong id="prototype-title">Foundry DevPack installer</strong>
+          <span>Interactive CLI prototype</span>
+        </div>
+        <div class="status" id="status" data-state="ready" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="statusText">Ready to run</span>
+        </div>
+      </div>
+
+      <div class="terminal-window">
+        <div class="window-bar" aria-hidden="true">
+          <div class="terminal-tab">
+            <span class="powershell-icon">&gt;_</span>
+            <span class="tab-title">PowerShell</span>
+            <span class="tab-close">×</span>
+          </div>
+          <span class="new-tab">+</span>
+          <span class="tab-menu">⌄</span>
+          <div class="window-controls">
+            <span class="window-control">−</span>
+            <span class="window-control">□</span>
+            <span class="window-control close">×</span>
+          </div>
+        </div>
+        <div
+          class="terminal-screen"
+          id="terminal"
+          tabindex="0"
+          role="log"
+          aria-live="polite"
+          aria-label="PowerShell installation output"
+        ></div>
+      </div>
+
+      <div class="prototype-actions">
+        <span class="interaction-hint"><kbd>Enter</kbd> run installation</span>
+        <button class="action-button" id="runButton" type="button">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
+          </svg>
+          <span>Run installation</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <div
+    class="experience-panel"
+    id="currentPanel"
+    role="tabpanel"
+    aria-labelledby="currentTab"
+    hidden
+  >
+    <div class="current-experience">
+      <img src="./assets/current-winget.png" alt="Current winget installation experience in PowerShell" />
+      <img src="./assets/current-devpack-setup.png" alt="Current Foundry DevPack setup progress in a second terminal tab" />
+    </div>
+  </div>
+
+  <p class="footnote">Prototype behavior only. No commands are executed and no software is installed.</p>
+</main>
+
+<script>
+(() => {
+  const terminal = document.getElementById("terminal");
+  const runButton = document.getElementById("runButton");
+  const runButtonLabel = runButton.querySelector("span");
+  const status = document.getElementById("status");
+  const statusText = document.getElementById("statusText");
+  const experienceTabs = [...document.querySelectorAll(".experience-tab")];
+  const experiencePanels = [...document.querySelectorAll(".experience-panel")];
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  const spinnerFrames = [
+    "|===    |",
+    "| ===   |",
+    "|  ===  |",
+    "|   === |",
+    "|    ===|",
+    "|   === |",
+    "|  ===  |",
+    "| ===   |"
+  ];
+
+  const initialLines = [
+    '<span class="terminal-heading">PowerShell 7.6.4</span>',
+    '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="command">winget install Microsoft.FoundryDevPack</span><span class="cursor" aria-hidden="true"></span>'
+  ];
+
+  let running = false;
+  let runId = 0;
+
+  const selectExperience = (selectedTab, moveFocus = false) => {
+    experienceTabs.forEach((tab) => {
+      const isSelected = tab === selectedTab;
+      tab.setAttribute("aria-selected", String(isSelected));
+      tab.tabIndex = isSelected ? 0 : -1;
+    });
+
+    experiencePanels.forEach((panel) => {
+      panel.hidden = panel.id !== selectedTab.getAttribute("aria-controls");
+    });
+
+    if (moveFocus) selectedTab.focus();
+  };
+
+  const wait = (milliseconds) => new Promise((resolve) => {
+    window.setTimeout(resolve, reduceMotion.matches ? Math.min(milliseconds, 18) : milliseconds);
+  });
+
+  const scrollToLatest = () => {
+    terminal.scrollTop = terminal.scrollHeight;
+  };
+
+  const appendLine = (html = "", isStatic = false) => {
+    const line = document.createElement("div");
+    line.className = `line${isStatic ? " static" : ""}`;
+    line.innerHTML = html || "&nbsp;";
+    terminal.appendChild(line);
+    scrollToLatest();
+    return line;
+  };
+
+  const appendLines = async (lines, delay = 75, token = runId) => {
+    for (const html of lines) {
+      if (token !== runId) return;
+      appendLine(html);
+      await wait(delay);
+    }
+  };
+
+  const setState = (state, label) => {
+    status.dataset.state = state;
+    statusText.textContent = label;
+  };
+
+  const reset = () => {
+    runId += 1;
+    running = false;
+    terminal.innerHTML = "";
+    initialLines.forEach((line) => appendLine(line, true));
+    setState("ready", "Ready to run");
+    runButton.disabled = false;
+    runButtonLabel.textContent = "Run installation";
+    document.querySelector(".interaction-hint").innerHTML = "<kbd>Enter</kbd> run installation";
+    scrollToLatest();
+  };
+
+  const operation = async (activeText, completeText, duration, token = runId, description = "") => {
+    const line = appendLine(`<span class="progress" aria-hidden="true">${spinnerFrames[0]}</span> ${activeText}`);
+    if (description) {
+      appendLine(`<span class="dim">    ${description}</span>`);
+    }
+    const spinner = line.querySelector(".progress");
+    const start = performance.now();
+    let frame = 0;
+
+    while (performance.now() - start < (reduceMotion.matches ? 20 : duration)) {
+      if (token !== runId) return false;
+      spinner.textContent = spinnerFrames[frame % spinnerFrames.length];
+      frame += 1;
+      await wait(88);
+    }
+
+    line.innerHTML = `<span class="success">(✓) Done:</span> ${completeText}`;
+    scrollToLatest();
+    await wait(115);
+    return true;
+  };
+
+  const runInstallation = async () => {
+    if (running) return;
+
+    running = true;
+    const token = ++runId;
+    runButton.disabled = true;
+    runButtonLabel.textContent = "Installing...";
+    document.querySelector(".interaction-hint").textContent = "Installation runs in this tab";
+    setState("running", "Installing");
+
+    const cursor = terminal.querySelector(".cursor");
+    if (cursor) cursor.remove();
+
+    await wait(180);
+    appendLine("");
+    await operation(
+      "Downloading Microsoft Foundry DevPack",
+      'Downloaded Microsoft Foundry DevPack <span class="dim">(9.31 MB)</span>',
+      1200,
+      token
+    );
+    if (token !== runId) return;
+
+    appendLine("");
+    await appendLines([
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.1</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      ""
+    ], 80, token);
+
+    const setupSteps = [
+      [
+        "Installing Microsoft Foundry Toolkit for Visual Studio Code",
+        "Installed Microsoft Foundry Toolkit for Visual Studio Code",
+        650,
+        "Build, test, evaluate, and deploy from Visual Studio Code."
+      ],
+      [
+        "Installing azd and azd ai",
+        "Installed azd and azd ai",
+        620,
+        "Scaffold, deploy, evaluate, and automate from the terminal."
+      ],
+      [
+        "Installing Foundry Canvas (preview)",
+        "Installed Foundry Canvas (preview)",
+        700,
+        "Design and deploy hosted agents with a guided Copilot canvas."
+      ],
+      [
+        "Installing Microsoft Foundry Skill",
+        "Installed Microsoft Foundry Skill",
+        560,
+        "Give coding agents reusable guidance for Foundry workflows."
+      ]
+    ];
+
+    for (const [activeText, completeText, duration, description] of setupSteps) {
+      const completed = await operation(activeText, completeText, duration, token, description);
+      if (!completed || token !== runId) return;
+    }
+
+    appendLine("");
+    await appendLines([
+      '<span class="success">SUCCESS:</span> Microsoft Foundry DevPack is ready for CLI, VS Code, and Copilot development.',
+      "",
+      '<span class="terminal-heading">NEXT STEPS:</span>',
+      '  1. Ask your coding agent: <span class="cyan">"Create a Foundry hosted agent."</span>',
+      '  2. Run the command directly: <span class="cyan">azd ai agent init</span>',
+      "",
+      '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
+    ], 110, token);
+
+    running = false;
+    setState("complete", "Installation complete");
+    runButton.disabled = false;
+    runButtonLabel.textContent = "Replay installation";
+    document.querySelector(".interaction-hint").innerHTML = "<kbd>Enter</kbd> replay";
+  };
+
+  runButton.addEventListener("click", () => {
+    if (status.dataset.state === "complete") reset();
+    runInstallation();
+  });
+
+  experienceTabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => selectExperience(tab));
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      const nextIndex = (index + direction + experienceTabs.length) % experienceTabs.length;
+      selectExperience(experienceTabs[nextIndex], true);
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key !== "Enter" ||
+      running ||
+      document.getElementById("proposedPanel").hidden ||
+      event.target.closest("button")
+    ) return;
+    event.preventDefault();
+    if (status.dataset.state === "complete") reset();
+    runInstallation();
+  });
+
+  reset();
+  window.requestAnimationFrame(runInstallation);
+})();
+</script>
+</body>
+</html>
