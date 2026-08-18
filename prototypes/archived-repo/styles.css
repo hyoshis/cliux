@@ -1,0 +1,171 @@
+:root {
+  color-scheme: dark;
+  --terminal-background: #181a1b;
+  --terminal-text: #f3f3f3;
+  --terminal-warning: #f5f500;
+  --terminal-accent: #2499f2;
+  --terminal-success: #00d98b;
+  --focus: #8bc7ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  background: #101112;
+  color: var(--terminal-text);
+  font-family: "Cascadia Mono", "Cascadia Code", Consolas, monospace;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.35;
+}
+
+.options {
+  display: grid;
+  gap: 28px;
+  width: min(100%, 1100px);
+  margin: 0 auto;
+  padding: 28px 20px 40px;
+}
+
+.option {
+  min-width: 0;
+}
+
+h2 {
+  margin: 0 0 12px;
+  color: var(--terminal-text);
+  font-family: "Segoe UI", sans-serif;
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.option-description {
+  margin: -6px 0 12px;
+  color: #b9bec5;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.terminal {
+  min-height: 225px;
+  overflow-x: auto;
+  padding: 16px 7px 17px;
+  border: 1px solid #2b2e31;
+  background: var(--terminal-background);
+}
+
+p {
+  margin: 0;
+}
+
+.heading {
+  margin-bottom: 23px;
+  font-weight: 700;
+}
+
+.warning {
+  margin-bottom: 24px;
+}
+
+.warning-title {
+  color: var(--terminal-warning);
+}
+
+.warning p + p {
+  margin-top: 1px;
+}
+
+.prompt {
+  display: flex;
+  align-items: baseline;
+  gap: 9px;
+  margin-bottom: 23px;
+  white-space: nowrap;
+}
+
+.prompt-mark,
+.choice {
+  color: var(--terminal-accent);
+}
+
+.prompt-mark {
+  font-weight: 400;
+}
+
+.choice {
+  appearance: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.choice:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.result {
+  color: var(--terminal-success);
+}
+
+.result-warning {
+  color: var(--terminal-warning);
+}
+
+.alternatives {
+  margin-top: 23px;
+}
+
+.alternatives ul {
+  display: grid;
+  gap: 3px;
+  margin: 7px 0 0;
+  padding: 0;
+  color: var(--terminal-text);
+  list-style: none;
+}
+
+.alternatives li::before {
+  content: "- ";
+  color: var(--terminal-text);
+}
+
+[contenteditable="true"] {
+  border-radius: 2px;
+  outline: 1px solid transparent;
+  outline-offset: 3px;
+}
+
+[contenteditable="true"]:focus,
+.choice:focus-visible {
+  outline: 1px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  body {
+    font-size: 14px;
+  }
+
+  .options {
+    padding-inline: 12px;
+  }
+
+  .prompt {
+    flex-wrap: wrap;
+    white-space: normal;
+  }
+}

@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Archived template prompt</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="options">
+      <article class="option">
+        <h2 contenteditable="true" spellcheck="false">Current option</h2>
+        <section class="terminal" aria-label="Current archived template prompt">
+          <p class="heading" contenteditable="true" spellcheck="false">
+            Initializing an app to run on Azure (azd init)
+          </p>
+
+          <div class="warning" aria-label="Warning">
+            <p class="warning-title" contenteditable="true" spellcheck="false">
+              WARNING: This template repository is archived and is no longer actively maintained.
+            </p>
+            <p contenteditable="true" spellcheck="false">
+              It may not receive dependency updates, compatibility fixes, security patches, or support.
+            </p>
+          </div>
+
+          <div class="prompt">
+            <span class="prompt-mark" aria-hidden="true">?</span>
+            <span class="prompt-question" contenteditable="true" spellcheck="false">
+              Do you want to continue using this archived template?
+            </span>
+            <button class="choice" type="button" aria-label="Toggle response">No</button>
+          </div>
+
+          <p class="result" aria-live="polite" contenteditable="true" spellcheck="false">
+            SUCCESS: Init cancelled.
+          </p>
+        </section>
+      </article>
+
+      <article class="option">
+        <h2 contenteditable="true" spellcheck="false">Option 1</h2>
+        <p class="option-description" contenteditable="true" spellcheck="false">
+          Shortens the message and gives cancellation its own state instead of presenting it as success.
+        </p>
+        <section class="terminal" aria-label="Archived template prompt option 1">
+          <p class="heading" contenteditable="true" spellcheck="false">
+            Initializing an app to run on Azure (azd init)
+          </p>
+
+          <div class="warning" aria-label="Warning">
+            <p class="warning-title" contenteditable="true" spellcheck="false">
+              WARNING: This template repository is archived and no longer maintained.
+            </p>
+            <p contenteditable="true" spellcheck="false">
+              It may not receive dependency updates, compatibility fixes, or security patches.
+            </p>
+          </div>
+
+          <div class="prompt">
+            <span class="prompt-mark" aria-hidden="true">?</span>
+            <span class="prompt-question" contenteditable="true" spellcheck="false">
+              Continue using this archived template? (y/N)
+            </span>
+            <button class="choice" type="button" aria-label="Toggle response">No</button>
+          </div>
+
+          <p class="result result-warning" aria-live="polite" contenteditable="true" spellcheck="false">
+            CANCELLED: Initialization stopped.
+          </p>
+        </section>
+      </article>
+
+      <article class="option">
+        <h2 contenteditable="true" spellcheck="false">Option 2</h2>
+        <p class="option-description" contenteditable="true" spellcheck="false">
+          Uses the same concise message and result styling as Option 1, then recommends alternative templates.
+        </p>
+        <section class="terminal" aria-label="Archived template prompt option 2">
+          <p class="heading" contenteditable="true" spellcheck="false">
+            Initializing an app to run on Azure (azd init)
+          </p>
+
+          <div class="warning" aria-label="Warning">
+            <p class="warning-title" contenteditable="true" spellcheck="false">
+              WARNING: This template repository is archived and no longer maintained.
+            </p>
+            <p contenteditable="true" spellcheck="false">
+              It may not receive dependency updates, compatibility fixes, or security patches.
+            </p>
+          </div>
+
+          <div class="prompt">
+            <span class="prompt-mark" aria-hidden="true">?</span>
+            <span class="prompt-question" contenteditable="true" spellcheck="false">
+              Continue using this archived template? (y/N)
+            </span>
+            <button class="choice" type="button" aria-label="Toggle response">No</button>
+          </div>
+
+          <p class="result result-warning" aria-live="polite" contenteditable="true" spellcheck="false">
+            CANCELLED: Initialization stopped.
+          </p>
+
+          <div class="alternatives">
+            <p contenteditable="true" spellcheck="false">
+              Alternative templates you can initialize with:
+            </p>
+            <ul aria-label="Alternative templates">
+              <li contenteditable="true" spellcheck="false">
+                Azure-Samples/todo-csharp-sql-swa-func
+              </li>
+              <li contenteditable="true" spellcheck="false">
+                Azure-Samples/todo-nodejs-mongo-swa-func
+              </li>
+              <li contenteditable="true" spellcheck="false">
+                Azure-Samples/todo-python-mongo-swa-func
+              </li>
+            </ul>
+          </div>
+        </section>
+      </article>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
