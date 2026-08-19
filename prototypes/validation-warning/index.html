@@ -190,7 +190,9 @@ h1 {
   <section class="prototype" aria-label="Validation warning message comparison">
     <div class="tabs" role="tablist" aria-label="Message versions">
       <button class="tab" id="current-tab" role="tab" aria-selected="true" aria-controls="current-panel">Current experience</button>
-      <button class="tab" id="improved-tab" role="tab" aria-selected="false" aria-controls="improved-panel" tabindex="-1">Improved message</button>
+      <button class="tab" id="warnings-only-tab" role="tab" aria-selected="false" aria-controls="warnings-only-panel" tabindex="-1">Option 1</button>
+      <button class="tab" id="improved-tab" role="tab" aria-selected="false" aria-controls="improved-panel" tabindex="-1">Option 2</button>
+      <button class="tab" id="copilot-tab" role="tab" aria-selected="false" aria-controls="copilot-panel" tabindex="-1">Option 3</button>
     </div>
 
     <div class="panel active" id="current-panel" role="tabpanel" aria-labelledby="current-tab">
@@ -228,23 +230,76 @@ Location: <span class="blue">East US 2</span>
 
 Validation found <span class="red bold">1 critical warning</span> and <span class="yellow bold">1 warning</span>.
 
-  <span class="severity red">[Critical]</span> Role assignment permissions are missing
-             Principal <span class="blue">62661785-adcf-4117-b9d0-22b3aa2b4ebf</span> cannot create role assignments
-             in subscription <span class="blue">faa080af-c1d8-40ad-9cce-e1a450ca5b57</span>.
+<span class="severity red">(!) Critical:</span> Role assignment permissions are missing. Principal <span class="blue">62661785-adcf-4117-b9d0-22b3aa2b4ebf</span> cannot create role assignments in subscription <span class="blue">faa080af-c1d8-40ad-9cce-e1a450ca5b57</span>.
 
-             <span class="red bold">This deployment will most likely fail if you continue.</span>
-             Ask an administrator to assign Role Based Access Control Administrator,
-             User Access Administrator, Owner, or a custom role that includes
-             Microsoft.Authorization/roleAssignments/write.
+<span class="red bold">This deployment will most likely fail if you continue.</span>
+<span class="blue">Suggestion:</span> Ask an administrator to assign Role Based Access Control Administrator, User Access Administrator, Owner, or a custom role that includes Microsoft.Authorization/roleAssignments/write.
 
-  <span class="severity yellow">[Warning]</span> Demo extension generated a validation warning
-             The Bicep snapshot contains 19 predicted resources. Review them before deployment.
+<span class="severity yellow">(!) Warning:</span> Demo extension generated a validation warning. The Bicep snapshot contains 19 predicted resources. Review them before deployment.
 
 <span class="bold">Fix the warnings before continuing to reduce the risk of deployment failure.</span>
 
-<span class="blue">?</span> Choose an action: [N/y]: <span class="cursor" aria-hidden="true"></span>
-  <span class="choice yellow">N</span> - stop the deployment and fix the warnings <span class="dim">(recommended)</span>
-  <span class="choice yellow">Y</span> - continue the deployment <span class="dim">(critical warnings will likely cause it to fail)</span></pre>
+<span class="blue">?</span> Continue the workflow? [y/N] <span class="cursor" aria-hidden="true"></span>
+
+  <span class="choice yellow">N</span> - Stop and fix warnings myself <span class="dim">(recommended)</span>
+  <span class="choice yellow">Y</span> - Continue anyway</pre>
+      </div>
+    </div>
+
+    <div class="panel" id="warnings-only-panel" role="tabpanel" aria-labelledby="warnings-only-tab" hidden>
+      <div class="terminal" aria-label="Terminal showing validation findings as warnings">
+<pre>hiyo@proto:~/workspace$ azd up
+<span class="dim">Note: Running custom 'up' workflow from azure.yaml</span>
+
+Provisioning Azure resources (azd provision)
+<span class="dim">Provisioning Azure resources can take some time.</span>
+
+Subscription: <span class="blue">Azure SDK Developer Playground (faa080af-c1d8-40ad-9cce-e1a450ca5b57)</span>
+Location: <span class="blue">East US 2</span>
+
+Validation found <span class="yellow bold">2 warnings</span>.
+
+<span class="severity yellow">(!) Warning:</span> Role assignment permissions are missing. Principal <span class="blue">62661785-adcf-4117-b9d0-22b3aa2b4ebf</span> cannot create role assignments in subscription <span class="blue">faa080af-c1d8-40ad-9cce-e1a450ca5b57</span>.
+
+<span class="blue">Suggestion:</span> Ask an administrator to assign Role Based Access Control Administrator, User Access Administrator, Owner, or a custom role that includes Microsoft.Authorization/roleAssignments/write.
+
+<span class="severity yellow">(!) Warning:</span> Demo extension generated a validation warning. The Bicep snapshot contains 19 predicted resources. Review them before deployment.
+
+<span class="bold">Review and resolve the warnings before continuing.</span>
+
+<span class="blue">?</span> Continue the workflow? [y/N] <span class="cursor" aria-hidden="true"></span>
+
+  <span class="choice yellow">N</span> - Stop and fix warnings myself <span class="dim">(recommended)</span>
+  <span class="choice yellow">Y</span> - Continue anyway</pre>
+      </div>
+    </div>
+
+    <div class="panel" id="copilot-panel" role="tabpanel" aria-labelledby="copilot-tab" hidden>
+      <div class="terminal" aria-label="Terminal showing validation actions with Copilot">
+<pre>hiyo@proto:~/workspace$ azd up
+<span class="dim">Note: Running custom 'up' workflow from azure.yaml</span>
+
+Provisioning Azure resources (azd provision)
+<span class="dim">Provisioning Azure resources can take some time.</span>
+
+Subscription: <span class="blue">Azure SDK Developer Playground (faa080af-c1d8-40ad-9cce-e1a450ca5b57)</span>
+Location: <span class="blue">East US 2</span>
+
+Validation found <span class="yellow bold">2 warnings</span>.
+
+<span class="severity yellow">(!) Warning:</span> Role assignment permissions are missing. Principal <span class="blue">62661785-adcf-4117-b9d0-22b3aa2b4ebf</span> cannot create role assignments in subscription <span class="blue">faa080af-c1d8-40ad-9cce-e1a450ca5b57</span>.
+
+<span class="blue">Suggestion:</span> Ask an administrator to assign Role Based Access Control Administrator, User Access Administrator, Owner, or a custom role that includes Microsoft.Authorization/roleAssignments/write.
+
+<span class="severity yellow">(!) Warning:</span> Demo extension generated a validation warning. The Bicep snapshot contains 19 predicted resources. Review them before deployment.
+
+<span class="bold">Review and resolve the warnings before continuing.</span>
+
+<span class="blue">?</span> How would you like to proceed?
+
+  <span class="blue bold">&gt;</span> <span class="bold">Fix warnings with Copilot</span>
+    Stop and fix warnings myself
+    Continue anyway</pre>
       </div>
     </div>
   </section>
