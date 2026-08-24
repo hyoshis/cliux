@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Foundry DevPack · Single-tab installation prototype</title>
+<title>Foundry DevPack · Proposed installation prototype</title>
 <style>
 :root {
   color-scheme: dark;
@@ -58,7 +58,7 @@ button {
 }
 
 .page {
-  width: min(1180px, calc(100% - 40px));
+  width: min(1600px, calc(100% - 40px));
   margin: 0 auto;
   padding: 42px 0 52px;
 }
@@ -183,25 +183,116 @@ h1 {
     0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
-.current-experience {
+.current-interactive-grid {
   display: grid;
-  gap: 18px;
-  padding: 18px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  box-shadow:
-    0 36px 90px rgba(0, 0, 0, 0.48),
-    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  padding: 14px;
 }
 
-.current-experience img {
-  display: block;
-  width: 100%;
-  height: auto;
+.current-terminal-card {
+  overflow: hidden;
   background: var(--terminal);
   border: 1px solid var(--terminal-border);
   border-radius: 9px;
+  transition:
+    border-color 180ms var(--ease-out),
+    opacity 180ms var(--ease-out);
+}
+
+.current-terminal-card[data-state="pending"] {
+  opacity: 0.52;
+}
+
+.current-terminal-card[data-state="running"] {
+  border-color: var(--accent);
+}
+
+.current-terminal-card[data-state="complete"] {
+  border-color: rgba(85, 211, 106, 0.55);
+}
+
+.terminal-step {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  color: var(--muted);
+  font-size: 12px;
+  border-bottom: 1px solid var(--terminal-border);
+}
+
+.terminal-step strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.step-state {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  font-family: var(--mono);
+}
+
+.step-state::before {
+  width: 6px;
+  height: 6px;
+  content: "";
+  background: var(--quiet);
+  border-radius: 50%;
+}
+
+.current-terminal-card[data-state="running"] .step-state::before {
+  background: var(--accent);
+}
+
+.current-terminal-card[data-state="complete"] .step-state::before {
+  background: var(--success);
+}
+
+.current-terminal-card .terminal-window {
+  min-height: 0;
+}
+
+.current-terminal-card .terminal-screen {
+  height: auto;
+  min-height: 820px;
+  overflow-y: visible;
+  padding-bottom: 20px;
+  font-size: clamp(12px, 1.2vw, 15px);
+}
+
+.download-track {
+  display: inline-block;
+  width: min(29em, 72%);
+  height: 1.05em;
+  overflow: hidden;
+  vertical-align: -0.14em;
+  background: #1b1b1b;
+}
+
+.download-fill {
+  display: block;
+  width: 0;
+  height: 100%;
+  background: #0984d4;
+  transition: width 90ms linear;
+}
+
+.check-pending,
+.check-complete {
+  display: inline-block;
+  width: 1ch;
+}
+
+.check-pending {
+  color: var(--terminal-dim);
+}
+
+.check-complete {
+  color: var(--terminal-green);
+  font-weight: 700;
 }
 
 .prototype-meta {
@@ -564,14 +655,25 @@ h1 {
 
   .experience-tabs {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     width: calc(100% - 8px);
   }
 
-  .current-experience {
+  .experience-tab {
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .current-interactive-grid {
+    grid-template-columns: 1fr;
     gap: 10px;
     padding: 10px;
-    border-radius: 11px;
+  }
+
+  .current-terminal-card .terminal-screen {
+    height: 300px;
+    min-height: 0;
+    overflow-y: auto;
   }
 
   .prototype-label span {
@@ -623,14 +725,14 @@ h1 {
   <header class="intro">
     <div>
       <p class="eyebrow">Foundry DevPack install</p>
-      <h1>One terminal tab, from command to ready.</h1>
-      <p class="description">The DevPack download and environment setup now run as one uninterrupted flow, with azd-style progress making each operation easier to follow.</p>
+      <h1>Two clear steps, from command to ready.</h1>
+      <p class="description">The proposed DevPack experience shows package installation and environment setup as one guided flow, with progress and status visible at every step.</p>
     </div>
     <div class="flow-note">
       <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="m5 10 3.1 3L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Single-tab flow
+      Proposed flow
     </div>
   </header>
 
@@ -643,78 +745,100 @@ h1 {
       aria-selected="true"
       aria-controls="proposedPanel"
     >Proposed experience</button>
-    <button
-      class="experience-tab"
-      id="currentTab"
-      type="button"
-      role="tab"
-      aria-selected="false"
-      aria-controls="currentPanel"
-      tabindex="-1"
-    >Current experience</button>
-  </div>
-
-  <div class="experience-panel" id="proposedPanel" role="tabpanel" aria-labelledby="proposedTab">
-    <section class="prototype" aria-labelledby="prototype-title">
-      <div class="prototype-meta">
-        <div class="prototype-label">
-          <strong id="prototype-title">Foundry DevPack installer</strong>
-          <span>Interactive CLI prototype</span>
-        </div>
-        <div class="status" id="status" data-state="ready" aria-live="polite">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span id="statusText">Ready to run</span>
-        </div>
-      </div>
-
-      <div class="terminal-window">
-        <div class="window-bar" aria-hidden="true">
-          <div class="terminal-tab">
-            <span class="powershell-icon">&gt;_</span>
-            <span class="tab-title">PowerShell</span>
-            <span class="tab-close">×</span>
-          </div>
-          <span class="new-tab">+</span>
-          <span class="tab-menu">⌄</span>
-          <div class="window-controls">
-            <span class="window-control">−</span>
-            <span class="window-control">□</span>
-            <span class="window-control close">×</span>
-          </div>
-        </div>
-        <div
-          class="terminal-screen"
-          id="terminal"
-          tabindex="0"
-          role="log"
-          aria-live="polite"
-          aria-label="PowerShell installation output"
-        ></div>
-      </div>
-
-      <div class="prototype-actions">
-        <span class="interaction-hint"><kbd>Enter</kbd> run installation</span>
-        <button class="action-button" id="runButton" type="button">
-          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
-          </svg>
-          <span>Run installation</span>
-        </button>
-      </div>
-    </section>
   </div>
 
   <div
     class="experience-panel"
-    id="currentPanel"
+    id="proposedPanel"
     role="tabpanel"
-    aria-labelledby="currentTab"
-    hidden
+    aria-labelledby="proposedTab"
   >
-    <div class="current-experience">
-      <img src="./assets/current-winget.png" alt="Current winget installation experience in PowerShell" />
-      <img src="./assets/current-devpack-setup.png" alt="Current Foundry DevPack setup progress in a second terminal tab" />
-    </div>
+    <section class="prototype" aria-labelledby="proposed-title">
+      <div class="prototype-meta">
+        <div class="prototype-label">
+          <strong id="proposed-title">Proposed two-step installer</strong>
+          <span>Interactive CLI prototype</span>
+        </div>
+        <div class="status" id="currentStatus" data-state="ready" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span id="currentStatusText">Ready to run</span>
+        </div>
+      </div>
+
+      <div class="current-interactive-grid">
+        <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-labelledby="winget-step-title">
+          <div class="terminal-step">
+            <strong id="winget-step-title">Step 1 of 2 · Install with winget</strong>
+            <span class="step-state" id="wingetStepState">Ready</span>
+          </div>
+          <div class="terminal-window">
+            <div class="window-bar" aria-hidden="true">
+              <div class="terminal-tab">
+                <span class="powershell-icon">&gt;_</span>
+                <span class="tab-title">PowerShell</span>
+                <span class="tab-close">×</span>
+              </div>
+              <span class="new-tab">+</span>
+              <span class="tab-menu">⌄</span>
+              <div class="window-controls">
+                <span class="window-control">−</span>
+                <span class="window-control">□</span>
+                <span class="window-control close">×</span>
+              </div>
+            </div>
+            <div
+              class="terminal-screen"
+              id="currentWingetTerminal"
+              tabindex="0"
+              role="log"
+              aria-live="polite"
+              aria-label="Interactive winget installation output"
+            ></div>
+          </div>
+        </section>
+
+        <section class="current-terminal-card" id="setupCard" data-state="pending" aria-labelledby="setup-step-title">
+          <div class="terminal-step">
+            <strong id="setup-step-title">Step 2 of 2 · Configure the developer environment</strong>
+            <span class="step-state" id="setupStepState">Waiting</span>
+          </div>
+          <div class="terminal-window">
+            <div class="window-bar" aria-hidden="true">
+              <div class="terminal-tab">
+                <span class="powershell-icon">&gt;_</span>
+                <span class="tab-title">Foundry DevPack setup</span>
+                <span class="tab-close">×</span>
+              </div>
+              <span class="new-tab">+</span>
+              <span class="tab-menu">⌄</span>
+              <div class="window-controls">
+                <span class="window-control">−</span>
+                <span class="window-control">□</span>
+                <span class="window-control close">×</span>
+              </div>
+            </div>
+            <div
+              class="terminal-screen"
+              id="currentSetupTerminal"
+              tabindex="0"
+              role="log"
+              aria-live="polite"
+              aria-label="Interactive Foundry DevPack setup output"
+            ></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="prototype-actions">
+        <span class="interaction-hint" id="currentInteractionHint"><kbd>Enter</kbd> run proposed experience</span>
+        <button class="action-button" id="runCurrentButton" type="button">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
+          </svg>
+          <span>Run proposed experience</span>
+        </button>
+      </div>
+    </section>
   </div>
 
   <p class="footnote">Prototype behavior only. No commands are executed and no software is installed.</p>
@@ -722,223 +846,247 @@ h1 {
 
 <script>
 (() => {
-  const terminal = document.getElementById("terminal");
-  const runButton = document.getElementById("runButton");
-  const runButtonLabel = runButton.querySelector("span");
-  const status = document.getElementById("status");
-  const statusText = document.getElementById("statusText");
-  const experienceTabs = [...document.querySelectorAll(".experience-tab")];
-  const experiencePanels = [...document.querySelectorAll(".experience-panel")];
+  const currentStatus = document.getElementById("currentStatus");
+  const currentStatusText = document.getElementById("currentStatusText");
+  const runCurrentButton = document.getElementById("runCurrentButton");
+  const runCurrentButtonLabel = runCurrentButton.querySelector("span");
+  const currentWingetTerminal = document.getElementById("currentWingetTerminal");
+  const currentSetupTerminal = document.getElementById("currentSetupTerminal");
+  const wingetCard = document.getElementById("wingetCard");
+  const setupCard = document.getElementById("setupCard");
+  const wingetStepState = document.getElementById("wingetStepState");
+  const setupStepState = document.getElementById("setupStepState");
+  const currentInteractionHint = document.getElementById("currentInteractionHint");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  const spinnerFrames = [
-    "|===    |",
-    "| ===   |",
-    "|  ===  |",
-    "|   === |",
-    "|    ===|",
-    "|   === |",
-    "|  ===  |",
-    "| ===   |"
-  ];
-
-  const initialLines = [
-    '<span class="terminal-heading">PowerShell 7.6.4</span>',
-    '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="command">winget install Microsoft.FoundryDevPack</span><span class="cursor" aria-hidden="true"></span>'
-  ];
-
-  let running = false;
-  let runId = 0;
-
-  const selectExperience = (selectedTab, moveFocus = false) => {
-    experienceTabs.forEach((tab) => {
-      const isSelected = tab === selectedTab;
-      tab.setAttribute("aria-selected", String(isSelected));
-      tab.tabIndex = isSelected ? 0 : -1;
-    });
-
-    experiencePanels.forEach((panel) => {
-      panel.hidden = panel.id !== selectedTab.getAttribute("aria-controls");
-    });
-
-    if (moveFocus) selectedTab.focus();
-  };
+  let currentRunning = false;
+  let currentRunId = 0;
 
   const wait = (milliseconds) => new Promise((resolve) => {
     window.setTimeout(resolve, reduceMotion.matches ? Math.min(milliseconds, 18) : milliseconds);
   });
 
-  const scrollToLatest = () => {
-    terminal.scrollTop = terminal.scrollHeight;
-  };
-
-  const appendLine = (html = "", isStatic = false) => {
+  const appendCurrentLine = (target, html = "", isStatic = false) => {
     const line = document.createElement("div");
     line.className = `line${isStatic ? " static" : ""}`;
     line.innerHTML = html || "&nbsp;";
-    terminal.appendChild(line);
-    scrollToLatest();
+    target.appendChild(line);
+    target.scrollTop = target.scrollHeight;
     return line;
   };
 
-  const appendLines = async (lines, delay = 75, token = runId) => {
+  const appendCurrentLines = async (target, lines, delay, token) => {
     for (const html of lines) {
-      if (token !== runId) return;
-      appendLine(html);
+      if (token !== currentRunId) return false;
+      appendCurrentLine(target, html);
       await wait(delay);
     }
+    return true;
   };
 
-  const setState = (state, label) => {
-    status.dataset.state = state;
-    statusText.textContent = label;
+  const setCurrentState = (state, label) => {
+    currentStatus.dataset.state = state;
+    currentStatusText.textContent = label;
   };
 
-  const reset = () => {
-    runId += 1;
-    running = false;
-    terminal.innerHTML = "";
-    initialLines.forEach((line) => appendLine(line, true));
-    setState("ready", "Ready to run");
-    runButton.disabled = false;
-    runButtonLabel.textContent = "Run installation";
-    document.querySelector(".interaction-hint").innerHTML = "<kbd>Enter</kbd> run installation";
-    scrollToLatest();
+  const setStepState = (card, labelElement, state, label) => {
+    card.dataset.state = state;
+    labelElement.textContent = label;
   };
 
-  const operation = async (activeText, completeText, duration, token = runId, description = "") => {
-    const line = appendLine(`<span class="progress" aria-hidden="true">${spinnerFrames[0]}</span> ${activeText}`);
-    if (description) {
-      appendLine(`<span class="dim">    ${description}</span>`);
+  const resetCurrentExperience = () => {
+    currentRunId += 1;
+    currentRunning = false;
+    currentWingetTerminal.innerHTML = "";
+    currentSetupTerminal.innerHTML = "";
+    appendCurrentLine(currentWingetTerminal, '<span class="terminal-heading">PowerShell 7.6.4</span>', true);
+    appendCurrentLine(
+      currentWingetTerminal,
+      '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="command"><span class="yellow">winget</span> install Microsoft.FoundryDevPack</span><span class="cursor" aria-hidden="true"></span>',
+      true
+    );
+    appendCurrentLine(
+      currentSetupTerminal,
+      '<span class="dim">The setup window opens after the package installation completes.</span>',
+      true
+    );
+    setCurrentState("ready", "Ready to run");
+    setStepState(wingetCard, wingetStepState, "ready", "Ready");
+    setStepState(setupCard, setupStepState, "pending", "Waiting");
+    runCurrentButton.disabled = false;
+    runCurrentButtonLabel.textContent = "Run proposed experience";
+    currentInteractionHint.innerHTML = "<kbd>Enter</kbd> run proposed experience";
+  };
+
+  const animateDownload = async (token) => {
+    const line = appendCurrentLine(
+      currentWingetTerminal,
+      '<span class="download-track" aria-hidden="true"><span class="download-fill"></span></span> <span class="download-size">0.00 MB / 9.48 MB</span>'
+    );
+    const fill = line.querySelector(".download-fill");
+    const size = line.querySelector(".download-size");
+    const increments = reduceMotion.matches ? [100] : [8, 18, 31, 47, 63, 78, 91, 100];
+
+    for (const percent of increments) {
+      if (token !== currentRunId) return false;
+      fill.style.width = `${percent}%`;
+      size.textContent = `${(9.48 * percent / 100).toFixed(2)} MB / 9.48 MB`;
+      await wait(115);
     }
-    const spinner = line.querySelector(".progress");
-    const start = performance.now();
-    let frame = 0;
+    return true;
+  };
 
-    while (performance.now() - start < (reduceMotion.matches ? 20 : duration)) {
-      if (token !== runId) return false;
-      spinner.textContent = spinnerFrames[frame % spinnerFrames.length];
-      frame += 1;
-      await wait(88);
+  const runSetupOperation = async (label, details, token) => {
+    const line = appendCurrentLine(
+      currentSetupTerminal,
+      `<span class="check-pending">/</span> Installing ${label}`
+    );
+    const spinner = line.querySelector(".check-pending");
+    const frames = reduceMotion.matches ? ["/"] : ["/", "-", "\\", "|", "/", "-"];
+
+    for (const frame of frames) {
+      if (token !== currentRunId) return false;
+      spinner.textContent = frame;
+      await wait(110);
     }
 
-    line.innerHTML = `<span class="success">(✓) Done:</span> ${completeText}`;
-    scrollToLatest();
+    line.innerHTML = `<span class="check-complete">✓</span> Installed ${label}`;
+    if (!await appendCurrentLines(
+      currentSetupTerminal,
+      details.map((detail) => `<span class="dim">  ${detail}</span>`),
+      65,
+      token
+    )) return false;
+
     await wait(115);
     return true;
   };
 
-  const runInstallation = async () => {
-    if (running) return;
+  const runCurrentExperience = async () => {
+    if (currentRunning) return;
 
-    running = true;
-    const token = ++runId;
-    runButton.disabled = true;
-    runButtonLabel.textContent = "Installing...";
-    document.querySelector(".interaction-hint").textContent = "Installation runs in this tab";
-    setState("running", "Installing");
+    currentRunning = true;
+    const token = ++currentRunId;
+    runCurrentButton.disabled = true;
+    runCurrentButtonLabel.textContent = "Installing...";
+    currentInteractionHint.textContent = "Running both steps in separate terminal windows";
+    setCurrentState("running", "Installing package");
+    setStepState(wingetCard, wingetStepState, "running", "Running");
 
-    const cursor = terminal.querySelector(".cursor");
+    const cursor = currentWingetTerminal.querySelector(".cursor");
     if (cursor) cursor.remove();
 
     await wait(180);
-    appendLine("Foundry DevPack installs the Foundry developer tools for your editor, terminal, and coding agent.");
-    appendLine("");
-    await operation(
-      "Downloading Microsoft Foundry DevPack",
-      'Downloaded Microsoft Foundry DevPack <span class="dim">(9.31 MB)</span>',
-      1200,
-      token
-    );
-    if (token !== runId) return;
+    const wingetLines = [
+      'Found <span class="cyan">Microsoft Foundry DevPack</span> [Microsoft.FoundryDevPack] Version 0.1.1',
+      "This application is licensed to you by its owner.",
+      "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.",
+      "This package requires the following dependencies:",
+      "  - Packages",
+      "      Microsoft.AzureCLI [&gt;= 2.77.0]",
+      "      Microsoft.Azd [&gt;= 1.27.100]",
+      'Downloading <span class="link">https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe</span>'
+    ];
+    if (!await appendCurrentLines(currentWingetTerminal, wingetLines, 70, token)) return;
+    if (!await animateDownload(token)) return;
+    if (!await appendCurrentLines(currentWingetTerminal, [
+      "Successfully verified installer hash",
+      "Starting package install...",
+      "Successfully installed"
+    ], 105, token)) return;
 
-    appendLine("");
-    await appendLines([
-      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.1</span>',
+    setStepState(wingetCard, wingetStepState, "complete", "Complete");
+    setStepState(setupCard, setupStepState, "running", "Running");
+    setCurrentState("running", "Configuring environment");
+    currentSetupTerminal.innerHTML = "";
+    await appendCurrentLines(currentSetupTerminal, [
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
       "Setting up your environment for: CLI, VS Code, and Copilot",
       ""
-    ], 80, token);
+    ], 90, token);
 
-    const setupSteps = [
+    const setupOperations = [
       [
-        "Installing Microsoft Foundry Toolkit for Visual Studio Code",
-        "Installed Microsoft Foundry Toolkit for Visual Studio Code",
-        650,
-        "Build, test, evaluate, and deploy from Visual Studio Code."
+        "az, azd and azd ai",
+        ["Scaffold, deploy, evaluate, and automate from the terminal."]
       ],
       [
-        "Installing azd and azd ai",
-        "Installed azd and azd ai",
-        620,
-        "Scaffold, deploy, evaluate, and automate from the terminal."
+        "Microsoft Foundry Skill",
+        [
+          "Give coding agents reusable guidance for Foundry workflows.",
+          "Location: ~/.agents/skills/",
+          "Location: ~/.claude/skills/ (Claude Code detected)"
+        ]
       ],
       [
-        "Installing Foundry Canvas (preview)",
-        "Installed Foundry Canvas (preview)",
-        700,
-        "Design and deploy hosted agents with a guided Copilot canvas."
+        "Microsoft Foundry Toolkit for Visual Studio Code",
+        ["Build, test, evaluate, and deploy from Visual Studio Code."]
       ],
       [
-        "Installing Microsoft Foundry Skill",
-        "Installed Microsoft Foundry Skill",
-        560,
-        "Give coding agents reusable guidance for Foundry workflows."
+        "Foundry Canvas (preview)",
+        [
+          "Design and deploy hosted agents with a guided Copilot canvas.",
+          "Location: ~/.copilot/installed-plugins/"
+        ]
       ]
     ];
 
-    for (const [activeText, completeText, duration, description] of setupSteps) {
-      const completed = await operation(activeText, completeText, duration, token, description);
-      if (!completed || token !== runId) return;
+    for (const [label, details] of setupOperations) {
+      if (!await runSetupOperation(label, details, token)) return;
     }
 
-    appendLine("");
-    await appendLines([
-      '<span class="success">SUCCESS:</span> Microsoft Foundry DevPack is ready for CLI, VS Code, and Copilot development.',
+    if (token !== currentRunId) return;
+    if (!await appendCurrentLines(currentWingetTerminal, [
+      "Notes: To verify or repair your setup, run:",
+      "    winget repair --exact --id Microsoft.FoundryDevPack",
+      "",
+      "If Azure CLI or Azure Developer CLI was removed, restore package dependencies with:",
+      "    winget install --exact --id Microsoft.FoundryDevPack --force",
+      "",
+      "Microsoft Foundry DevPack is ready for CLI, VS Code, and Copilot development:",
+      "- az, azd and azd ai",
+      "    Scaffold, deploy, evaluate, and automate from the terminal.",
+      "- Microsoft Foundry Skill",
+      "    Give coding agents reusable guidance for Foundry workflows.",
+      "    Location: ~/.agents/skills/",
+      "    Location: ~/.claude/skills/ (if Claude Code is available)",
+      "- Microsoft Foundry Toolkit for Visual Studio Code",
+      "    (If VS Code is available)",
+      "    Build, test, evaluate, and deploy from Visual Studio Code.",
+      "- Foundry Canvas (preview)",
+      "    (If GitHub Copilot is available)",
+      "    Design and deploy hosted agents with a guided Copilot canvas.",
+      "    Location: ~/.copilot/installed-plugins/",
       "",
       '<span class="terminal-heading">NEXT STEPS:</span>',
-      '  - Ask your coding agent: <span class="cyan">"Create a Foundry hosted agent."</span>',
-      '  - Run the command directly: <span class="cyan">azd ai agent init</span>',
+      '- Ask your coding agent: <span class="cyan">"Create a Foundry hosted agent."</span>',
+      '- Run the command directly: <span class="cyan">azd ai agent init</span>',
       "",
       '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
-    ], 110, token);
+    ], 65, token)) return;
 
-    running = false;
-    setState("complete", "Installation complete");
-    runButton.disabled = false;
-    runButtonLabel.textContent = "Replay installation";
-    document.querySelector(".interaction-hint").innerHTML = "<kbd>Enter</kbd> replay";
+    currentRunning = false;
+    setStepState(setupCard, setupStepState, "complete", "Complete");
+    setCurrentState("complete", "Two-step installation complete");
+    runCurrentButton.disabled = false;
+    runCurrentButtonLabel.textContent = "Replay proposed experience";
+    currentInteractionHint.innerHTML = "<kbd>Enter</kbd> replay both steps";
   };
 
-  runButton.addEventListener("click", () => {
-    if (status.dataset.state === "complete") reset();
-    runInstallation();
-  });
-
-  experienceTabs.forEach((tab, index) => {
-    tab.addEventListener("click", () => selectExperience(tab));
-    tab.addEventListener("keydown", (event) => {
-      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
-      event.preventDefault();
-      const direction = event.key === "ArrowRight" ? 1 : -1;
-      const nextIndex = (index + direction + experienceTabs.length) % experienceTabs.length;
-      selectExperience(experienceTabs[nextIndex], true);
-    });
+  runCurrentButton.addEventListener("click", () => {
+    if (currentStatus.dataset.state === "complete") resetCurrentExperience();
+    runCurrentExperience();
   });
 
   document.addEventListener("keydown", (event) => {
-    if (
-      event.key !== "Enter" ||
-      running ||
-      document.getElementById("proposedPanel").hidden ||
-      event.target.closest("button")
-    ) return;
+    if (event.key !== "Enter" || event.target.closest("button") || currentRunning) return;
     event.preventDefault();
-    if (status.dataset.state === "complete") reset();
-    runInstallation();
+    if (currentStatus.dataset.state === "complete") resetCurrentExperience();
+    runCurrentExperience();
   });
 
-  reset();
-  window.requestAnimationFrame(runInstallation);
+  resetCurrentExperience();
+  window.requestAnimationFrame(runCurrentExperience);
 })();
 </script>
 </body>
