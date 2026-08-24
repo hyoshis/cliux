@@ -1007,8 +1007,10 @@ h1 {
 
     const setupOperations = [
       [
-        "az, azd and azd ai",
-        ["Scaffold, deploy, evaluate, and automate from the terminal."]
+        "Foundry command-line tools",
+        [
+          "Installs Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai). Scaffold, deploy, evaluate, and automate from the terminal."
+        ]
       ],
       [
         "Microsoft Foundry Skill",
@@ -1044,23 +1046,24 @@ h1 {
       "    winget install --exact --id Microsoft.FoundryDevPack --force",
       "",
       "Microsoft Foundry DevPack is ready for CLI, VS Code, and Copilot development:",
-      "- az, azd and azd ai",
-      "    Scaffold, deploy, evaluate, and automate from the terminal.",
+      "- Foundry command-line tools",
+      "  Installs Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai). Scaffold, deploy, evaluate, and automate from the terminal.",
       "- Microsoft Foundry Skill",
-      "    Give coding agents reusable guidance for Foundry workflows.",
-      "    Location: ~/.agents/skills/",
-      "    Location: ~/.claude/skills/ (if Claude Code is available)",
+      "  Give coding agents reusable guidance for Foundry workflows.",
+      "  Location: ~/.agents/skills/",
+      "  Location: ~/.claude/skills/ (if Claude Code is available)",
       "- Microsoft Foundry Toolkit for Visual Studio Code",
-      "    (If VS Code is available)",
-      "    Build, test, evaluate, and deploy from Visual Studio Code.",
+      "  (If VS Code is installed)",
+      "  Build, test, evaluate, and deploy from Visual Studio Code.",
       "- Foundry Canvas (preview)",
-      "    (If GitHub Copilot is available)",
-      "    Design and deploy hosted agents with a guided Copilot canvas.",
-      "    Location: ~/.copilot/installed-plugins/",
+      "  (If GitHub Copilot is installed)",
+      "  Design and deploy hosted agents with a guided Copilot canvas.",
+      "  Location: ~/.copilot/installed-plugins/",
       "",
       '<span class="terminal-heading">NEXT STEPS:</span>',
-      '- Ask your coding agent: <span class="cyan">"Create a Foundry hosted agent."</span>',
-      '- Run the command directly: <span class="cyan">azd ai agent init</span>',
+      '- Ask your coding agent: "Create a Foundry hosted agent."',
+      "- Run `azd ai` to start building with Foundry from the terminal.",
+      "- Open your project in Visual Studio Code to use the Foundry Toolkit.",
       "",
       '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
     ], 65, token)) return;
