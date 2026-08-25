@@ -22,6 +22,6 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 | Prototype | Description | Link |
 | --- | --- | --- |
 | **azd · Extension auto-install** | Interactive terminal prototype of the `azd up` extension-install UX (single/multiple extensions, source selection). | [`azd-extension-install/`](./azd-extension-install/) · [live](https://hyoshis.github.io/cliux/prototypes/azd-extension-install/) |
-| **Foundry DevPack · Two-step install** | Interactive redesign presenting the `winget` package install and DevPack setup side by side with clear progress and completion states. | [`foundry-devpack/`](./foundry-devpack/) · [live](https://hyoshis.github.io/cliux/prototypes/foundry-devpack/) |
+| **Foundry DevPack · Install redesign** | Interactive comparison of a one-step install and a guided flow for choosing which Foundry tools to install. | [`foundry-devpack/`](./foundry-devpack/) · [live](https://hyoshis.github.io/cliux/prototypes/foundry-devpack/) |
 | **Agentic CLI competitive analysis** | Interactive slide deck comparing AI CLI products, interaction patterns, visual systems, and product positioning. | [`agentic-cli-analysis/`](./agentic-cli-analysis/) · [live](https://hyoshis.github.io/cliux/prototypes/agentic-cli-analysis/) |
 | **azd · Validation warning** | Side-by-side tabbed prototype for comparing the current validation warning with revised messaging. | [`validation-warning/`](./validation-warning/) · [live](https://hyoshis.github.io/cliux/prototypes/validation-warning/) |

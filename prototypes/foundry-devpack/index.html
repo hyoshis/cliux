@@ -71,33 +71,29 @@ button {
   margin: 0 4px 24px;
 }
 
-.eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 0 0 10px;
-  color: var(--accent);
-  font-family: var(--mono);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+.designer-credit {
+  margin: 0 0 12px;
+  color: var(--muted);
+  font-size: 13px;
 }
 
-.eyebrow::before {
-  width: 18px;
-  height: 2px;
-  content: "";
-  background: currentColor;
+.designer-credit strong {
+  color: var(--text);
+  font-weight: 600;
 }
 
 h1 {
-  max-width: 720px;
+  max-width: none;
   margin: 0;
-  font-size: clamp(28px, 4vw, 46px);
+  font-size: clamp(11px, 2.9vw, 46px);
   font-weight: 650;
   letter-spacing: -0.035em;
   line-height: 1.05;
+  white-space: nowrap;
+}
+
+.title-product {
+  color: var(--accent);
 }
 
 .description {
@@ -174,13 +170,7 @@ h1 {
 }
 
 .prototype {
-  overflow: hidden;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 16px;
-  box-shadow:
-    0 36px 90px rgba(0, 0, 0, 0.48),
-    0 1px 0 rgba(255, 255, 255, 0.04) inset;
+  overflow: visible;
 }
 
 .current-interactive-grid {
@@ -212,43 +202,8 @@ h1 {
   border-color: rgba(85, 211, 106, 0.55);
 }
 
-.terminal-step {
-  display: flex;
-  min-height: 38px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 12px;
-  color: var(--muted);
-  font-size: 12px;
-  border-bottom: 1px solid var(--terminal-border);
-}
-
-.terminal-step strong {
-  color: var(--text);
-  font-weight: 600;
-}
-
-.step-state {
-  display: inline-flex;
-  gap: 6px;
-  align-items: center;
-  font-family: var(--mono);
-}
-
-.step-state::before {
-  width: 6px;
-  height: 6px;
-  content: "";
-  background: var(--quiet);
-  border-radius: 50%;
-}
-
-.current-terminal-card[data-state="running"] .step-state::before {
-  background: var(--accent);
-}
-
-.current-terminal-card[data-state="complete"] .step-state::before {
-  background: var(--success);
+.current-terminal-card[hidden] {
+  display: none;
 }
 
 .current-terminal-card .terminal-window {
@@ -256,10 +211,11 @@ h1 {
 }
 
 .current-terminal-card .terminal-screen {
-  height: auto;
-  min-height: 820px;
-  overflow-y: visible;
+  height: 520px;
+  min-height: 0;
+  overflow-y: auto;
   padding-bottom: 20px;
+  scrollbar-gutter: stable;
   font-size: clamp(12px, 1.2vw, 15px);
 }
 
@@ -295,63 +251,96 @@ h1 {
   font-weight: 700;
 }
 
-.prototype-meta {
-  display: flex;
-  min-height: 49px;
-  gap: 16px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 9px 14px 9px 18px;
-  border-bottom: 1px solid var(--panel-border);
+.install-chooser {
+  margin-top: 10px;
+  padding: 4px 0 0;
+  white-space: normal;
+  outline: none;
 }
 
-.prototype-label {
-  display: flex;
+.azd-prompt {
+  color: var(--terminal-text);
+  font-weight: 700;
+}
+
+.azd-prompt-marker,
+.azd-prompt-selection {
+  color: var(--terminal-link);
+  font-weight: 700;
+}
+
+.azd-prompt-marker {
+  margin-right: 0;
+}
+
+.azd-prompt-selection {
+  margin-left: 1ch;
+}
+
+.azd-option-list {
+  display: grid;
+  gap: 2px;
+  margin-top: 24px;
+}
+
+.install-choice {
+  display: grid;
+  grid-template-columns: 2ch 4ch minmax(0, 1fr);
+  gap: 0;
+  align-items: start;
+  min-height: 1.7em;
+  padding: 4px 0;
+  color: var(--terminal-text);
+  cursor: pointer;
+}
+
+.azd-option-cursor,
+.azd-option-check {
+  padding-top: 1px;
+}
+
+.azd-option-cursor {
+  color: transparent;
+}
+
+.azd-option-check.is-selected {
+  color: var(--terminal-green);
+}
+
+.azd-option-copy,
+.azd-option-label,
+.azd-option-description {
+  display: block;
+}
+
+.azd-option-copy {
   min-width: 0;
-  gap: 10px;
-  align-items: center;
-  color: var(--muted);
-  font-size: 13px;
 }
 
-.prototype-label strong {
-  overflow: hidden;
-  color: var(--text);
-  font-weight: 600;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.azd-option-description {
+  margin-top: 2px;
+  color: var(--terminal-dim);
+  line-height: 1.35;
 }
 
-.status {
-  display: inline-flex;
-  flex: none;
-  gap: 7px;
-  align-items: center;
-  color: var(--muted);
-  font-family: var(--mono);
-  font-size: 12px;
+.install-choice.is-active .azd-option-cursor,
+.install-choice.is-active .azd-option-label {
+  color: var(--terminal-link);
+  font-weight: 700;
 }
 
-.status-dot {
-  width: 7px;
-  height: 7px;
-  background: var(--quiet);
-  border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(114, 122, 135, 0.12);
-  transition:
-    background 180ms var(--ease-out),
-    box-shadow 180ms var(--ease-out);
+.install-choice.is-unavailable {
+  cursor: not-allowed;
+  opacity: 0.5;
 }
 
-.status[data-state="running"] .status-dot {
-  background: var(--accent);
-  box-shadow: 0 0 0 3px rgba(108, 184, 255, 0.14);
-  animation: status-pulse 1.3s ease-in-out infinite;
-}
-
-.status[data-state="complete"] .status-dot {
-  background: var(--success);
-  box-shadow: 0 0 0 3px rgba(85, 211, 106, 0.14);
+.azd-list-footer {
+  width: min(44ch, 100%);
+  margin-top: 24px;
+  padding-top: 10px;
+  color: var(--terminal-dim);
+  font-weight: 400;
+  border-top: 1px solid var(--terminal-dim);
 }
 
 .terminal-window {
@@ -546,6 +535,16 @@ h1 {
   border-top: 1px solid var(--panel-border);
 }
 
+.prototype-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.prototype-actions > .action-button {
+  margin-left: auto;
+}
+
 .interaction-hint {
   color: var(--quiet);
   font-family: var(--mono);
@@ -603,9 +602,24 @@ h1 {
   cursor: wait;
 }
 
+.action-button[hidden] {
+  display: none;
+}
+
 .action-button svg {
   width: 16px;
   height: 16px;
+}
+
+.action-button.secondary {
+  color: var(--text);
+  background: transparent;
+  border-color: #3b424e;
+}
+
+.action-button.secondary:hover {
+  background: #242933;
+  border-color: #515a68;
 }
 
 .footnote {
@@ -625,12 +639,6 @@ h1 {
 @keyframes cursor-blink {
   50% {
     opacity: 0;
-  }
-}
-
-@keyframes status-pulse {
-  50% {
-    box-shadow: 0 0 0 6px rgba(108, 184, 255, 0.04);
   }
 }
 
@@ -676,8 +684,8 @@ h1 {
     overflow-y: auto;
   }
 
-  .prototype-label span {
-    display: none;
+  .install-choice {
+    grid-template-columns: 2ch 4ch minmax(0, 1fr);
   }
 
   .terminal-tab {
@@ -703,6 +711,10 @@ h1 {
     flex-direction: column;
   }
 
+  .prototype-action-buttons {
+    flex-direction: column;
+  }
+
   .action-button {
     width: 100%;
   }
@@ -724,15 +736,9 @@ h1 {
 <main class="page">
   <header class="intro">
     <div>
-      <p class="eyebrow">Foundry DevPack install</p>
-      <h1>Two clear steps, from command to ready.</h1>
-      <p class="description">The proposed DevPack experience shows package installation and environment setup as one guided flow, with progress and status visible at every step.</p>
-    </div>
-    <div class="flow-note">
-      <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
-        <path d="m5 10 3.1 3L15 6.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-      </svg>
-      Proposed flow
+      <p class="designer-credit">Designed by <strong>Hiyo Shin</strong></p>
+      <h1><span class="title-product">Foundry DevPack:</span> Redesigning the install experience.</h1>
+      <p class="description">Explore a one-step installation and a guided flow for choosing which Foundry tools to install.</p>
     </div>
   </header>
 
@@ -744,7 +750,16 @@ h1 {
       role="tab"
       aria-selected="true"
       aria-controls="proposedPanel"
-    >Proposed experience</button>
+    >One step install</button>
+    <button
+      class="experience-tab"
+      id="chooseTab"
+      type="button"
+      role="tab"
+      aria-selected="false"
+      aria-controls="choosePanel"
+      tabindex="-1"
+    >Choose what to install</button>
   </div>
 
   <div
@@ -753,24 +768,9 @@ h1 {
     role="tabpanel"
     aria-labelledby="proposedTab"
   >
-    <section class="prototype" aria-labelledby="proposed-title">
-      <div class="prototype-meta">
-        <div class="prototype-label">
-          <strong id="proposed-title">Proposed two-step installer</strong>
-          <span>Interactive CLI prototype</span>
-        </div>
-        <div class="status" id="currentStatus" data-state="ready" aria-live="polite">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span id="currentStatusText">Ready to run</span>
-        </div>
-      </div>
-
+    <section class="prototype" aria-label="Proposed two-step installer">
       <div class="current-interactive-grid">
-        <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-labelledby="winget-step-title">
-          <div class="terminal-step">
-            <strong id="winget-step-title">Step 1 of 2 · Install with winget</strong>
-            <span class="step-state" id="wingetStepState">Ready</span>
-          </div>
+        <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-label="Winget installation terminal">
           <div class="terminal-window">
             <div class="window-bar" aria-hidden="true">
               <div class="terminal-tab">
@@ -797,11 +797,7 @@ h1 {
           </div>
         </section>
 
-        <section class="current-terminal-card" id="setupCard" data-state="pending" aria-labelledby="setup-step-title">
-          <div class="terminal-step">
-            <strong id="setup-step-title">Step 2 of 2 · Configure the developer environment</strong>
-            <span class="step-state" id="setupStepState">Waiting</span>
-          </div>
+        <section class="current-terminal-card" id="setupCard" data-state="pending" aria-label="Foundry DevPack setup terminal" hidden>
           <div class="terminal-window">
             <div class="window-bar" aria-hidden="true">
               <div class="terminal-tab">
@@ -830,12 +826,96 @@ h1 {
       </div>
 
       <div class="prototype-actions">
-        <span class="interaction-hint" id="currentInteractionHint"><kbd>Enter</kbd> run proposed experience</span>
-        <button class="action-button" id="runCurrentButton" type="button">
+        <div class="prototype-action-buttons">
+          <button
+            class="action-button secondary"
+            id="toggleSetupButton"
+            type="button"
+            aria-controls="setupCard"
+            aria-expanded="false"
+            hidden
+          >Close second terminal</button>
+          <button class="action-button" id="runCurrentButton" type="button">
+            <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
+            </svg>
+            <span>Run proposed experience</span>
+          </button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div
+    class="experience-panel"
+    id="choosePanel"
+    role="tabpanel"
+    aria-labelledby="chooseTab"
+    hidden
+  >
+    <section class="prototype" aria-label="Selectable component installer">
+      <div class="current-interactive-grid">
+        <section class="current-terminal-card" id="choiceWingetCard" data-state="ready" aria-label="Winget installation terminal">
+          <div class="terminal-window">
+            <div class="window-bar" aria-hidden="true">
+              <div class="terminal-tab">
+                <span class="powershell-icon">&gt;_</span>
+                <span class="tab-title">PowerShell</span>
+                <span class="tab-close">×</span>
+              </div>
+              <span class="new-tab">+</span>
+              <span class="tab-menu">⌄</span>
+              <div class="window-controls">
+                <span class="window-control">−</span>
+                <span class="window-control">□</span>
+                <span class="window-control close">×</span>
+              </div>
+            </div>
+            <div
+              class="terminal-screen"
+              id="choiceWingetTerminal"
+              tabindex="0"
+              role="log"
+              aria-live="polite"
+              aria-label="Selectable experience winget installation output"
+            ></div>
+          </div>
+        </section>
+
+        <section class="current-terminal-card" id="choiceSetupCard" data-state="pending" aria-label="Selectable Foundry DevPack setup terminal" hidden>
+          <div class="terminal-window">
+            <div class="window-bar" aria-hidden="true">
+              <div class="terminal-tab">
+                <span class="powershell-icon">&gt;_</span>
+                <span class="tab-title">Foundry DevPack setup</span>
+                <span class="tab-close">×</span>
+              </div>
+              <span class="new-tab">+</span>
+              <span class="tab-menu">⌄</span>
+              <div class="window-controls">
+                <span class="window-control">−</span>
+                <span class="window-control">□</span>
+                <span class="window-control close">×</span>
+              </div>
+            </div>
+            <div
+              class="terminal-screen"
+              id="choiceSetupTerminal"
+              tabindex="0"
+              role="region"
+              aria-live="polite"
+              aria-label="Choose Foundry DevPack components to install"
+            ></div>
+          </div>
+        </section>
+      </div>
+
+      <div class="prototype-actions">
+        <button class="action-button" id="runChoiceButton" type="button">
           <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
           </svg>
-          <span>Run proposed experience</span>
+          <span>Run selectable install</span>
         </button>
       </div>
     </section>
@@ -846,21 +926,29 @@ h1 {
 
 <script>
 (() => {
-  const currentStatus = document.getElementById("currentStatus");
-  const currentStatusText = document.getElementById("currentStatusText");
   const runCurrentButton = document.getElementById("runCurrentButton");
   const runCurrentButtonLabel = runCurrentButton.querySelector("span");
   const currentWingetTerminal = document.getElementById("currentWingetTerminal");
   const currentSetupTerminal = document.getElementById("currentSetupTerminal");
   const wingetCard = document.getElementById("wingetCard");
   const setupCard = document.getElementById("setupCard");
-  const wingetStepState = document.getElementById("wingetStepState");
-  const setupStepState = document.getElementById("setupStepState");
-  const currentInteractionHint = document.getElementById("currentInteractionHint");
+  const toggleSetupButton = document.getElementById("toggleSetupButton");
+  const runChoiceButton = document.getElementById("runChoiceButton");
+  const runChoiceButtonLabel = runChoiceButton.querySelector("span");
+  const choiceWingetTerminal = document.getElementById("choiceWingetTerminal");
+  const choiceSetupTerminal = document.getElementById("choiceSetupTerminal");
+  const choiceWingetCard = document.getElementById("choiceWingetCard");
+  const choiceSetupCard = document.getElementById("choiceSetupCard");
+  const experienceTabs = [...document.querySelectorAll(".experience-tab")];
+  const experiencePanels = [...document.querySelectorAll(".experience-panel")];
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   let currentRunning = false;
   let currentRunId = 0;
+  let currentPhase = "ready";
+  let choiceRunning = false;
+  let choiceRunId = 0;
+  let choicePhase = "ready";
 
   const wait = (milliseconds) => new Promise((resolve) => {
     window.setTimeout(resolve, reduceMotion.matches ? Math.min(milliseconds, 18) : milliseconds);
@@ -884,14 +972,18 @@ h1 {
     return true;
   };
 
-  const setCurrentState = (state, label) => {
-    currentStatus.dataset.state = state;
-    currentStatusText.textContent = label;
+  const setCurrentState = (state) => {
+    currentPhase = state;
   };
 
-  const setStepState = (card, labelElement, state, label) => {
+  const setStepState = (card, state) => {
     card.dataset.state = state;
-    labelElement.textContent = label;
+  };
+
+  const setSetupTerminalVisible = (visible) => {
+    setupCard.hidden = !visible;
+    toggleSetupButton.setAttribute("aria-expanded", String(visible));
+    toggleSetupButton.textContent = visible ? "Close second terminal" : "Show second terminal";
   };
 
   const resetCurrentExperience = () => {
@@ -910,12 +1002,13 @@ h1 {
       '<span class="dim">The setup window opens after the package installation completes.</span>',
       true
     );
-    setCurrentState("ready", "Ready to run");
-    setStepState(wingetCard, wingetStepState, "ready", "Ready");
-    setStepState(setupCard, setupStepState, "pending", "Waiting");
+    setCurrentState("ready");
+    setStepState(wingetCard, "ready");
+    setStepState(setupCard, "pending");
+    setSetupTerminalVisible(false);
+    toggleSetupButton.hidden = true;
     runCurrentButton.disabled = false;
     runCurrentButtonLabel.textContent = "Run proposed experience";
-    currentInteractionHint.innerHTML = "<kbd>Enter</kbd> run proposed experience";
   };
 
   const animateDownload = async (token) => {
@@ -969,9 +1062,8 @@ h1 {
     const token = ++currentRunId;
     runCurrentButton.disabled = true;
     runCurrentButtonLabel.textContent = "Installing...";
-    currentInteractionHint.textContent = "Running both steps in separate terminal windows";
-    setCurrentState("running", "Installing package");
-    setStepState(wingetCard, wingetStepState, "running", "Running");
+    setCurrentState("running");
+    setStepState(wingetCard, "running");
 
     const cursor = currentWingetTerminal.querySelector(".cursor");
     if (cursor) cursor.remove();
@@ -995,9 +1087,11 @@ h1 {
       "Successfully installed"
     ], 105, token)) return;
 
-    setStepState(wingetCard, wingetStepState, "complete", "Complete");
-    setStepState(setupCard, setupStepState, "running", "Running");
-    setCurrentState("running", "Configuring environment");
+    setStepState(wingetCard, "complete");
+    setStepState(setupCard, "running");
+    setCurrentState("running");
+    setSetupTerminalVisible(true);
+    toggleSetupButton.hidden = false;
     currentSetupTerminal.innerHTML = "";
     await appendCurrentLines(currentSetupTerminal, [
       '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
@@ -1062,35 +1156,421 @@ h1 {
       "  Design and deploy hosted agents with a guided Copilot canvas.",
       "  Location: ~/.copilot/installed-plugins/",
       "",
-      '<span class="terminal-heading">NEXT STEPS:</span>',
+      "NEXT STEPS:",
       '- Ask your coding agent: "Create a Foundry hosted agent."',
       "- Run `azd ai` to start building with Foundry from the terminal.",
-      "- Open your project in Visual Studio Code to use the Foundry Toolkit.",
+      "- If VS Code is installed, open your project there to use the Foundry Toolkit.",
       "",
       '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
     ], 65, token)) return;
 
     currentRunning = false;
-    setStepState(setupCard, setupStepState, "complete", "Complete");
-    setCurrentState("complete", "Two-step installation complete");
+    setStepState(setupCard, "complete");
+    setCurrentState("complete");
     runCurrentButton.disabled = false;
     runCurrentButtonLabel.textContent = "Replay proposed experience";
-    currentInteractionHint.innerHTML = "<kbd>Enter</kbd> replay both steps";
+  };
+
+  const prototypeParameters = new URLSearchParams(window.location.search);
+  const detectedEnvironment = {
+    vscode: prototypeParameters.get("vscode") !== "missing",
+    githubCopilot: prototypeParameters.get("copilot") === "installed"
+  };
+
+  const selectableComponents = [
+    {
+      id: "cli",
+      label: "Foundry command-line tools",
+      summary: "Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
+      details: [
+        "Installs Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
+        "Scaffold, deploy, evaluate, and automate from the terminal."
+      ],
+      available: true,
+      availability: "Available"
+    },
+    {
+      id: "skill",
+      label: "Microsoft Foundry Skill",
+      summary: "Reusable Foundry workflow guidance for coding agents.",
+      details: [
+        "Give coding agents reusable guidance for Foundry workflows.",
+        "Location: ~/.agents/skills/",
+        "Location: ~/.claude/skills/ (Claude Code detected)"
+      ],
+      available: true,
+      availability: "Available"
+    },
+    {
+      id: "vscode",
+      label: "Microsoft Foundry Toolkit for Visual Studio Code",
+      summary: "Build, test, evaluate, and deploy from Visual Studio Code.",
+      details: ["Build, test, evaluate, and deploy from Visual Studio Code."],
+      available: detectedEnvironment.vscode,
+      availability: detectedEnvironment.vscode ? "VS Code detected" : "VS Code not detected"
+    },
+    {
+      id: "canvas",
+      label: "Foundry Canvas (preview)",
+      summary: detectedEnvironment.githubCopilot
+        ? "Design and deploy hosted agents with a guided Copilot canvas."
+        : "Not available to install because the GitHub Copilot app is not installed.",
+      details: [
+        "Design and deploy hosted agents with a guided Copilot canvas.",
+        "Location: ~/.copilot/installed-plugins/"
+      ],
+      available: detectedEnvironment.githubCopilot,
+      availability: detectedEnvironment.githubCopilot
+        ? "GitHub Copilot detected"
+        : "Not available"
+    }
+  ];
+
+  const appendChoiceLines = async (target, lines, delay, token) => {
+    for (const html of lines) {
+      if (token !== choiceRunId) return false;
+      appendCurrentLine(target, html);
+      await wait(delay);
+    }
+    return true;
+  };
+
+  const setChoiceState = (state) => {
+    choicePhase = state;
+  };
+
+  const setChoiceSetupTerminalVisible = (visible) => {
+    choiceSetupCard.hidden = !visible;
+  };
+
+  const resetChoiceExperience = () => {
+    choiceRunId += 1;
+    choiceRunning = false;
+    choiceWingetTerminal.innerHTML = "";
+    choiceSetupTerminal.innerHTML = "";
+    appendCurrentLine(choiceWingetTerminal, '<span class="terminal-heading">PowerShell 7.6.4</span>', true);
+    appendCurrentLine(
+      choiceWingetTerminal,
+      '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="command"><span class="yellow">winget</span> install Microsoft.FoundryDevPack</span><span class="cursor" aria-hidden="true"></span>',
+      true
+    );
+    appendCurrentLine(
+      choiceSetupTerminal,
+      '<span class="dim">Available components appear after the package installation completes.</span>',
+      true
+    );
+    setChoiceState("ready");
+    setStepState(choiceWingetCard, "ready");
+    setStepState(choiceSetupCard, "pending");
+    setChoiceSetupTerminalVisible(false);
+    runChoiceButton.disabled = false;
+    runChoiceButtonLabel.textContent = "Run selectable install";
+  };
+
+  const animateChoiceDownload = async (token) => {
+    const line = appendCurrentLine(
+      choiceWingetTerminal,
+      '<span class="download-track" aria-hidden="true"><span class="download-fill"></span></span> <span class="download-size">0.00 MB / 9.48 MB</span>'
+    );
+    const fill = line.querySelector(".download-fill");
+    const size = line.querySelector(".download-size");
+    const increments = reduceMotion.matches ? [100] : [8, 18, 31, 47, 63, 78, 91, 100];
+
+    for (const percent of increments) {
+      if (token !== choiceRunId) return false;
+      fill.style.width = `${percent}%`;
+      size.textContent = `${(9.48 * percent / 100).toFixed(2)} MB / 9.48 MB`;
+      await wait(115);
+    }
+    return true;
+  };
+
+  const chooseComponents = (token) => new Promise((resolve) => {
+    const chooser = document.createElement("div");
+    chooser.className = "install-chooser";
+    chooser.tabIndex = 0;
+    chooser.setAttribute("role", "listbox");
+    chooser.setAttribute("aria-label", "Choose what to install");
+    chooser.setAttribute("aria-multiselectable", "true");
+    chooser.innerHTML = `
+      <div class="azd-prompt">
+        <span class="azd-prompt-marker">?</span> Which Foundry components do you want to install?:
+        <span class="azd-prompt-selection" aria-live="polite"></span>
+      </div>
+      <div class="azd-option-list">
+        ${selectableComponents.map((component) => `
+          <div
+            class="install-choice${component.available ? "" : " is-unavailable"}"
+            id="choice-option-${component.id}"
+            role="option"
+            aria-selected="false"
+            aria-disabled="${!component.available}"
+            data-component="${component.id}"
+          >
+            <span class="azd-option-cursor">&gt;</span>
+            <span class="azd-option-check">[ ]</span>
+            <span class="azd-option-copy">
+              <span class="azd-option-label">
+                ${component.label}
+              </span>
+              <span class="azd-option-description">${component.summary}</span>
+            </span>
+          </div>
+        `).join("")}
+      </div>
+      <div class="azd-list-footer">Use arrows to move, use space to select</div>
+    `;
+    choiceSetupTerminal.appendChild(chooser);
+    choiceSetupTerminal.scrollTop = choiceSetupTerminal.scrollHeight;
+
+    const options = [...chooser.querySelectorAll(".install-choice")];
+    const selectedIds = new Set();
+    const promptSelection = chooser.querySelector(".azd-prompt-selection");
+    let activeIndex = selectableComponents.findIndex((component) => component.available);
+    let settled = false;
+
+    const render = () => {
+      options.forEach((option, index) => {
+        const id = option.dataset.component;
+        const isSelected = selectedIds.has(id);
+        option.classList.toggle("is-active", index === activeIndex);
+        option.setAttribute("aria-selected", String(isSelected));
+        const check = option.querySelector(".azd-option-check");
+        check.textContent = `[${isSelected ? "✓" : " "}]`;
+        check.classList.toggle("is-selected", isSelected);
+      });
+      chooser.setAttribute("aria-activedescendant", options[activeIndex].id);
+      promptSelection.textContent = selectableComponents
+        .filter((component) => selectedIds.has(component.id))
+        .map((component) => component.label)
+        .join(", ");
+    };
+
+    const toggleActive = () => {
+      const component = selectableComponents[activeIndex];
+      if (!component.available) return;
+      if (selectedIds.has(component.id)) selectedIds.delete(component.id);
+      else selectedIds.add(component.id);
+      render();
+    };
+
+    const confirmSelection = () => {
+      if (settled || token !== choiceRunId || selectedIds.size === 0) return;
+      settled = true;
+      chooser.setAttribute("aria-disabled", "true");
+      chooser.removeAttribute("tabindex");
+      resolve(selectableComponents.filter((component) => selectedIds.has(component.id)));
+    };
+
+    chooser.addEventListener("keydown", (event) => {
+      if (settled) return;
+      if (["ArrowDown", "ArrowUp", "Home", "End", " ", "Enter"].includes(event.key)) {
+        event.preventDefault();
+      }
+      if (event.key === "ArrowDown") activeIndex = (activeIndex + 1) % options.length;
+      if (event.key === "ArrowUp") activeIndex = (activeIndex - 1 + options.length) % options.length;
+      if (event.key === "Home") activeIndex = 0;
+      if (event.key === "End") activeIndex = options.length - 1;
+      if (event.key === " ") toggleActive();
+      if (event.key === "Enter") confirmSelection();
+      render();
+    });
+    chooser.addEventListener("click", (event) => {
+      if (settled) return;
+      const option = event.target.closest(".install-choice");
+      if (!option) return;
+      activeIndex = options.indexOf(option);
+      toggleActive();
+      chooser.focus();
+    });
+
+    render();
+    window.requestAnimationFrame(() => chooser.focus());
+  });
+
+  const runChoiceOperation = async (component, token) => {
+    const line = appendCurrentLine(
+      choiceSetupTerminal,
+      `<span class="check-pending">/</span> Installing ${component.label}`
+    );
+    const spinner = line.querySelector(".check-pending");
+    const frames = reduceMotion.matches ? ["/"] : ["/", "-", "\\", "|", "/", "-"];
+
+    for (const frame of frames) {
+      if (token !== choiceRunId) return false;
+      spinner.textContent = frame;
+      await wait(110);
+    }
+
+    line.innerHTML = `<span class="check-complete">✓</span> Installed ${component.label}`;
+    if (!await appendChoiceLines(
+      choiceSetupTerminal,
+      component.details.map((detail) => `<span class="dim">  ${detail}</span>`),
+      65,
+      token
+    )) return false;
+
+    await wait(115);
+    return true;
+  };
+
+  const runChoiceExperience = async () => {
+    if (choiceRunning) return;
+
+    choiceRunning = true;
+    const token = ++choiceRunId;
+    runChoiceButton.disabled = true;
+    runChoiceButtonLabel.textContent = "Installing package...";
+    setChoiceState("running");
+    setStepState(choiceWingetCard, "running");
+
+    const cursor = choiceWingetTerminal.querySelector(".cursor");
+    if (cursor) cursor.remove();
+
+    await wait(180);
+    if (!await appendChoiceLines(choiceWingetTerminal, [
+      'Found <span class="cyan">Microsoft Foundry DevPack</span> [Microsoft.FoundryDevPack] Version 0.1.1',
+      "This application is licensed to you by its owner.",
+      "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.",
+      "This package requires the following dependencies:",
+      "  - Packages",
+      "      Microsoft.AzureCLI [&gt;= 2.77.0]",
+      "      Microsoft.Azd [&gt;= 1.27.100]",
+      'Downloading <span class="link">https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe</span>'
+    ], 70, token)) return;
+    if (!await animateChoiceDownload(token)) return;
+    if (!await appendChoiceLines(choiceWingetTerminal, [
+      "Successfully verified installer hash",
+      "Starting package install...",
+      "Successfully installed"
+    ], 105, token)) return;
+
+    setStepState(choiceWingetCard, "complete");
+    setStepState(choiceSetupCard, "running");
+    setChoiceState("running");
+    setChoiceSetupTerminalVisible(true);
+    choiceSetupTerminal.innerHTML = "";
+    if (!await appendChoiceLines(choiceSetupTerminal, [
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      ""
+    ], 90, token)) return;
+
+    const selectedComponents = await chooseComponents(token);
+    if (token !== choiceRunId) return;
+
+    setStepState(choiceSetupCard, "running");
+    setChoiceState("running");
+    if (!await appendChoiceLines(choiceSetupTerminal, [
+      "",
+      `<span class="terminal-heading">Installing ${selectedComponents.length} selected component${selectedComponents.length === 1 ? "" : "s"}</span>`,
+      ""
+    ], 90, token)) return;
+
+    for (const component of selectedComponents) {
+      if (!await runChoiceOperation(component, token)) return;
+    }
+
+    if (!await appendChoiceLines(choiceSetupTerminal, [
+      "",
+      '<span class="success">✓ Selected components are ready.</span>',
+      "",
+      'Press Enter to close the window.<span class="cursor" aria-hidden="true"></span>'
+    ], 90, token)) return;
+    if (!await appendChoiceLines(choiceWingetTerminal, [
+      "",
+      "NEXT STEPS:",
+      '- Ask your coding agent: "Create a Foundry hosted agent."',
+      "- Run `azd ai` to start building with Foundry from the terminal.",
+      "- If VS Code is installed, open your project there to use the Foundry Toolkit.",
+      "",
+      '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span>'
+    ], 65, token)) return;
+
+    choiceRunning = false;
+    setStepState(choiceSetupCard, "complete");
+    setChoiceState("complete");
+    runChoiceButton.disabled = false;
+    runChoiceButtonLabel.textContent = "Replay selectable install";
+    choiceSetupTerminal.focus();
   };
 
   runCurrentButton.addEventListener("click", () => {
-    if (currentStatus.dataset.state === "complete") resetCurrentExperience();
+    if (currentPhase === "complete") resetCurrentExperience();
     runCurrentExperience();
+  });
+
+  toggleSetupButton.addEventListener("click", () => {
+    setSetupTerminalVisible(setupCard.hidden);
+  });
+
+  runChoiceButton.addEventListener("click", () => {
+    if (choicePhase === "complete") resetChoiceExperience();
+    runChoiceExperience();
+  });
+
+  choiceSetupTerminal.addEventListener("keydown", (event) => {
+    if (
+      event.key !== "Enter" ||
+      choicePhase !== "complete" ||
+      choiceSetupCard.hidden
+    ) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setChoiceSetupTerminalVisible(false);
+    choiceWingetTerminal.focus();
+  });
+
+  const selectExperience = (selectedTab, moveFocus = false) => {
+    experienceTabs.forEach((tab) => {
+      const isSelected = tab === selectedTab;
+      tab.setAttribute("aria-selected", String(isSelected));
+      tab.tabIndex = isSelected ? 0 : -1;
+    });
+    experiencePanels.forEach((panel) => {
+      panel.hidden = panel.id !== selectedTab.getAttribute("aria-controls");
+    });
+    if (moveFocus) selectedTab.focus();
+
+    if (
+      selectedTab.id === "chooseTab" &&
+      choicePhase === "ready" &&
+      !choiceRunning
+    ) {
+      window.requestAnimationFrame(runChoiceExperience);
+    }
+  };
+
+  experienceTabs.forEach((tab, index) => {
+    tab.addEventListener("click", () => selectExperience(tab));
+    tab.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+      event.preventDefault();
+      const direction = event.key === "ArrowRight" ? 1 : -1;
+      const nextIndex = (index + direction + experienceTabs.length) % experienceTabs.length;
+      selectExperience(experienceTabs[nextIndex], true);
+    });
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key !== "Enter" || event.target.closest("button") || currentRunning) return;
-    event.preventDefault();
-    if (currentStatus.dataset.state === "complete") resetCurrentExperience();
-    runCurrentExperience();
+    if (event.key !== "Enter" || event.target.closest("button, input, select, textarea, a")) return;
+    const selectedTab = experienceTabs.find((tab) => tab.getAttribute("aria-selected") === "true");
+
+    if (selectedTab?.id === "proposedTab" && !currentRunning) {
+      event.preventDefault();
+      if (currentPhase === "complete") resetCurrentExperience();
+      runCurrentExperience();
+    }
+
+    if (selectedTab?.id === "chooseTab" && !choiceRunning) {
+      event.preventDefault();
+      if (choicePhase === "complete") resetChoiceExperience();
+      runChoiceExperience();
+    }
   });
 
   resetCurrentExperience();
+  resetChoiceExperience();
   window.requestAnimationFrame(runCurrentExperience);
 })();
 </script>
