@@ -97,11 +97,12 @@ h1 {
 }
 
 .description {
-  max-width: 660px;
+  max-width: none;
   margin: 13px 0 0;
   color: var(--muted);
   font-size: 16px;
   line-height: 1.55;
+  white-space: nowrap;
 }
 
 .flow-note {
@@ -167,6 +168,55 @@ h1 {
 
 .experience-panel[hidden] {
   display: none;
+}
+
+.constraints-note {
+  margin: 0 4px 18px;
+  overflow-x: auto;
+  padding: 10px 0 10px 14px;
+  color: var(--muted);
+  font-size: 14px;
+  border-left: 2px solid var(--panel-border);
+  white-space: nowrap;
+}
+
+.constraints-note summary {
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.constraints-note summary::marker {
+  color: var(--accent);
+}
+
+.constraints-note ul {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0 0;
+  padding-left: 19px;
+  line-height: 1.45;
+}
+
+.experience-summary {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  margin: 0 4px 12px;
+  overflow-x: auto;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.experience-summary strong {
+  flex: none;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.experience-summary p {
+  margin: 0;
+  color: var(--muted);
 }
 
 .prototype {
@@ -491,14 +541,6 @@ h1 {
   font-weight: 700;
 }
 
-.cyan {
-  color: var(--terminal-cyan);
-}
-
-.link {
-  color: var(--terminal-link);
-}
-
 .yellow {
   color: var(--terminal-yellow);
 }
@@ -743,7 +785,7 @@ h1 {
     <div>
       <p class="designer-credit">Designed by <strong>Hiyo Shin</strong></p>
       <h1><span class="title-product">Foundry DevPack:</span> Redesigning the install experience.</h1>
-      <p class="description">Explore a one-step installation and a guided flow for choosing which Foundry tools to install.</p>
+      <p class="description">Two redesigns improve today’s supported install flow and explore a possible future component-selection flow.</p>
     </div>
   </header>
 
@@ -767,12 +809,26 @@ h1 {
     >Choose what to install</button>
   </div>
 
+  <details class="constraints-note">
+    <summary>WinGet and terminal constraints</summary>
+    <ul>
+      <li>WinGet controls the output from “Found Microsoft Foundry DevPack…” through “Successfully installed.” That content can’t be customized.</li>
+      <li>The WinGet flow supports plain text only, with no color or text styling.</li>
+      <li>When setup finishes, WinGet automatically closes the second terminal window.</li>
+      <li>The installer can conditionally install integrations such as the Foundry Toolkit when Visual Studio Code is available. However, the main terminal can show only static text, so its summary can’t change based on detected apps.</li>
+    </ul>
+  </details>
+
   <div
     class="experience-panel"
     id="proposedPanel"
     role="tabpanel"
     aria-labelledby="proposedTab"
   >
+    <div class="experience-summary">
+      <strong>Current-flow redesign</strong>
+      <p>Improves today’s supported one-step flow by explaining what Foundry DevPack installs and providing clear next steps.</p>
+    </div>
     <section class="prototype" aria-label="Proposed two-step installer">
       <div class="current-interactive-grid">
         <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-label="Winget installation terminal">
@@ -858,6 +914,10 @@ h1 {
     aria-labelledby="chooseTab"
     hidden
   >
+    <div class="experience-summary">
+      <strong>Future concept</strong>
+      <p>Explores a not-yet-supported interaction that lets developers choose which available DevPack components to install.</p>
+    </div>
     <section class="prototype" aria-label="Selectable component installer">
       <div class="current-interactive-grid">
         <section class="current-terminal-card" id="choiceWingetCard" data-state="ready" aria-label="Winget installation terminal">
@@ -1076,14 +1136,14 @@ h1 {
 
     await wait(180);
     const wingetLines = [
-      'Found <span class="cyan">Microsoft Foundry DevPack</span> [Microsoft.FoundryDevPack] Version 0.1.1',
+      "Found Microsoft Foundry DevPack [Microsoft.FoundryDevPack] Version 0.1.1",
       "This application is licensed to you by its owner.",
       "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.",
       "This package requires the following dependencies:",
       "  - Packages",
       "      Microsoft.AzureCLI [&gt;= 2.77.0]",
       "      Microsoft.Azd [&gt;= 1.27.100]",
-      'Downloading <span class="link">https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe</span>'
+      "Downloading https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe"
     ];
     if (!await appendCurrentLines(currentWingetTerminal, wingetLines, 70, token)) return;
     if (!await animateDownload(token)) return;
@@ -1439,14 +1499,14 @@ h1 {
 
     await wait(180);
     if (!await appendChoiceLines(choiceWingetTerminal, [
-      'Found <span class="cyan">Microsoft Foundry DevPack</span> [Microsoft.FoundryDevPack] Version 0.1.1',
+      "Found Microsoft Foundry DevPack [Microsoft.FoundryDevPack] Version 0.1.1",
       "This application is licensed to you by its owner.",
       "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.",
       "This package requires the following dependencies:",
       "  - Packages",
       "      Microsoft.AzureCLI [&gt;= 2.77.0]",
       "      Microsoft.Azd [&gt;= 1.27.100]",
-      'Downloading <span class="link">https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe</span>'
+      "Downloading https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe"
     ], 70, token)) return;
     if (!await animateChoiceDownload(token)) return;
     if (!await appendChoiceLines(choiceWingetTerminal, [
