@@ -233,7 +233,7 @@ h1 {
   width: 0;
   height: 100%;
   background: #0984d4;
-  transition: width 90ms linear;
+  transition: width 45ms linear;
 }
 
 .check-pending,
@@ -281,6 +281,11 @@ h1 {
   display: grid;
   gap: 2px;
   margin-top: 24px;
+}
+
+.install-chooser.is-confirmed .azd-option-list,
+.install-chooser.is-confirmed .azd-list-footer {
+  display: none;
 }
 
 .install-choice {
@@ -941,6 +946,7 @@ h1 {
   const choiceSetupCard = document.getElementById("choiceSetupCard");
   const experienceTabs = [...document.querySelectorAll(".experience-tab")];
   const experiencePanels = [...document.querySelectorAll(".experience-panel")];
+  const selectedTabStorageKey = "foundry-devpack-selected-tab";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   let currentRunning = false;
@@ -1024,7 +1030,7 @@ h1 {
       if (token !== currentRunId) return false;
       fill.style.width = `${percent}%`;
       size.textContent = `${(9.48 * percent / 100).toFixed(2)} MB / 9.48 MB`;
-      await wait(115);
+      await wait(55);
     }
     return true;
   };
@@ -1051,7 +1057,7 @@ h1 {
       token
     )) return false;
 
-    await wait(115);
+    await wait(55);
     return true;
   };
 
@@ -1357,7 +1363,11 @@ h1 {
     const confirmSelection = () => {
       if (settled || token !== choiceRunId || selectedIds.size === 0) return;
       settled = true;
+      chooser.classList.add("is-confirmed");
       chooser.setAttribute("aria-disabled", "true");
+      chooser.removeAttribute("role");
+      chooser.removeAttribute("aria-activedescendant");
+      chooser.removeAttribute("aria-multiselectable");
       chooser.removeAttribute("tabindex");
       resolve(selectableComponents.filter((component) => selectedIds.has(component.id)));
     };
@@ -1522,6 +1532,7 @@ h1 {
   });
 
   const selectExperience = (selectedTab, moveFocus = false) => {
+    window.sessionStorage.setItem(selectedTabStorageKey, selectedTab.id);
     experienceTabs.forEach((tab) => {
       const isSelected = tab === selectedTab;
       tab.setAttribute("aria-selected", String(isSelected));
@@ -1571,7 +1582,12 @@ h1 {
 
   resetCurrentExperience();
   resetChoiceExperience();
-  window.requestAnimationFrame(runCurrentExperience);
+  const savedTabId = window.sessionStorage.getItem(selectedTabStorageKey);
+  const initialTab = experienceTabs.find((tab) => tab.id === savedTabId) ?? experienceTabs[0];
+  selectExperience(initialTab);
+  if (initialTab.id === "proposedTab") {
+    window.requestAnimationFrame(runCurrentExperience);
+  }
 })();
 </script>
 </body>
