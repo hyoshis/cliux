@@ -219,46 +219,6 @@ h1 {
   color: var(--muted);
 }
 
-.completion-mode {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin: 0 4px 12px;
-  color: var(--muted);
-  font-size: 13px;
-}
-
-.completion-mode-options {
-  display: inline-flex;
-  gap: 2px;
-  padding: 2px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--panel-border);
-  border-radius: 7px;
-}
-
-.completion-mode-option {
-  min-height: 30px;
-  padding: 0 10px;
-  color: var(--muted);
-  font: inherit;
-  font-weight: 600;
-  background: transparent;
-  border: 0;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.completion-mode-option[aria-pressed="true"] {
-  color: var(--text);
-  background: #242933;
-}
-
-.completion-mode-option:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
-}
-
 .prototype {
   overflow: visible;
 }
@@ -926,23 +886,6 @@ h1 {
       <strong>Current-flow redesign</strong>
       <p>Improves today’s supported one-step flow by explaining what Foundry DevPack installs and providing clear next steps.</p>
     </div>
-    <div class="completion-mode" role="group" aria-label="Completion output detail">
-      <span>Completion output</span>
-      <div class="completion-mode-options">
-        <button
-          class="completion-mode-option"
-          type="button"
-          data-summary-mode="minimal"
-          aria-pressed="true"
-        >Minimal</button>
-        <button
-          class="completion-mode-option"
-          type="button"
-          data-summary-mode="comprehensive"
-          aria-pressed="false"
-        >Comprehensive</button>
-      </div>
-    </div>
     <section class="prototype" aria-label="Proposed two-step installer">
       <div class="current-interactive-grid">
         <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-label="Winget installation terminal">
@@ -1127,7 +1070,6 @@ h1 {
   const wingetCard = document.getElementById("wingetCard");
   const setupCard = document.getElementById("setupCard");
   const toggleSetupButton = document.getElementById("toggleSetupButton");
-  const completionModeOptions = [...document.querySelectorAll(".completion-mode-option")];
   const runChoiceButton = document.getElementById("runChoiceButton");
   const runChoiceButtonLabel = runChoiceButton.querySelector("span");
   const choiceWingetTerminal = document.getElementById("choiceWingetTerminal");
@@ -1144,7 +1086,6 @@ h1 {
   let currentRunning = false;
   let currentRunId = 0;
   let currentPhase = "ready";
-  let currentSummaryMode = "minimal";
   let choiceRunning = false;
   let choiceRunId = 0;
   let choicePhase = "ready";
@@ -1179,25 +1120,9 @@ h1 {
     card.dataset.state = state;
   };
 
-  const minimalCompletionLines = [
-    "",
-    "Foundry DevPack installs the Foundry developer tools for your editor, terminal, and coding agent.",
-    "- Foundry command-line tools: Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
-    "- Microsoft Foundry Skill",
-    "- Microsoft Foundry Toolkit for Visual Studio Code",
-    "- Foundry Canvas (preview)",
-    "",
-    "Learn more at https://aka.ms/foundrydevpack",
-    "",
-    "Get started with:",
-    '- Ask your coding agent: "Create a Foundry hosted agent."',
-    "- Run `azd ai` to start building with Foundry from the terminal.",
-    "",
-    '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
-  ];
-
   const comprehensiveCompletionLines = [
-    "Notes: To verify or repair your setup, run:",
+    "",
+    "To verify or repair your setup, run:",
     "    winget repair --exact --id Microsoft.FoundryDevPack",
     "",
     "If Azure CLI or Azure Developer CLI was removed, restore package dependencies with:",
@@ -1205,26 +1130,22 @@ h1 {
     "",
     "Foundry DevPack installs the Foundry developer tools for your editor, terminal, and coding agent.",
     "- Foundry command-line tools",
-    "  Installs Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
-    "  Scaffold, deploy, evaluate, and automate from the terminal.",
+    "  Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
     "- Microsoft Foundry Skill",
-    "  Give coding agents reusable guidance for Foundry workflows.",
-    "  Location: ~/.agents/skills/",
-    "  Location: ~/.claude/skills/ (if Claude Code is available)",
+    "  ~/.agents/skills/",
+    "  ~/.claude/skills/ (if Claude Code is available)",
     "- Microsoft Foundry Toolkit for Visual Studio Code",
-    "  (If VS Code is installed)",
-    "  Build, test, evaluate, and deploy from Visual Studio Code.",
-    "- Foundry Canvas (preview)",
-    "  (If GitHub Copilot is installed)",
-    "  Design and deploy hosted agents with a guided Copilot canvas.",
-    "  Location: ~/.copilot/installed-plugins/",
+    "  Available if VS Code is installed",
+    "- Foundry Canvas (preview) for GitHub Copilot App",
+    "  Available if GitHub Copilot App is installed",
+    "  ~/.copilot/installed-plugins/",
     "",
     "Learn more at https://aka.ms/foundrydevpack",
     "",
-    "NEXT STEPS:",
-    '- Ask your coding agent: "Create a Foundry hosted agent."',
-    "- Run `azd ai` to start building with Foundry from the terminal.",
-    "- Open your project in VS Code to use the Foundry Toolkit (if installed).",
+    "GET STARTED:",
+    "- Run `azd ai agent init` to create a Foundry hosted agent.",
+    '- Ask your coding agent: "Evaluate my agent and improve its instructions."',
+    "- Debug and deploy a hosted agent with the Foundry Toolkit in VS Code.",
     "",
     '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
   ];
@@ -1233,37 +1154,31 @@ h1 {
     [
       "Foundry command-line tools",
       [
-        "Installs Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
-        "Scaffold, deploy, evaluate, and automate from the terminal."
+        "Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai)."
       ]
     ],
     [
       "Microsoft Foundry Skill",
       [
-        "Give coding agents reusable guidance for Foundry workflows.",
-        "Location: ~/.agents/skills/",
-        "Location: ~/.claude/skills/ (Claude Code detected)"
+        "~/.agents/skills/",
+        "~/.claude/skills/ (Claude Code detected)"
       ]
     ],
     [
       "Microsoft Foundry Toolkit for Visual Studio Code",
-      ["Build, test, evaluate, and deploy from Visual Studio Code."]
+      []
     ],
     [
-      "Foundry Canvas (preview)",
+      "Foundry Canvas (preview) for GitHub Copilot App",
       [
-        "Design and deploy hosted agents with a guided Copilot canvas.",
-        "Location: ~/.copilot/installed-plugins/"
+        "~/.copilot/installed-plugins/"
       ]
     ]
   ];
 
   const renderCurrentCompletion = () => {
     currentWingetTerminal.querySelectorAll(".current-summary-line").forEach((line) => line.remove());
-    const lines = currentSummaryMode === "minimal"
-      ? minimalCompletionLines
-      : comprehensiveCompletionLines;
-    lines.forEach((html) => {
+    comprehensiveCompletionLines.forEach((html) => {
       const line = appendCurrentLine(currentWingetTerminal, html);
       line.classList.add("current-summary-line");
     });
@@ -1271,31 +1186,16 @@ h1 {
 
   const renderCurrentSetupCompletion = () => {
     currentSetupTerminal.innerHTML = "";
-    const lines = currentSummaryMode === "minimal"
-      ? currentSetupOperations.map(
-        ([label]) => `<span class="check-complete">✓</span> Installed ${label}`
-      )
-      : [
-        '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
-        "Setting up your environment for: CLI, VS Code, and Copilot",
-        "",
-        ...currentSetupOperations.flatMap(([label, details]) => [
-          `<span class="check-complete">✓</span> Installed ${label}`,
-          ...details.map((detail) => `<span class="dim">  ${detail}</span>`)
-        ])
-      ];
+    const lines = [
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      "",
+      ...currentSetupOperations.flatMap(([label, details]) => [
+        `<span class="check-complete">✓</span> Installed ${label}`,
+        ...details.map((detail) => `  ${detail}`)
+      ])
+    ];
     lines.forEach((html) => appendCurrentLine(currentSetupTerminal, html));
-  };
-
-  const setCurrentSummaryMode = (mode) => {
-    currentSummaryMode = mode;
-    completionModeOptions.forEach((option) => {
-      option.setAttribute("aria-pressed", String(option.dataset.summaryMode === mode));
-    });
-    if (currentPhase === "complete") {
-      renderCurrentCompletion();
-      renderCurrentSetupCompletion();
-    }
   };
 
   const setSetupTerminalVisible = (visible) => {
@@ -1362,14 +1262,12 @@ h1 {
     }
 
     line.innerHTML = `<span class="check-complete">✓</span> Installed ${label}`;
-    if (currentSummaryMode === "comprehensive") {
-      if (!await appendCurrentLines(
-        currentSetupTerminal,
-        details.map((detail) => `<span class="dim">  ${detail}</span>`),
-        65,
-        token
-      )) return false;
-    }
+    if (!await appendCurrentLines(
+      currentSetupTerminal,
+      details.map((detail) => `  ${detail}`),
+      65,
+      token
+    )) return false;
 
     await wait(55);
     return true;
@@ -1413,13 +1311,11 @@ h1 {
     setSetupTerminalVisible(true);
     toggleSetupButton.hidden = false;
     currentSetupTerminal.innerHTML = "";
-    if (currentSummaryMode === "comprehensive") {
-      await appendCurrentLines(currentSetupTerminal, [
-        '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
-        "Setting up your environment for: CLI, VS Code, and Copilot",
-        ""
-      ], 90, token);
-    }
+    await appendCurrentLines(currentSetupTerminal, [
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      ""
+    ], 90, token);
 
     for (const [label, details] of currentSetupOperations) {
       if (!await runSetupOperation(label, details, token)) return;
@@ -1766,9 +1662,9 @@ h1 {
       "Learn more at https://aka.ms/foundrydevpack",
       "",
       "NEXT STEPS:",
-      '- Ask your coding agent: "Create a Foundry hosted agent."',
+      '- Ask your coding agent "Create a Foundry hosted agent."',
       "- Run `azd ai` to start building with Foundry from the terminal.",
-      "- Open your project in VS Code to use the Foundry Toolkit (if installed).",
+      "- Open your project in VS Code to use the Foundry Toolkit.",
       "",
       '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span>'
     ], 65, token)) return;
@@ -1780,12 +1676,6 @@ h1 {
     runChoiceButtonLabel.textContent = "Replay selectable install";
     choiceSetupTerminal.focus();
   };
-
-  completionModeOptions.forEach((option) => {
-    option.addEventListener("click", () => {
-      setCurrentSummaryMode(option.dataset.summaryMode);
-    });
-  });
 
   runCurrentButton.addEventListener("click", () => {
     if (currentPhase === "complete") resetCurrentExperience();
