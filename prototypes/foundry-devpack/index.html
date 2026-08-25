@@ -1577,12 +1577,12 @@ h1 {
             class="install-choice${component.available ? "" : " is-unavailable"}"
             id="choice-option-${component.id}"
             role="option"
-            aria-selected="false"
+            aria-selected="${component.available}"
             aria-disabled="${!component.available}"
             data-component="${component.id}"
           >
             <span class="azd-option-cursor">&gt;</span>
-            <span class="azd-option-check">[ ]</span>
+            <span class="azd-option-check">[${component.available ? "✓" : " "}]</span>
             <span class="azd-option-copy">
               <span class="azd-option-label">
                 ${component.label}
@@ -1598,7 +1598,9 @@ h1 {
     choiceSetupTerminal.scrollTop = choiceSetupTerminal.scrollHeight;
 
     const options = [...chooser.querySelectorAll(".install-choice")];
-    const selectedIds = new Set();
+    const selectedIds = new Set(
+      selectableComponents.filter((component) => component.available).map((component) => component.id)
+    );
     const promptSelection = chooser.querySelector(".azd-prompt-selection");
     let activeIndex = selectableComponents.findIndex((component) => component.available);
     let settled = false;
@@ -1614,10 +1616,12 @@ h1 {
         check.classList.toggle("is-selected", isSelected);
       });
       chooser.setAttribute("aria-activedescendant", options[activeIndex].id);
-      promptSelection.textContent = selectableComponents
-        .filter((component) => selectedIds.has(component.id))
-        .map((component) => component.label)
-        .join(", ");
+      promptSelection.textContent = settled
+        ? selectableComponents
+          .filter((component) => selectedIds.has(component.id))
+          .map((component) => component.label)
+          .join(", ")
+        : "";
     };
 
     const toggleActive = () => {
@@ -1637,6 +1641,7 @@ h1 {
       chooser.removeAttribute("aria-activedescendant");
       chooser.removeAttribute("aria-multiselectable");
       chooser.removeAttribute("tabindex");
+      render();
       resolve(selectableComponents.filter((component) => selectedIds.has(component.id)));
     };
 
