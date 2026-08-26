@@ -127,28 +127,27 @@ h1 {
 
 .experience-tabs {
   display: inline-flex;
-  gap: 4px;
+  gap: 16px;
   margin: 0 4px 14px;
-  padding: 4px;
-  background: rgba(255, 255, 255, 0.035);
-  border: 1px solid var(--panel-border);
-  border-radius: 9px;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--panel-border);
 }
 
 .experience-tab {
-  min-height: 36px;
-  padding: 0 14px;
+  position: relative;
+  min-height: 40px;
+  padding: 0 8px;
   color: var(--muted);
   font-size: 13px;
   font-weight: 600;
   background: transparent;
   border: 0;
-  border-radius: 6px;
   cursor: pointer;
   transition:
     color 140ms var(--ease-out),
-    background 140ms var(--ease-out),
-    box-shadow 140ms var(--ease-out);
+    background 140ms var(--ease-out);
 }
 
 .experience-tab:hover {
@@ -157,8 +156,17 @@ h1 {
 
 .experience-tab[aria-selected="true"] {
   color: var(--text);
-  background: #242933;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
+}
+
+.experience-tab[aria-selected="true"]::after {
+  position: absolute;
+  right: 8px;
+  bottom: -1px;
+  left: 8px;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+  content: "";
 }
 
 .experience-tab:focus-visible {
@@ -217,6 +225,83 @@ h1 {
 .experience-summary p {
   margin: 0;
   color: var(--muted);
+}
+
+.platform-switcher-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  flex-direction: column;
+  justify-content: flex-start;
+  margin: 0 4px 12px;
+}
+
+.platform-toggle {
+  display: inline-flex;
+  gap: 4px;
+}
+
+.platform-toggle-button {
+  display: inline-flex;
+  min-width: 0;
+  min-height: 36px;
+  gap: 7px;
+  align-items: center;
+  padding: 0 10px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.018);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition:
+    color 140ms var(--ease-out),
+    background 140ms var(--ease-out),
+    border-color 140ms var(--ease-out),
+    box-shadow 140ms var(--ease-out),
+    transform 100ms var(--ease-out);
+}
+
+.platform-toggle-button:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #515a68;
+  transform: translateY(-1px);
+}
+
+.platform-toggle-button:active {
+  transform: translateY(0);
+}
+
+.platform-toggle-button[aria-pressed="true"] {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--panel-border);
+  box-shadow: none;
+}
+
+.platform-toggle-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.platform-icon {
+  width: 18px;
+  flex: none;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
+}
+
+.platform-toggle-button[aria-pressed="true"] .platform-icon {
+  color: var(--accent);
+}
+
+.platform-panel[hidden] {
+  display: none;
 }
 
 .prototype {
@@ -314,6 +399,31 @@ h1 {
 .check-complete {
   color: var(--terminal-green);
   font-weight: 700;
+}
+
+.azd-progress {
+  display: inline-block;
+  width: 9ch;
+  color: var(--terminal-text);
+}
+
+.azd-state {
+  display: inline-block;
+  width: 9ch;
+  color: var(--terminal-green);
+  font-weight: 700;
+}
+
+.azd-detail {
+  display: inline-block;
+  padding-left: 10ch;
+  color: var(--terminal-dim);
+}
+
+.azd-skipped-detail {
+  display: inline-block;
+  padding-left: 13ch;
+  color: var(--terminal-dim);
 }
 
 .install-chooser {
@@ -455,6 +565,22 @@ h1 {
   transform: skewX(-5deg);
 }
 
+.linux-icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  flex: none;
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  background: linear-gradient(145deg, #e95420, #8d2f0d);
+  border: 1px solid #f08b62;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px #000;
+}
+
 .tab-title {
   overflow: hidden;
   font-size: 14px;
@@ -579,6 +705,19 @@ h1 {
 
 .green {
   color: var(--terminal-green);
+}
+
+.blue {
+  color: var(--terminal-link);
+}
+
+.cyan {
+  color: var(--terminal-cyan);
+}
+
+.skipped {
+  color: #c4a000;
+  font-weight: 700;
 }
 
 .dim {
@@ -751,6 +890,20 @@ h1 {
     font-size: 12px;
   }
 
+  .platform-switcher-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .platform-toggle {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .platform-toggle-button {
+    min-width: 0;
+  }
+
   .current-interactive-grid {
     align-items: stretch;
     flex-direction: column;
@@ -866,16 +1019,6 @@ h1 {
     >Choose what to install</button>
   </div>
 
-  <details class="constraints-note">
-    <summary>WinGet and terminal constraints</summary>
-    <ul>
-      <li>WinGet controls the output from “Found Microsoft Foundry DevPack…” through “Successfully installed.” That content can’t be customized.</li>
-      <li>The WinGet flow supports plain text only, with no color or text styling.</li>
-      <li>When setup finishes, WinGet automatically closes the second terminal window.</li>
-      <li>The installer can conditionally install integrations such as the Foundry Toolkit when Visual Studio Code is available. However, the main terminal can show only static text, so its summary can’t change based on detected apps.</li>
-    </ul>
-  </details>
-
   <div
     class="experience-panel"
     id="proposedPanel"
@@ -886,7 +1029,37 @@ h1 {
       <strong>Current-flow redesign</strong>
       <p>Improves today’s supported one-step flow by explaining what Foundry DevPack installs and providing clear next steps.</p>
     </div>
-    <section class="prototype" aria-label="Proposed two-step installer">
+    <div class="platform-switcher-row">
+      <div class="platform-toggle" role="group" aria-label="Operating system">
+        <button
+          class="platform-toggle-button"
+          id="windowsPlatformButton"
+          type="button"
+          aria-pressed="true"
+          aria-controls="windowsPlatformPanel"
+        ><span class="platform-icon" aria-hidden="true">⊞</span><span>Windows</span></button>
+        <button
+          class="platform-toggle-button"
+          id="linuxPlatformButton"
+          type="button"
+          aria-pressed="false"
+          aria-controls="linuxPlatformPanel"
+        ><span class="platform-icon" aria-hidden="true">&gt;_</span><span>Linux</span></button>
+      </div>
+    </div>
+
+    <details class="constraints-note">
+      <summary>Windows WinGet and terminal constraints</summary>
+      <ul>
+        <li>WinGet controls the output from “Found Microsoft Foundry DevPack…” through “Successfully installed.” That content can’t be customized.</li>
+        <li>The WinGet flow supports plain text only, with no color or text styling.</li>
+        <li>When setup finishes, WinGet automatically closes the second terminal window.</li>
+        <li>The installer can conditionally install integrations such as the Foundry Toolkit when Visual Studio Code is available. However, the main terminal can show only static text, so its summary can’t change based on detected apps.</li>
+      </ul>
+    </details>
+
+    <div class="platform-panel" id="windowsPlatformPanel">
+      <section class="prototype" aria-label="Proposed Windows two-terminal installer">
       <div class="current-interactive-grid">
         <section class="current-terminal-card" id="wingetCard" data-state="ready" aria-label="Winget installation terminal">
           <div class="terminal-window">
@@ -913,7 +1086,7 @@ h1 {
               aria-label="Interactive winget installation output"
             ></div>
           </div>
-        </section>
+          </section>
 
         <section class="current-terminal-card" id="setupCard" data-state="pending" aria-label="Foundry DevPack setup terminal" hidden>
           <div class="terminal-window">
@@ -945,6 +1118,9 @@ h1 {
 
       <div class="prototype-actions">
         <div class="prototype-action-buttons">
+          <button class="action-button secondary" id="skipCurrentButton" type="button">
+            <span>Skip to end</span>
+          </button>
           <button
             class="action-button secondary"
             id="toggleSetupButton"
@@ -962,6 +1138,51 @@ h1 {
         </div>
       </div>
     </section>
+    </div>
+
+    <div class="platform-panel" id="linuxPlatformPanel" hidden>
+      <section class="prototype" aria-label="Proposed Linux single-terminal installer">
+        <div class="current-interactive-grid">
+          <section class="current-terminal-card" id="linuxCard" data-state="ready" aria-label="Linux installation terminal">
+            <div class="terminal-window">
+              <div class="window-bar" aria-hidden="true">
+                <div class="terminal-tab">
+                  <span class="linux-icon">L</span>
+                  <span class="tab-title">Ubuntu</span>
+                  <span class="tab-close">×</span>
+                </div>
+                <span class="new-tab">+</span>
+                <span class="tab-menu">⌄</span>
+                <div class="window-controls">
+                  <span class="window-control">−</span>
+                  <span class="window-control">□</span>
+                  <span class="window-control close">×</span>
+                </div>
+              </div>
+              <div
+                class="terminal-screen"
+                id="linuxTerminal"
+                tabindex="0"
+                role="log"
+                aria-live="polite"
+                aria-label="Interactive Linux Foundry DevPack installation output"
+              ></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="prototype-actions">
+          <div class="prototype-action-buttons">
+            <button class="action-button" id="runLinuxButton" type="button">
+              <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
+              </svg>
+              <span>Run Linux experience</span>
+            </button>
+          </div>
+        </div>
+      </section>
+    </div>
   </div>
 
   <div
@@ -1069,6 +1290,7 @@ h1 {
   const currentSetupTerminal = document.getElementById("currentSetupTerminal");
   const wingetCard = document.getElementById("wingetCard");
   const setupCard = document.getElementById("setupCard");
+  const skipCurrentButton = document.getElementById("skipCurrentButton");
   const toggleSetupButton = document.getElementById("toggleSetupButton");
   const runChoiceButton = document.getElementById("runChoiceButton");
   const runChoiceButtonLabel = runChoiceButton.querySelector("span");
@@ -1078,14 +1300,27 @@ h1 {
   const choiceSetupCard = document.getElementById("choiceSetupCard");
   const closeChoiceSetupButton = document.getElementById("closeChoiceSetupButton");
   const toggleChoiceSetupButton = document.getElementById("toggleChoiceSetupButton");
+  const constraintsNote = document.querySelector(".constraints-note");
+  const platformButtons = [...document.querySelectorAll(".platform-toggle-button")];
+  const platformPanels = [...document.querySelectorAll(".platform-panel")];
+  const windowsPlatformButton = document.getElementById("windowsPlatformButton");
+  const linuxPlatformButton = document.getElementById("linuxPlatformButton");
+  const runLinuxButton = document.getElementById("runLinuxButton");
+  const runLinuxButtonLabel = runLinuxButton.querySelector("span");
+  const linuxTerminal = document.getElementById("linuxTerminal");
+  const linuxCard = document.getElementById("linuxCard");
   const experienceTabs = [...document.querySelectorAll(".experience-tab")];
   const experiencePanels = [...document.querySelectorAll(".experience-panel")];
   const selectedTabStorageKey = "foundry-devpack-selected-tab";
+  const selectedPlatformStorageKey = "foundry-devpack-selected-platform";
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   let currentRunning = false;
   let currentRunId = 0;
   let currentPhase = "ready";
+  let linuxRunning = false;
+  let linuxRunId = 0;
+  let linuxPhase = "ready";
   let choiceRunning = false;
   let choiceRunId = 0;
   let choicePhase = "ready";
@@ -1128,24 +1363,28 @@ h1 {
     "If Azure CLI or Azure Developer CLI was removed, restore package dependencies with:",
     "    winget install --exact --id Microsoft.FoundryDevPack --force",
     "",
-    "Foundry DevPack installs the Foundry developer tools for your editor, terminal, and coding agent.",
+    "WHAT'S INCLUDED",
+    "",
+    //Foundry DevPack installs the Foundry developer tools for your editor, terminal, and coding agent.
     "- Foundry command-line tools",
     "  Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).",
     "- Microsoft Foundry Skill",
     "  ~/.agents/skills/",
     "  ~/.claude/skills/ (if Claude Code is available)",
-    "- Microsoft Foundry Toolkit for Visual Studio Code",
-    "  Available if VS Code is installed",
-    "- Foundry Canvas (preview) for GitHub Copilot App",
-    "  Available if GitHub Copilot App is installed",
+    "- Microsoft Foundry Toolkit for Visual Studio Code (if applicable)",
+    "- Foundry Canvas (preview) for GitHub Copilot App (if applicable)",
     "  ~/.copilot/installed-plugins/",
     "",
-    "Learn more at https://aka.ms/foundrydevpack",
+    "Learn more about the Foundry DevPack at https://aka.ms/foundrydevpack",
     "",
-    "GET STARTED:",
+    "GET STARTED",
+    "",
+    "Build with Foundry your way using the CLI, a coding agent, VS Code, or the GitHub Copilot app.",
     "- Run `azd ai agent init` to create a Foundry hosted agent.",
     '- Ask your coding agent: "Evaluate my agent and improve its instructions."',
-    "- Debug and deploy a hosted agent with the Foundry Toolkit in VS Code.",
+    //"- Debug and deploy a hosted agent with the Foundry Toolkit in VS Code.",
+    "- Open Foundry Toolkit in VS Code",
+    "- Open Foundry Canvas in GitHub Copilot App",
     "",
     '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
   ];
@@ -1184,6 +1423,27 @@ h1 {
     });
   };
 
+  const renderCompletedWingetInstall = () => {
+    currentWingetTerminal.innerHTML = "";
+    const lines = [
+      '<span class="terminal-heading">PowerShell 7.6.4</span>',
+      '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="command"><span class="yellow">winget</span> install Microsoft.FoundryDevPack</span>',
+      "Found Microsoft Foundry DevPack [Microsoft.FoundryDevPack] Version 0.1.1",
+      "This application is licensed to you by its owner.",
+      "Microsoft is not responsible for, nor does it grant any licenses to, third-party packages.",
+      "This package requires the following dependencies:",
+      "  - Packages",
+      "      Microsoft.AzureCLI [&gt;= 2.77.0]",
+      "      Microsoft.Azd [&gt;= 1.27.100]",
+      "Downloading https://github.com/microsoft/foundry-toolkit/releases/download/devpack-installer-0.1.1/foundry-devpack-win-x64.exe",
+      '<span class="download-track" aria-hidden="true"><span class="download-fill" style="width: 100%"></span></span> <span class="download-size">9.48 MB / 9.48 MB</span>',
+      "Successfully verified installer hash",
+      "Starting package install...",
+      "Successfully installed"
+    ];
+    lines.forEach((html) => appendCurrentLine(currentWingetTerminal, html, true));
+  };
+
   const renderCurrentSetupCompletion = () => {
     currentSetupTerminal.innerHTML = "";
     const lines = [
@@ -1191,9 +1451,11 @@ h1 {
       "Setting up your environment for: CLI, VS Code, and Copilot",
       "",
       ...currentSetupOperations.flatMap(([label, details]) => [
-        `<span class="check-complete">✓</span> Installed ${label}`,
-        ...details.map((detail) => `  ${detail}`)
-      ])
+        `<span class="azd-state">(✓) Done:</span> Installing ${label}`,
+        ...details.map((detail) => `<span class="azd-detail">${detail}</span>`)
+      ]),
+      "",
+      '<span class="success">SUCCESS:</span> Foundry DevPack is installed.'
     ];
     lines.forEach((html) => appendCurrentLine(currentSetupTerminal, html));
   };
@@ -1225,8 +1487,26 @@ h1 {
     setStepState(setupCard, "pending");
     setSetupTerminalVisible(false);
     toggleSetupButton.hidden = true;
+    skipCurrentButton.hidden = false;
     runCurrentButton.disabled = false;
     runCurrentButtonLabel.textContent = "Run proposed experience";
+  };
+
+  const showCurrentEndState = () => {
+    currentRunId += 1;
+    currentRunning = false;
+    setCurrentState("complete");
+    setStepState(wingetCard, "complete");
+    setStepState(setupCard, "complete");
+    renderCompletedWingetInstall();
+    renderCurrentCompletion();
+    renderCurrentSetupCompletion();
+    toggleSetupButton.hidden = false;
+    setSetupTerminalVisible(false);
+    skipCurrentButton.hidden = true;
+    runCurrentButton.disabled = false;
+    runCurrentButtonLabel.textContent = "Replay proposed experience";
+    currentWingetTerminal.focus();
   };
 
   const animateDownload = async (token) => {
@@ -1248,23 +1528,27 @@ h1 {
   };
 
   const runSetupOperation = async (label, details, token) => {
+    const frames = reduceMotion.matches
+      ? ["|  ===  |"]
+      : ["|===    |", "| ===   |", "|  ===  |", "|   === |", "|    ===|", "|   === |", "|  ===  |", "| ===   |"];
     const line = appendCurrentLine(
       currentSetupTerminal,
-      `<span class="check-pending">/</span> Installing ${label}`
+      `<span class="azd-progress">${frames[0]}</span> Installing ${label}`
     );
-    const spinner = line.querySelector(".check-pending");
-    const frames = reduceMotion.matches ? ["/"] : ["/", "-", "\\", "|", "/", "-"];
+    const progress = line.querySelector(".azd-progress");
 
     for (const frame of frames) {
       if (token !== currentRunId) return false;
-      spinner.textContent = frame;
-      await wait(110);
+      progress.textContent = frame;
+      await wait(90);
     }
 
-    line.innerHTML = `<span class="check-complete">✓</span> Installed ${label}`;
+    line.innerHTML = `<span class="azd-state">(✓) Done:</span> Installing ${label}`;
+    await wait(140);
+    if (token !== currentRunId) return false;
     if (!await appendCurrentLines(
       currentSetupTerminal,
-      details.map((detail) => `  ${detail}`),
+      details.map((detail) => `<span class="azd-detail">${detail}</span>`),
       65,
       token
     )) return false;
@@ -1311,11 +1595,11 @@ h1 {
     setSetupTerminalVisible(true);
     toggleSetupButton.hidden = false;
     currentSetupTerminal.innerHTML = "";
-    await appendCurrentLines(currentSetupTerminal, [
+    if (!await appendCurrentLines(currentSetupTerminal, [
       '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
       "Setting up your environment for: CLI, VS Code, and Copilot",
       ""
-    ], 90, token);
+    ], 90, token)) return;
 
     for (const [label, details] of currentSetupOperations) {
       if (!await runSetupOperation(label, details, token)) return;
@@ -1323,7 +1607,7 @@ h1 {
 
     if (token !== currentRunId) return;
     renderCurrentSetupCompletion();
-    await wait(500);
+    await wait(1400);
     if (token !== currentRunId) return;
     setSetupTerminalVisible(false);
     renderCurrentCompletion();
@@ -1331,8 +1615,137 @@ h1 {
     currentRunning = false;
     setStepState(setupCard, "complete");
     setCurrentState("complete");
+    skipCurrentButton.hidden = true;
     runCurrentButton.disabled = false;
     runCurrentButtonLabel.textContent = "Replay proposed experience";
+  };
+
+  const appendLinuxLines = async (lines, delay, token) => {
+    for (const html of lines) {
+      if (token !== linuxRunId) return false;
+      appendCurrentLine(linuxTerminal, html);
+      await wait(delay);
+    }
+    return true;
+  };
+
+  const linuxSetupOperations = [
+    {
+      label: "Foundry command-line tools",
+      state: "done",
+      details: [
+        '<span class="azd-detail">Azure CLI, Azure Developer CLI (azd), and the Foundry extension for azd (azd ai).</span>'
+      ]
+    },
+    {
+      label: "Microsoft Foundry Skill",
+      state: "done",
+      details: [
+        '<span class="azd-detail">~/.agents/skills/</span>',
+        '<span class="azd-detail">~/.claude/skills/ (Claude Code detected)</span>'
+      ]
+    },
+    {
+      label: "Microsoft Foundry Toolkit for Visual Studio Code",
+      state: "done",
+      details: []
+    },
+    {
+      label: "Foundry Canvas (preview) for GitHub Copilot App",
+      state: "skipped",
+      details: [
+        '<span class="azd-skipped-detail">GitHub Copilot App not detected. Install it, then rerun the command</span>'
+      ]
+    }
+  ];
+
+  const runLinuxSetupOperation = async (operation, token) => {
+    const frames = reduceMotion.matches
+      ? ["|  ===  |"]
+      : ["|===    |", "| ===   |", "|  ===  |", "|   === |", "|    ===|", "|   === |", "|  ===  |", "| ===   |"];
+    const line = appendCurrentLine(
+      linuxTerminal,
+      `<span class="azd-progress">${frames[0]}</span> Installing ${operation.label}`
+    );
+    const progress = line.querySelector(".azd-progress");
+
+    for (const frame of frames) {
+      if (token !== linuxRunId) return false;
+      progress.textContent = frame;
+      await wait(90);
+    }
+
+    line.innerHTML = operation.state === "skipped"
+      ? `<span class="skipped">(-) Skipped:</span> ${operation.label}`
+      : `<span class="azd-state">(✓) Done:</span> Installing ${operation.label}`;
+    await wait(140);
+    if (token !== linuxRunId) return false;
+
+    return appendLinuxLines(operation.details, 65, token);
+  };
+
+  const resetLinuxExperience = () => {
+    linuxRunId += 1;
+    linuxRunning = false;
+    linuxPhase = "ready";
+    linuxTerminal.innerHTML = "";
+    appendCurrentLine(
+      linuxTerminal,
+      '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="command">curl -fsSL https://aka.ms/foundry-devpack-install.sh | bash</span><span class="cursor" aria-hidden="true"></span>',
+      true
+    );
+    setStepState(linuxCard, "ready");
+    runLinuxButton.disabled = false;
+    runLinuxButtonLabel.textContent = "Run Linux experience";
+  };
+
+  const runLinuxExperience = async () => {
+    if (linuxRunning) return;
+
+    linuxRunning = true;
+    linuxPhase = "running";
+    const token = ++linuxRunId;
+    runLinuxButton.disabled = true;
+    runLinuxButtonLabel.textContent = "Installing...";
+    setStepState(linuxCard, "running");
+    linuxTerminal.querySelector(".cursor")?.remove();
+
+    await wait(180);
+    if (!await appendLinuxLines([
+      "Downloading foundry-devpack-linux-x64 (devpack-installer-0.1.2)...",
+      "Running the Foundry DevPack installer...",
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      ""
+    ], 72, token)) return;
+
+    for (const operation of linuxSetupOperations) {
+      if (!await runLinuxSetupOperation(operation, token)) return;
+    }
+
+    if (!await appendLinuxLines([
+      "",
+      '<span class="success">SUCCESS:</span> Foundry DevPack is installed.',
+      "",
+      "Learn more about the Foundry DevPack at https://aka.ms/foundrydevpack",
+      "",
+      '<span class="terminal-heading">GET STARTED</span>',
+      "",
+      "Build with Foundry your way using the CLI, a coding agent, VS Code, or the GitHub Copilot app.",
+      '- Run <span class="blue">azd ai agent init</span> to create a Foundry hosted agent.',
+      '- Ask your coding agent: <span class="blue">"Evaluate my agent and improve its instructions."</span>',
+      '- <span class="cyan">Open Foundry Toolkit in VS Code</span>',
+      '- <span class="cyan">Open Foundry Canvas in GitHub Copilot App</span>',
+      "",
+      '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="cursor" aria-hidden="true"></span>'
+    ], 72, token)) return;
+
+    linuxRunning = false;
+    linuxPhase = "complete";
+    setStepState(linuxCard, "complete");
+    runLinuxButton.disabled = false;
+    runLinuxButtonLabel.textContent = "Replay Linux experience";
+    linuxTerminal.focus();
   };
 
   const prototypeParameters = new URLSearchParams(window.location.search);
@@ -1682,6 +2095,13 @@ h1 {
     runCurrentExperience();
   });
 
+  skipCurrentButton.addEventListener("click", showCurrentEndState);
+
+  runLinuxButton.addEventListener("click", () => {
+    if (linuxPhase === "complete") resetLinuxExperience();
+    runLinuxExperience();
+  });
+
   toggleSetupButton.addEventListener("click", () => {
     setSetupTerminalVisible(setupCard.hidden);
   });
@@ -1723,6 +2143,63 @@ h1 {
     closeChoiceSetupTerminal();
   });
 
+  const getSelectedPlatformButton = () =>
+    platformButtons.find((button) => button.getAttribute("aria-pressed") === "true");
+
+  const updateConstraintsVisibility = () => {
+    const proposedSelected =
+      document.getElementById("proposedTab").getAttribute("aria-selected") === "true";
+    const windowsSelected = getSelectedPlatformButton() === windowsPlatformButton;
+    constraintsNote.hidden = !(proposedSelected && windowsSelected);
+    if (constraintsNote.hidden) constraintsNote.open = false;
+  };
+
+  const runSelectedPlatformExperience = () => {
+    if (getSelectedPlatformButton() === linuxPlatformButton) {
+      if (linuxPhase === "ready" && !linuxRunning) runLinuxExperience();
+      return;
+    }
+    if (currentPhase === "ready" && !currentRunning) runCurrentExperience();
+  };
+
+  const selectPlatform = (selectedButton, moveFocus = false, runExperience = true) => {
+    window.sessionStorage.setItem(selectedPlatformStorageKey, selectedButton.id);
+    platformButtons.forEach((button) => {
+      button.setAttribute("aria-pressed", String(button === selectedButton));
+    });
+    platformPanels.forEach((panel) => {
+      panel.hidden = panel.id !== selectedButton.getAttribute("aria-controls");
+    });
+    updateConstraintsVisibility();
+    if (moveFocus) selectedButton.focus();
+
+    const selectedExperienceTab = experienceTabs.find(
+      (tab) => tab.getAttribute("aria-selected") === "true"
+    );
+    if (
+      runExperience &&
+      selectedExperienceTab === document.getElementById("proposedTab")
+    ) {
+      window.requestAnimationFrame(runSelectedPlatformExperience);
+    }
+  };
+
+  platformButtons.forEach((button, index) => {
+    button.addEventListener("click", () => selectPlatform(button));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      let nextIndex = index;
+      if (event.key === "ArrowRight") nextIndex = (index + 1) % platformButtons.length;
+      if (event.key === "ArrowLeft") {
+        nextIndex = (index - 1 + platformButtons.length) % platformButtons.length;
+      }
+      if (event.key === "Home") nextIndex = 0;
+      if (event.key === "End") nextIndex = platformButtons.length - 1;
+      selectPlatform(platformButtons[nextIndex], true);
+    });
+  });
+
   const selectExperience = (selectedTab, moveFocus = false) => {
     window.sessionStorage.setItem(selectedTabStorageKey, selectedTab.id);
     experienceTabs.forEach((tab) => {
@@ -1733,6 +2210,7 @@ h1 {
     experiencePanels.forEach((panel) => {
       panel.hidden = panel.id !== selectedTab.getAttribute("aria-controls");
     });
+    updateConstraintsVisibility();
     if (moveFocus) selectedTab.focus();
 
     if (
@@ -1741,6 +2219,9 @@ h1 {
       !choiceRunning
     ) {
       window.requestAnimationFrame(runChoiceExperience);
+    }
+    if (selectedTab.id === "proposedTab") {
+      window.requestAnimationFrame(runSelectedPlatformExperience);
     }
   };
 
@@ -1759,10 +2240,18 @@ h1 {
     if (event.key !== "Enter" || event.target.closest("button, input, select, textarea, a")) return;
     const selectedTab = experienceTabs.find((tab) => tab.getAttribute("aria-selected") === "true");
 
-    if (selectedTab?.id === "proposedTab" && !currentRunning) {
-      event.preventDefault();
-      if (currentPhase === "complete") resetCurrentExperience();
-      runCurrentExperience();
+    if (selectedTab?.id === "proposedTab") {
+      const selectedPlatformButton = getSelectedPlatformButton();
+      if (selectedPlatformButton === linuxPlatformButton && !linuxRunning) {
+        event.preventDefault();
+        if (linuxPhase === "complete") resetLinuxExperience();
+        runLinuxExperience();
+      }
+      if (selectedPlatformButton === windowsPlatformButton && !currentRunning) {
+        event.preventDefault();
+        if (currentPhase === "complete") resetCurrentExperience();
+        runCurrentExperience();
+      }
     }
 
     if (selectedTab?.id === "chooseTab" && !choiceRunning) {
@@ -1773,13 +2262,15 @@ h1 {
   });
 
   resetCurrentExperience();
+  resetLinuxExperience();
   resetChoiceExperience();
+  const savedPlatformId = window.sessionStorage.getItem(selectedPlatformStorageKey);
+  const initialPlatformButton =
+    platformButtons.find((button) => button.id === savedPlatformId) ?? windowsPlatformButton;
+  selectPlatform(initialPlatformButton, false, false);
   const savedTabId = window.sessionStorage.getItem(selectedTabStorageKey);
   const initialTab = experienceTabs.find((tab) => tab.id === savedTabId) ?? experienceTabs[0];
   selectExperience(initialTab);
-  if (initialTab.id === "proposedTab") {
-    window.requestAnimationFrame(runCurrentExperience);
-  }
 })();
 </script>
 </body>
