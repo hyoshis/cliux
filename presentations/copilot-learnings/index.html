@@ -561,16 +561,14 @@ li {
 
 /* === SLIDE 3: SIMPLE-CHANGE REVEAL === */
 .simple-change-layout {
-    display: grid;
+    display: flex;
     height: 100%;
-    grid-template-columns: 1.05fr 0.95fr;
     align-items: center;
-    gap: 64px;
-    padding: 20px 90px;
+    padding: 20px 140px;
 }
 
 .simple-change-layout h2 {
-    max-width: 920px;
+    max-width: 1180px;
     margin-bottom: 34px;
     font-size: 82px;
 }
@@ -587,28 +585,6 @@ li {
     margin-top: 54px;
     align-items: center;
     gap: 18px;
-}
-
-.simple-prompt {
-    border: 2px solid var(--blue);
-    border-radius: 14px;
-    background: var(--blue-soft);
-    padding: 42px;
-}
-
-.simple-prompt .label {
-    margin-bottom: 24px;
-    color: var(--blue);
-    font-size: 17px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-}
-
-.simple-prompt blockquote {
-    margin: 0;
-    font-size: 31px;
-    line-height: 1.5;
-    font-weight: 700;
 }
 
 .difficulty-meter span {
@@ -2228,10 +2204,6 @@ body.editing [data-editable]:focus {
                         <div class="difficulty-bar" aria-hidden="true"></div>
                         <span class="meter-result" aria-label="Easy, then difficult">EASY → DIFFICULT</span>
                     </div>
-                </div>
-                <div class="simple-prompt reveal delay-2">
-                    <div class="label" data-editable>MY STARTING PROMPT</div>
-                    <blockquote data-editable>“Change the customer-facing commands and text from ‘upgrade’ to ‘update’.”</blockquote>
                 </div>
             </div>
         </div>

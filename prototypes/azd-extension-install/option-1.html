@@ -82,6 +82,20 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .tab.active .idx{opacity:1}
 .tab .t-title{font-weight:600; font-size:.95rem; color:var(--text); line-height:1.2}
 .tab .t-sub{font-size:.8rem; color:var(--dim); margin-top:.22rem; line-height:1.35}
+.tab .idx.b4{background:#6b7684}
+.tab.before.active{border-color:#8a97a8; background:linear-gradient(180deg,rgba(138,151,168,.14),transparent), var(--panel); box-shadow:0 10px 30px -18px rgba(138,151,168,.7)}
+
+/* Before sub-scenario switcher */
+.subtabs{display:flex; flex-wrap:wrap; align-items:center; gap:.5rem; margin:-.4rem 0 1.1rem}
+.sublabel{font-family:var(--mono); font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:var(--dim); margin-right:.2rem}
+.subtab{
+  font-family:var(--sans); font-size:.83rem; cursor:pointer; color:var(--muted);
+  background:transparent; border:1px solid var(--border); border-radius:999px;
+  padding:.34rem .8rem; transition:.16s;
+}
+.subtab:hover{color:#fff; border-color:#37475c}
+.subtab.active{color:var(--text); border-color:#8a97a8; background:rgba(138,151,168,.14)}
+.subtab .dimref{font-family:var(--mono); font-size:.74rem; color:var(--dim); margin-left:.35rem}
 
 /* ===================================================================
    TERMINAL
@@ -115,6 +129,7 @@ h1 .mono{font-family:var(--mono); color:var(--accent)}
 .b{color:var(--t-blue)}
 .g{color:var(--t-green)}
 .e{color:var(--t-red)}
+.warn{color:#ffcc00}
 .neutral{color:var(--t-text)}
 .q{color:var(--t-blue)}
 .d{color:var(--t-dim)}
@@ -194,6 +209,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   <!-- Scenario switcher -->
   <div class="tabs" id="tabs">
+    <button class="tab before" data-s="0">
+      <span class="idx b4">B</span>
+      <span><span class="t-title">Before — shipped today</span><br><span class="t-sub">The current azd 1.29 flow, captured from a real run.</span></span>
+    </button>
     <button class="tab active" data-s="1">
       <span class="idx">1</span>
       <span><span class="t-title">Install single extension</span><br><span class="t-sub">One required extension, installed from azd.</span></span>
@@ -224,6 +243,13 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     </button>
   </div>
 
+  <!-- Before sub-scenarios (only shown on the Before tab) -->
+  <div class="subtabs" id="subtabs" hidden>
+    <span class="sublabel">Scenario</span>
+    <button class="subtab active" data-b="a">Single extension <span class="dimref">01-required-version</span></button>
+    <button class="subtab" data-b="b">Multiple extensions <span class="dimref">03-multiple-a</span></button>
+  </div>
+
   <!-- Terminal -->
   <div class="terminal">
     <div class="term-bar">
@@ -247,6 +273,8 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 (function(){
   const screen = document.getElementById('screen');
   const dock   = document.getElementById('dock');
+  const subtabs = document.getElementById('subtabs');
+  const termtitle = document.getElementById('termtitle');
   const PROMPT = 'PS C:\\Users\\hyoshi\\Downloads\\extension-auto-install\\01-required-version';
 
   let pending = null;   // { type, ... , resolve }  — current interaction
@@ -298,8 +326,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   }
   function answerYN(v){
     if(!pending || pending.type!=='confirm') return;
-    const {el, promptText, resolve} = pending;
-    el.innerHTML = `<span class="q">?</span> ${promptText} [Y/n]: <span class="b">${v}</span>`;
+    const {el, promptText, resolve, azd} = pending;
+    el.innerHTML = azd
+      ? `<span class="q">?</span> ${escapeHtml(promptText)} <span class="b">${v==='n'?'No':'Yes'}</span>`
+      : `<span class="q">?</span> ${promptText} [Y/n]: <span class="b">${v}</span>`;
     pending=null; clearDock(); resolve(v);
   }
 
@@ -331,9 +361,13 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     if(!pending || pending.type!=='confirm') return;
     pending.value=v;
     const input = v ? `<span class="b">${escapeHtml(v)}</span>` : '';
-    pending.el.innerHTML = pending.ync
-      ? `<span class="q">?</span> ${pending.questionHtml} [Y/n/c]: ${input}<span class="caret"></span>`
-      : `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
+    if(pending.azd){
+      pending.el.innerHTML = `<span class="q">?</span> ${escapeHtml(pending.promptText)} <span class="d">(Y/n)</span> ${input}<span class="caret"></span>`;
+    } else {
+      pending.el.innerHTML = pending.ync
+        ? `<span class="q">?</span> ${pending.questionHtml} [Y/n/c]: ${input}<span class="caret"></span>`
+        : `<span class="q">?</span> ${pending.promptText} [Y/n]: ${input}<span class="caret"></span>`;
+    }
   }
 
   /* ---------- upfront summary of every required extension ---------- */
@@ -528,11 +562,115 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     completeFlow();
   }
   /* ===================================================================
+     BEFORE — the flow shipped in azd today (captured from a real run)
+     Strings mirror cli/azd/cmd/auto_install.go:
+       WarningMessage "You are about to install an extension!"
+       Confirm "Confirm installation" (DefaultValue: true)
+     =================================================================== */
+  const BEFORE_PROMPTS={
+    a:'PS C:\\Users\\hyoshi\\Downloads\\extension-auto-install\\01-required-version',
+    b:'PS C:\\Users\\hyoshi\\Downloads\\extension-auto-install\\03-multiple-a'
+  };
+  const BEFORE_EXTS={
+    demo:{
+      id:'microsoft.azd.demo',
+      name:'Demo Extension',
+      desc:'This extension provides examples of the azd extension framework.',
+      source:'azd'
+    },
+    agents:{
+      id:'azure.ai.agents',
+      name:'Foundry agents (Beta)',
+      desc:'Ship agents with Microsoft Foundry from your terminal. (Beta)',
+      source:'azd'
+    }
+  };
+
+  // azd renders confirms as "? Confirm installation (Y/n)" and echoes Yes/No.
+  function confirmAzd(message){
+    const el = line(`<span class="q">?</span> ${escapeHtml(message)} <span class="d">(Y/n)</span> <span class="caret"></span>`);
+    return new Promise(resolve=>{
+      pending = { type:'confirm', azd:true, el, promptText:message, resolve };
+      clearDock();
+    });
+  }
+
+  async function beforeWarnAndInstall(token, ext, prompt){
+    await block([
+      `<span class="warn">WARNING: You are about to install an extension!</span>`,
+      `Source: ${ext.source}`,
+      `Id: ${ext.id}`,
+      `Name: ${ext.name}`,
+      `Description: ${ext.desc}`
+    ], 70);
+    if(token!==runToken) return false;
+
+    const answer = await confirmAzd('Confirm installation'); if(token!==runToken) return false;
+    if(answer==='n'){
+      line('');
+      line(`<span class="e">ERROR: required extension '${ext.id}' is not installed.</span>`);
+      line(`<span class="w">${prompt}></span>`);
+      completeFlow();
+      return false;
+    }
+
+    line('');
+    line(`Installing extension '${ext.id}'...`);
+    await sleep(700); if(token!==runToken) return false;
+    line('');
+    line(`Extension '${ext.id}' installed successfully!`);
+    line('');
+    return true;
+  }
+
+  async function beforeSingle(token){
+    const prompt=BEFORE_PROMPTS.a;
+    await block([
+      `<span class="w">${prompt}></span> <span class="w">azd up</span>`,
+      ``
+    ], 60);
+    if(token!==runToken) return;
+
+    const ok = await beforeWarnAndInstall(token, BEFORE_EXTS.demo, prompt);
+    if(!ok || token!==runToken) return;
+
+    line(`Initialize bicep provider`);
+    line('');
+    line(`<span class="q">?</span> Enter a unique environment name: <span class="caret"></span>`);
+    scroll();
+    completeFlow();
+  }
+
+  async function beforeMultiple(token){
+    const prompt=BEFORE_PROMPTS.b;
+    await block([
+      `<span class="w">${prompt}></span> <span class="w">azd up</span>`,
+      ``
+    ], 60);
+    if(token!==runToken) return;
+
+    // Today every required extension repeats the same warning + confirm.
+    for(const key of ['demo','agents']){
+      const ok = await beforeWarnAndInstall(token, BEFORE_EXTS[key], prompt);
+      if(!ok || token!==runToken) return;
+    }
+
+    line(`<span class="q">?</span> Enter a unique environment name: <span class="caret"></span>`);
+    scroll();
+    completeFlow();
+  }
+
+  let beforeVariant='a';
+  async function scenario0(token){
+    return beforeVariant==='a' ? beforeSingle(token) : beforeMultiple(token);
+  }
+
+  /* ===================================================================
      SCENARIO RUNNERS
      =================================================================== */
   async function scenario1(token){
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd', desc:'This extension provides examples.'};
-    await intro(ext);
+    await intro(ext); if(token!==runToken) return;
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a==='n'){ cancelWorkflow(ext.title); return; }
     await install(ext.id, ext.source); if(token!==runToken) return;
@@ -542,7 +680,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
   async function scenario2(token){
     const ext={title:'Demo Extension', id:'demo-extension', source:'azd, local', desc:'This extension provides examples.'};
     const defaultSource='azd';
-    await intro(ext, undefined, undefined, 'Sources:');
+    await intro(ext, undefined, undefined, 'Sources:'); if(token!==runToken) return;
     const a = await selectAction(
       `Install ${ext.title} from '${defaultSource}'?`,
       [
@@ -637,7 +775,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
       `Command 'ai agent version' isn't available. Install the required extension to use this command.`,
       ``
     ], 95);
-    await intro(ext, undefined, true, 'Source:', '');
+    await intro(ext, undefined, true, 'Source:', ''); if(token!==runToken) return;
     const a = await confirmYN(`Install ${ext.title}?`); if(token!==runToken) return;
     if(a==='n'){
       cancelWorkflow(ext.title);
@@ -699,7 +837,7 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     completeFlow();
   }
 
-  const RUNNERS={1:scenario1,2:scenario2,3:scenario3,4:scenario4,5:scenario5,6:scenario6,7:scenario7};
+  const RUNNERS={0:scenario0,1:scenario1,2:scenario2,3:scenario3,4:scenario4,5:scenario5,6:scenario6,7:scenario7};
   let currentScenario=1;
 
   function start(n){
@@ -707,6 +845,10 @@ button.ghost:hover{color:#fff; border-color:#37475c}
     runToken++; const token=runToken;
     pending=null; clear(); clearDock();
     document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',+t.dataset.s===n));
+    subtabs.hidden = n!==0;
+    termtitle.textContent = n===0
+      ? 'PowerShell — azd 1.29 (shipped)'
+      : 'PowerShell — extension-auto-install';
     screen.focus({preventScroll:true});
     RUNNERS[n](token);
   }
@@ -758,6 +900,11 @@ button.ghost:hover{color:#fff; border-color:#37475c}
 
   /* ---------- wire tabs & boot ---------- */
   document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>start(+t.dataset.s)));
+  document.querySelectorAll('.subtab').forEach(t=>t.addEventListener('click',()=>{
+    beforeVariant=t.dataset.b;
+    document.querySelectorAll('.subtab').forEach(s=>s.classList.toggle('active',s===t));
+    start(0);
+  }));
   start(1);
 })();
 </script>
