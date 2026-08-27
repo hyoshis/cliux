@@ -1173,6 +1173,9 @@ h1 {
 
         <div class="prototype-actions">
           <div class="prototype-action-buttons">
+            <button class="action-button secondary" id="skipLinuxButton" type="button">
+              <span>Skip to end</span>
+            </button>
             <button class="action-button" id="runLinuxButton" type="button">
               <svg viewBox="0 0 20 20" fill="none" aria-hidden="true">
                 <path d="m7 5 8 5-8 5V5Z" fill="currentColor"/>
@@ -1305,6 +1308,7 @@ h1 {
   const platformPanels = [...document.querySelectorAll(".platform-panel")];
   const windowsPlatformButton = document.getElementById("windowsPlatformButton");
   const linuxPlatformButton = document.getElementById("linuxPlatformButton");
+  const skipLinuxButton = document.getElementById("skipLinuxButton");
   const runLinuxButton = document.getElementById("runLinuxButton");
   const runLinuxButtonLabel = runLinuxButton.querySelector("span");
   const linuxTerminal = document.getElementById("linuxTerminal");
@@ -1375,16 +1379,13 @@ h1 {
     "- Foundry Canvas (preview) for GitHub Copilot App (if applicable)",
     "  ~/.copilot/installed-plugins/",
     "",
-    "Learn more about the Foundry DevPack at https://aka.ms/foundrydevpack",
+    "Learn more at https://aka.ms/foundrydevpack",
     "",
     "GET STARTED",
     "",
-    "Build with Foundry your way using the CLI, a coding agent, VS Code, or the GitHub Copilot app.",
     "- Run `azd ai agent init` to create a Foundry hosted agent.",
-    '- Ask your coding agent: "Evaluate my agent and improve its instructions."',
-    //"- Debug and deploy a hosted agent with the Foundry Toolkit in VS Code.",
-    "- Open Foundry Toolkit in VS Code",
-    "- Open Foundry Canvas in GitHub Copilot App",
+    "- Create and deploy your first hosted agent:",
+    "  https://aka.ms/foundry-getstarted",
     "",
     '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
   ];
@@ -1659,6 +1660,44 @@ h1 {
     }
   ];
 
+  const linuxCompletionLines = [
+    "",
+    '<span class="success">SUCCESS:</span> Foundry DevPack is installed.',
+    "",
+    'Learn more at <span class="cyan">https://aka.ms/foundrydevpack</span>',
+    "",
+    '<span class="terminal-heading">GET STARTED</span>',
+    "",
+    '- Run <span class="blue">azd ai agent init</span> to create a Foundry hosted agent.',
+    "- Create and deploy your first hosted agent:",
+    '  <span class="cyan">https://aka.ms/foundry-getstarted</span>',
+    "",
+    '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="cursor" aria-hidden="true"></span>'
+  ];
+
+  const linuxCommandLine =
+    '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="command">curl -fsSL <span class="cyan">https://aka.ms/foundry-devpack-install.sh</span> | bash</span>';
+
+  const renderCompletedLinuxInstall = () => {
+    linuxTerminal.innerHTML = "";
+    const lines = [
+      linuxCommandLine,
+      "Downloading foundry-devpack-linux-x64 (devpack-installer-0.1.2)...",
+      "Running the Foundry DevPack installer...",
+      '<span class="terminal-heading">Microsoft Foundry DevPack 0.1.2</span>',
+      "Setting up your environment for: CLI, VS Code, and Copilot",
+      "",
+      ...linuxSetupOperations.flatMap((operation) => [
+        operation.state === "skipped"
+          ? `<span class="skipped">(-) Skipped:</span> ${operation.label}`
+          : `<span class="azd-state">(✓) Done:</span> Installing ${operation.label}`,
+        ...operation.details
+      ]),
+      ...linuxCompletionLines
+    ];
+    lines.forEach((html) => appendCurrentLine(linuxTerminal, html, true));
+  };
+
   const runLinuxSetupOperation = async (operation, token) => {
     const frames = reduceMotion.matches
       ? ["|  ===  |"]
@@ -1691,12 +1730,25 @@ h1 {
     linuxTerminal.innerHTML = "";
     appendCurrentLine(
       linuxTerminal,
-      '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="command">curl -fsSL https://aka.ms/foundry-devpack-install.sh | bash</span><span class="cursor" aria-hidden="true"></span>',
+      `${linuxCommandLine}<span class="cursor" aria-hidden="true"></span>`,
       true
     );
     setStepState(linuxCard, "ready");
+    skipLinuxButton.hidden = false;
     runLinuxButton.disabled = false;
     runLinuxButtonLabel.textContent = "Run Linux experience";
+  };
+
+  const showLinuxEndState = () => {
+    linuxRunId += 1;
+    linuxRunning = false;
+    linuxPhase = "complete";
+    setStepState(linuxCard, "complete");
+    renderCompletedLinuxInstall();
+    skipLinuxButton.hidden = true;
+    runLinuxButton.disabled = false;
+    runLinuxButtonLabel.textContent = "Replay Linux experience";
+    linuxTerminal.focus();
   };
 
   const runLinuxExperience = async () => {
@@ -1723,26 +1775,12 @@ h1 {
       if (!await runLinuxSetupOperation(operation, token)) return;
     }
 
-    if (!await appendLinuxLines([
-      "",
-      '<span class="success">SUCCESS:</span> Foundry DevPack is installed.',
-      "",
-      "Learn more about the Foundry DevPack at https://aka.ms/foundrydevpack",
-      "",
-      '<span class="terminal-heading">GET STARTED</span>',
-      "",
-      "Build with Foundry your way using the CLI, a coding agent, VS Code, or the GitHub Copilot app.",
-      '- Run <span class="blue">azd ai agent init</span> to create a Foundry hosted agent.',
-      '- Ask your coding agent: <span class="blue">"Evaluate my agent and improve its instructions."</span>',
-      '- <span class="cyan">Open Foundry Toolkit in VS Code</span>',
-      '- <span class="cyan">Open Foundry Canvas in GitHub Copilot App</span>',
-      "",
-      '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="cursor" aria-hidden="true"></span>'
-    ], 72, token)) return;
+    if (!await appendLinuxLines(linuxCompletionLines, 72, token)) return;
 
     linuxRunning = false;
     linuxPhase = "complete";
     setStepState(linuxCard, "complete");
+    skipLinuxButton.hidden = true;
     runLinuxButton.disabled = false;
     runLinuxButtonLabel.textContent = "Replay Linux experience";
     linuxTerminal.focus();
@@ -2096,6 +2134,8 @@ h1 {
   });
 
   skipCurrentButton.addEventListener("click", showCurrentEndState);
+
+  skipLinuxButton.addEventListener("click", showLinuxEndState);
 
   runLinuxButton.addEventListener("click", () => {
     if (linuxPhase === "complete") resetLinuxExperience();
