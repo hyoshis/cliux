@@ -309,14 +309,18 @@ h1 {
 }
 
 .current-interactive-grid {
-  --terminal-width: calc(120ch + 24px);
-  --terminal-overlap: clamp(0px, calc(2225px - 100vw), 425px);
+  --terminal-width: calc(80ch + 24px);
+  --terminal-overlap: clamp(48px, calc(1525px - 100vw), 425px);
   display: flex;
-  gap: 0;
+  gap: 14px;
   justify-content: flex-start;
   padding: 14px;
   font-family: var(--mono);
   font-size: 15px;
+}
+
+#windowsPlatformPanel .current-interactive-grid {
+  gap: 0;
 }
 
 .current-terminal-card {
@@ -332,7 +336,7 @@ h1 {
     opacity 180ms var(--ease-out);
 }
 
-.current-terminal-card + .current-terminal-card {
+#windowsPlatformPanel .current-terminal-card + .current-terminal-card {
   position: relative;
   z-index: 1;
   margin-left: calc(0px - var(--terminal-overlap));
@@ -361,7 +365,7 @@ h1 {
 
 .current-terminal-card .terminal-screen {
   box-sizing: content-box;
-  height: 30lh;
+  height: 24lh;
   min-height: 0;
   overflow-y: auto;
   padding-bottom: 20px;
@@ -916,7 +920,7 @@ h1 {
     width: 100%;
   }
 
-  .current-terminal-card + .current-terminal-card {
+  #windowsPlatformPanel .current-terminal-card + .current-terminal-card {
     margin-left: 0;
     box-shadow: none;
   }
@@ -964,14 +968,18 @@ h1 {
   }
 }
 
-@media (min-width: 761px) and (max-width: 1799px) {
+@media (min-width: 761px) and (max-width: 1099px) {
   .current-interactive-grid {
     align-items: flex-start;
     flex-direction: column;
     gap: 14px;
   }
 
-  .current-terminal-card + .current-terminal-card {
+  #windowsPlatformPanel .current-interactive-grid {
+    gap: 14px;
+  }
+
+  #windowsPlatformPanel .current-terminal-card + .current-terminal-card {
     margin-left: 0;
     box-shadow: none;
   }
@@ -1383,9 +1391,10 @@ h1 {
     "",
     "GET STARTED",
     "",
-    "- Run `azd ai agent init` to create a Foundry hosted agent.",
-    "- Create and deploy your first hosted agent:",
-    "  https://aka.ms/foundry-getstarted",
+    "- Run `azd ai agent init` to create your first hosted agent.",
+    '- Or ask your coding agent: "Create my Foundry hosted agent end to end."',
+    "",
+    "For in-depth instructions on how to build and deploy your agent, go to: https://aka.ms/foundry-getstarted",
     "",
     '<span class="prompt">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor" aria-hidden="true"></span>'
   ];
@@ -1668,9 +1677,10 @@ h1 {
     "",
     '<span class="terminal-heading">GET STARTED</span>',
     "",
-    '- Run <span class="blue">azd ai agent init</span> to create a Foundry hosted agent.',
-    "- Create and deploy your first hosted agent:",
-    '  <span class="cyan">https://aka.ms/foundry-getstarted</span>',
+    '- Run <span class="blue">azd ai agent init</span> to create your first hosted agent.',
+    '- Or ask your coding agent: "Create my Foundry hosted agent end to end."',
+    "",
+    'For in-depth instructions on how to build and deploy your agent, go to: <span class="cyan">https://aka.ms/foundry-getstarted</span>',
     "",
     '<span class="green">hyoshi@DESKTOP-TTRNDL7</span>:<span class="blue">/mnt/c/Users/hyoshi</span>$ <span class="cursor" aria-hidden="true"></span>'
   ];
