@@ -1699,7 +1699,7 @@ h1 {
       "",
       ...linuxSetupOperations.flatMap((operation) => [
         operation.state === "skipped"
-          ? `<span class="skipped">(-) Skipped:</span> ${operation.label}`
+          ? `<span class="skipped">(-) Skipped:</span> Installing ${operation.label}`
           : `<span class="azd-state">(✓) Done:</span> Installing ${operation.label}`,
         ...operation.details
       ]),
@@ -1725,7 +1725,7 @@ h1 {
     }
 
     line.innerHTML = operation.state === "skipped"
-      ? `<span class="skipped">(-) Skipped:</span> ${operation.label}`
+      ? `<span class="skipped">(-) Skipped:</span> Installing ${operation.label}`
       : `<span class="azd-state">(✓) Done:</span> Installing ${operation.label}`;
     await wait(140);
     if (token !== linuxRunId) return false;
