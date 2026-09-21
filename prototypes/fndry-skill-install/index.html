@@ -179,6 +179,7 @@ kbd{
     <button class="flow-tab active" data-flow="install" aria-current="page">Install</button>
     <button class="flow-tab" data-flow="update">Update extension</button>
     <button class="flow-tab" data-flow="update-skill">Update skill</button>
+    <button class="flow-tab" data-flow="uninstall">Uninstall</button>
   </nav>
   <section class="stage" aria-label="Interactive terminal prototype">
     <div class="terminal">
@@ -260,6 +261,17 @@ kbd{
   function configureFlow() {
     const isInstall = currentFlow === 'install';
     const isSkillUpdate = currentFlow === 'update-skill';
+    const isSkillUninstall = currentFlow === 'uninstall';
+    if (isSkillUninstall) {
+      pageTitle.innerHTML = 'Uninstall the Microsoft Foundry skill';
+      pageLede.textContent = 'A proposed tool uninstall flow that removes Foundry guidance from supported coding agents.';
+      terminalTitle.textContent = 'PowerShell — azd tool uninstall';
+      document.querySelector('.step-list').setAttribute('aria-label', 'Skill uninstall progress');
+      document.getElementById('step-copy-1').innerHTML = '<strong>Find installation</strong>Locate the Foundry skill';
+      document.getElementById('step-copy-2').innerHTML = '<strong>Uninstall skill</strong>Remove Foundry guidance';
+      document.getElementById('step-copy-3').innerHTML = '<strong>Complete</strong>Confirm removal';
+      return;
+    }
     if (isSkillUpdate) {
       pageTitle.innerHTML = 'Update the Microsoft Foundry skill';
       pageLede.textContent = 'A proposed tool update flow that refreshes Foundry guidance across supported coding agents.';
@@ -332,6 +344,10 @@ kbd{
     screen.innerHTML = '';
     configureFlow();
     setStep(1);
+    if (currentFlow === 'uninstall') {
+      await runSkillUninstall();
+      return;
+    }
     if (currentFlow === 'update-skill') {
       await runSkillUpdate();
       return;
@@ -467,6 +483,31 @@ kbd{
     state = 'complete';
     setStep(4);
     setHint('<span class="green">✓ Microsoft Foundry skill updated in 2 coding agents</span>');
+  }
+
+  async function runSkillUninstall() {
+    state = 'busy';
+    const token = runId;
+    addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="bright">azd tool uninstall azure-skills</span>`);
+    addLine(`<span class="bright">Uninstall Azure development tools (azd tool uninstall)</span>`);
+    addLine(`<span class="dim">Uninstalls specified tools from the local machine.</span>`);
+    setHint('Finding Microsoft Foundry skill…');
+    await sleep(350);
+    if (token !== runId) return;
+    setStep(2);
+    setHint('Uninstalling Microsoft Foundry skill…');
+    await operationLine(
+      'Uninstalling Microsoft Foundry skill',
+      'Uninstalling Microsoft Foundry skill',
+      token
+    );
+    if (token !== runId) return;
+    setStep(3);
+    addLine(`<span class="green">SUCCESS: Microsoft Foundry skill is uninstalled.</span>`);
+    addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
+    state = 'complete';
+    setStep(4);
+    setHint('<span class="green">✓ Microsoft Foundry skill uninstalled</span>');
   }
 
   async function updateLine(name, fromVersion, toVersion, suffix, token) {
