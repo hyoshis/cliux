@@ -176,7 +176,8 @@ kbd{
   <h1 id="page-title">Install Foundry skill with <code>azure.ai.agents</code></h1>
   <p class="lede" id="page-lede">A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.</p>
   <nav class="flow-nav" aria-label="Extension lifecycle flows">
-    <button class="flow-tab active" data-flow="install" aria-current="page">Install</button>
+    <button class="flow-tab active" data-flow="install" aria-current="page">Install extension</button>
+    <button class="flow-tab" data-flow="install-multiple">Install extension (multiple sources)</button>
     <button class="flow-tab" data-flow="update">Update extension</button>
     <button class="flow-tab" data-flow="update-skill">Update skill</button>
     <button class="flow-tab" data-flow="uninstall">Uninstall</button>
@@ -259,7 +260,8 @@ kbd{
   }
 
   function configureFlow() {
-    const isInstall = currentFlow === 'install';
+    const isInstall = currentFlow === 'install' || currentFlow === 'install-multiple';
+    const isMultipleSourceInstall = currentFlow === 'install-multiple';
     const isSkillUpdate = currentFlow === 'update-skill';
     const isSkillUninstall = currentFlow === 'uninstall';
     if (isSkillUninstall) {
@@ -288,7 +290,11 @@ kbd{
       : 'A proposed update flow that keeps the Microsoft Foundry skill synchronized with the extension without an additional prompt.';
     terminalTitle.textContent = `PowerShell — azd extension ${isInstall ? 'install' : 'update'}`;
     document.querySelector('.step-list').setAttribute('aria-label', `${isInstall ? 'Install' : 'Update'} progress`);
-    document.getElementById('step-copy-1').innerHTML = '<strong>Choose source</strong>Select the extension channel';
+    document.getElementById('step-copy-1').innerHTML = isMultipleSourceInstall
+      ? '<strong>Choose source</strong>Select the extension channel'
+      : isInstall
+        ? '<strong>Start install</strong>Load extension details'
+        : '<strong>Start update</strong>Load extension details';
     document.getElementById('step-copy-2').innerHTML = isInstall
       ? '<strong>Confirm skill</strong>Choose whether to add guidance'
       : '<strong>Update extension</strong>Update the package and dependencies';
@@ -352,10 +358,18 @@ kbd{
       await runSkillUpdate();
       return;
     }
-    const isInstall = currentFlow === 'install';
+    const isInstall = currentFlow === 'install' || currentFlow === 'install-multiple';
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="bright">azd ext ${isInstall ? 'install' : 'update'} azure.ai.agents</span>`);
     addLine(`<span class="bright">${isInstall ? 'Install an azd extension (azd extension install)' : 'Update azd extensions (azd extension update)'}</span>`);
     addLine(`<span class="dim">${isInstall ? 'Installs the specified extension onto the local machine.' : 'Updates the specified extensions on the local machine.'}</span>`);
+    if (currentFlow === 'install') {
+      showSkillPrompt();
+      return;
+    }
+    if (currentFlow === 'update') {
+      await runUpdate();
+      return;
+    }
     addLine(`<span class="blue">?</span> The <span class="blue">azure.ai.agents</span> extension was found in multiple sources.`);
     addLine(`Select the source to continue: <span class="blue">azd</span>`);
     renderSourcePicker();
@@ -374,8 +388,13 @@ kbd{
       await runUpdate();
       return;
     }
-    addLine(`<span class="blue">?</span> Install the Microsoft Foundry skill? <span class="dim">(Y/n)</span> <span class="cursor"></span>`);
-    addLine(`<span class="dim">  Guidance for building, evaluating, and troubleshooting Foundry agents.</span>`);
+    showSkillPrompt();
+  }
+
+  function showSkillPrompt() {
+    addLine('');
+    addLine(`<span class="blue">?</span> Also install the Microsoft Foundry skill? <span class="dim">(Y/n)</span> <span class="cursor"></span>`);
+    addLine(`<span class="dim">  Recommended for coding agents. Adds guidance for building, evaluating, and troubleshooting Foundry agents.</span>`);
     state = 'skill';
     setStep(2);
     setHint('<kbd>Y</kbd> install skill&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default');
@@ -384,19 +403,20 @@ kbd{
   function stagePrompt(value) {
     promptValue = value;
     const action = state === 'updateSkill' ? 'Update' : 'Install';
-    const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${action} the Microsoft Foundry skill`));
+    const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes('install the Microsoft Foundry skill'));
     if (!line) return;
     const shown = value ? `<span class="blue">${value}</span>` : '<span class="cursor"></span>';
-    line.innerHTML = `<span class="blue">?</span> ${action} the Microsoft Foundry skill? <span class="dim">(Y/n)</span> ${shown}`;
+    line.innerHTML = `<span class="blue">?</span> Also install the Microsoft Foundry skill? <span class="dim">(Y/n)</span> ${shown}`;
   }
 
   async function answerSkill(installSkill) {
     if (state !== 'skill') return;
     state = 'busy';
-    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes('Install the Microsoft Foundry skill'));
+    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes('install the Microsoft Foundry skill'));
     if (promptLine) {
-      promptLine.innerHTML = `<span class="blue">?</span> Install the Microsoft Foundry skill? <span class="blue">${installSkill ? 'Yes' : 'No'}</span>`;
+      promptLine.innerHTML = `<span class="blue">?</span> Also install the Microsoft Foundry skill? <span class="blue">${installSkill ? 'Yes' : 'No'}</span>`;
     }
+    addLine('');
     setStep(3);
     setHint('Installing…');
     const token = runId;
@@ -409,6 +429,8 @@ kbd{
     if (installSkill) {
       await installLine(`Installing <span class="blue">Microsoft Foundry skill</span> <span class="dim">(1.0.0)</span>`, token);
       if (token !== runId) return;
+      addLine(`<span class="dim">  ~/.agents/skills/</span>`);
+      addLine(`<span class="dim">  ~/.claude/skills/</span>`);
     } else {
       addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">Microsoft Foundry skill</span>`);
     }
@@ -417,6 +439,7 @@ kbd{
     addLine(`<span class="bright">Examples:</span>`);
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
+    addLine('');
     addLine(`<span class="green">SUCCESS: Extension(s) installed successfully</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
