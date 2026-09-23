@@ -228,7 +228,7 @@ kbd{
   const terminalTitle = document.getElementById('terminal-title');
   const flowTabs = [...document.querySelectorAll('.flow-tab[data-flow]')];
   const steps = [...document.querySelectorAll('.step')];
-  const sources = ['azd', 'nightly'];
+  const sources = ['azd', 'local'];
   let currentFlow = 'install';
   let state = 'source';
   let sourceIndex = 0;
@@ -394,7 +394,7 @@ kbd{
   function showSkillPrompt() {
     addLine('');
     addLine(`<span class="blue">?</span> Also install the Microsoft Foundry skill? <span class="dim">(Y/n)</span> <span class="cursor"></span>`);
-    addLine(`<span class="dim">  Recommended for coding agents. Adds guidance for building, evaluating, and troubleshooting Foundry agents.</span>`);
+    addLine(`<span class="dim">  Brings official Foundry guidance into your coding agent, ready to apply as you build.</span>`);
     state = 'skill';
     setStep(2);
     setHint('<kbd>Y</kbd> install skill&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default');
@@ -422,17 +422,19 @@ kbd{
     const token = runId;
     await installLine(`Installing <span class="blue">azure.ai.agents</span> <span class="dim">(1.0.0-beta.16)</span>`, token);
     if (token !== runId) return;
-    addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">azure.ai.inspector</span> dependency <span class="dim">(1.0.0-beta.7, already installed)</span>`);
-    addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">azure.ai.projects</span> dependency <span class="dim">(1.0.0-beta.11, already installed)</span>`);
-    addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">azure.ai.connections</span> dependency <span class="dim">(1.0.0-beta.7, already installed)</span>`);
-    addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">azure.ai.toolboxes</span> dependency <span class="dim">(1.0.0-beta.7, already installed)</span>`);
+    await installLine(`Installing <span class="blue">azure.ai.inspector</span> dependency <span class="dim">(1.0.0-beta.7)</span>`, token);
+    if (token !== runId) return;
+    await installLine(`Installing <span class="blue">azure.ai.projects</span> dependency <span class="dim">(1.0.0-beta.11)</span>`, token);
+    if (token !== runId) return;
+    await installLine(`Installing <span class="blue">azure.ai.connections</span> dependency <span class="dim">(1.0.0-beta.7)</span>`, token);
+    if (token !== runId) return;
+    await installLine(`Installing <span class="blue">azure.ai.toolboxes</span> dependency <span class="dim">(1.0.0-beta.7)</span>`, token);
+    if (token !== runId) return;
     if (installSkill) {
       await installLine(`Installing <span class="blue">Microsoft Foundry skill</span> <span class="dim">(1.0.0)</span>`, token);
       if (token !== runId) return;
-      addLine(`<span class="dim">  ~/.agents/skills/</span>`);
-      addLine(`<span class="dim">  ~/.claude/skills/</span>`);
-    } else {
-      addLine(`<span class="dim">(–) Skipped:</span> Installing <span class="blue">Microsoft Foundry skill</span>`);
+      addLine(`  ~/.agents/skills/microsoft-foundry/  <span class="dim">shared — Copilot and other agents</span>`);
+      addLine(`  ~/.claude/skills/microsoft-foundry/  <span class="dim">Claude Code</span>`);
     }
     addLine('');
     addLine(`<span class="bright">Usage:</span> azd ai agent &lt;command&gt; [options]`);
@@ -440,7 +442,7 @@ kbd{
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
     addLine('');
-    addLine(`<span class="green">SUCCESS: Extension(s) installed successfully</span>`);
+    addLine(`<span class="green">SUCCESS: Extension(s) installed.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setStep(4);
@@ -470,7 +472,7 @@ kbd{
     addLine(`<span class="bright">Examples:</span>`);
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
-    addLine(`<span class="green">SUCCESS: Extension and skill updated successfully</span>`);
+    addLine(`<span class="green">SUCCESS: Extension and skill updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setStep(4);
@@ -484,28 +486,26 @@ kbd{
     addLine(`<span class="bright">Update Azure development tools (azd tool update)</span>`);
     addLine(`<span class="dim">Updates installed tools to their latest versions.</span>`);
     setHint('Finding skill installations…');
-    await sleep(350);
+    await sleep(120);
     if (token !== runId) return;
     setStep(2);
     setHint('Updating Microsoft Foundry skill…');
     await operationLine(
-      'Updating Microsoft Foundry skill in GitHub Copilot',
-      'Updated Microsoft Foundry skill in GitHub Copilot <span class="dim">(1.0.0 → 1.1.0)</span>',
+      'Updating Microsoft Foundry skill in <span class="blue">~/.agents/skills/</span> <span class="dim">(1.0.0 → 1.1.0)</span>',
       token
     );
     if (token !== runId) return;
     await operationLine(
-      'Updating Microsoft Foundry skill in Claude',
-      'Updated Microsoft Foundry skill in Claude <span class="dim">(1.0.0 → 1.1.0)</span>',
+      'Updating Microsoft Foundry skill in <span class="blue">~/.claude/skills/</span> <span class="dim">(1.0.0 → 1.1.0)</span>',
       token
     );
     if (token !== runId) return;
     setStep(3);
-    addLine(`<span class="green">SUCCESS: Tools updated successfully</span>`);
+    addLine(`<span class="green">SUCCESS: Skill updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setStep(4);
-    setHint('<span class="green">✓ Microsoft Foundry skill updated in 2 coding agents</span>');
+    setHint('<span class="green">✓ Microsoft Foundry skill updated in 2 locations</span>');
   }
 
   async function runSkillUninstall() {
@@ -515,18 +515,22 @@ kbd{
     addLine(`<span class="bright">Uninstall Azure development tools (azd tool uninstall)</span>`);
     addLine(`<span class="dim">Uninstalls specified tools from the local machine.</span>`);
     setHint('Finding Microsoft Foundry skill…');
-    await sleep(350);
+    await sleep(120);
     if (token !== runId) return;
     setStep(2);
     setHint('Uninstalling Microsoft Foundry skill…');
     await operationLine(
-      'Uninstalling Microsoft Foundry skill',
-      'Uninstalling Microsoft Foundry skill',
+      'Uninstalling Microsoft Foundry skill from <span class="blue">~/.agents/skills/</span>',
+      token
+    );
+    if (token !== runId) return;
+    await operationLine(
+      'Uninstalling Microsoft Foundry skill from <span class="blue">~/.claude/skills/</span>',
       token
     );
     if (token !== runId) return;
     setStep(3);
-    addLine(`<span class="green">SUCCESS: Microsoft Foundry skill is uninstalled.</span>`);
+    addLine(`<span class="green">SUCCESS: Skill uninstalled.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setStep(4);
@@ -535,22 +539,22 @@ kbd{
 
   async function updateLine(name, fromVersion, toVersion, suffix, token) {
     const label = `<span class="blue">${name}</span>${suffix} <span class="dim">(${fromVersion} → ${toVersion})</span>`;
-    await operationLine(`Updating ${label}`, `Updated ${label}`, token);
+    await operationLine(`Updating ${label}`, token);
   }
 
   async function installLine(label, token) {
-    await operationLine(`Installing ${label.replace(/^Installing /, '')}`, label, token);
+    await operationLine(`Installing ${label.replace(/^Installing /, '')}`, token);
   }
 
-  async function operationLine(progressLabel, completedLabel, token) {
+  async function operationLine(progressLabel, token) {
     const frames = ['|===    |','| ===   |','|  ===  |','|   === |','|    ===|'];
     const line = addLine(`<span class="bright">${frames[0]}</span> ${progressLabel}`);
     for (let index = 0; index < 5; index++) {
       if (token !== runId) return;
       line.innerHTML = `<span class="bright">${frames[index]}</span> ${progressLabel}`;
-      await sleep(90);
+      await sleep(30);
     }
-    line.innerHTML = `<span class="green">(✓) Done:</span> ${completedLabel}`;
+    line.innerHTML = `<span class="green">(✓) Done:</span> ${progressLabel}`;
   }
 
   document.addEventListener('keydown', event => {
