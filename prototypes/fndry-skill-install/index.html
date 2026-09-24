@@ -137,34 +137,16 @@ h1 code{color:var(--accent);font-family:var(--mono);font-size:1em}
   content:"";position:absolute;left:0;top:.58em;width:5px;height:5px;
   border-radius:50%;background:var(--accent);
 }
-.review-list li.question{color:var(--text)}
-.review-list li.question::before{
-  content:"?";top:0;width:auto;height:auto;color:var(--warning);
-  background:transparent;font-family:var(--mono);font-weight:700;
+.review-list li.highlight{
+  padding:9px 11px;border-left:3px solid var(--warning);border-radius:0 6px 6px 0;
+  background:rgba(242,201,76,.1);color:var(--text);font-weight:600;
 }
+.review-list li.highlight::before{display:none}
 .review-list code{
   display:block;margin-top:6px;padding:7px 9px;border:1px solid var(--border);
   border-radius:6px;background:var(--terminal);color:#8fc7ff;
   font-family:var(--mono);font-size:11px;line-height:1.45;word-break:break-word;
 }
-.step-list{display:grid;gap:0;margin-top:auto;padding-top:26px}
-.step{
-  position:relative;display:grid;grid-template-columns:26px 1fr;gap:9px;
-  min-height:47px;color:var(--dim);font-size:13px;
-}
-.step:not(:last-child)::after{
-  content:"";position:absolute;left:11px;top:25px;bottom:2px;width:1px;background:var(--border);
-}
-.step-index{
-  display:grid;place-items:center;width:23px;height:23px;
-  border:1px solid var(--border);border-radius:50%;font-family:var(--mono);font-size:10px;
-  background:var(--panel);
-}
-.step strong{display:block;margin-top:2px;color:var(--muted);font-weight:600}
-.step.active .step-index{color:#07111d;border-color:var(--accent);background:var(--accent)}
-.step.active strong{color:var(--text)}
-.step.done .step-index{color:#07140a;border-color:var(--success);background:var(--success)}
-.step.done strong{color:#cde9cd}
 .controls{
   display:flex;align-items:center;gap:10px;min-height:51px;margin-top:12px;
 }
@@ -185,7 +167,6 @@ kbd{
   .install-options{grid-template-columns:1fr}
   .stage{grid-template-columns:1fr}
   .side{border-top:1px solid var(--border);border-left:0}
-  .step-list{margin-top:24px}
   .terminal-screen{height:520px}
 }
 @media(max-width:520px){
@@ -212,7 +193,7 @@ kbd{
       <span>Ask before installing the Foundry skill globally.</span>
     </button>
     <button class="install-option" data-install-flow="install-auto" type="button">
-      <strong>Automatic</strong>
+      <strong>Automatic (archive)</strong>
       <span>Install the extension and Foundry skill together.</span>
     </button>
   </div>
@@ -228,18 +209,14 @@ kbd{
     </div>
     <aside class="side">
       <section class="review-notes" aria-labelledby="review-title">
-        <div class="review-label">Stakeholder review</div>
-        <h2 class="review-title" id="review-title">Design notes and questions</h2>
+        <div class="review-label">Engineer handoff</div>
+        <h2 class="review-title" id="review-title">Design requirements</h2>
         <ul class="review-list" id="review-list">
           <li>Yes installs the skill globally for use across projects.</li>
-          <li class="question">Is the global option the recommended choice?</li>
+          <li class="highlight">Show the Foundry skill install prompt only if the skill isn’t installed.</li>
+          <li>If the user selects No, show the command to install the skill separately:<code>npx skills add microsoft/azure-skills --skill microsoft-foundry</code></li>
         </ul>
       </section>
-      <div class="step-list" aria-label="Install progress">
-        <div class="step active" data-step="1"><span class="step-index">1</span><span id="step-copy-1"><strong>Start install</strong>Load extension details</span></div>
-        <div class="step" data-step="2"><span class="step-index">2</span><span id="step-copy-2"><strong>Confirm skill</strong>Choose whether to add guidance</span></div>
-        <div class="step" data-step="3"><span class="step-index">3</span><span id="step-copy-3"><strong>Install</strong>Complete extension setup</span></div>
-      </div>
     </aside>
   </section>
   <div class="controls">
@@ -261,28 +238,24 @@ kbd{
   const installOptions = document.getElementById('install-options');
   const installOptionButtons = [...document.querySelectorAll('[data-install-flow]')];
   const flowTabs = [...document.querySelectorAll('.flow-tab[data-flow]')];
-  const steps = [...document.querySelectorAll('.step')];
   const reviewContent = {
     'install-auto': [
-      ['note', 'Installs the Microsoft Foundry skill automatically.'],
-      ['question', 'Should we prompt users instead?']
+      ['note', 'Installs the Microsoft Foundry skill automatically.']
     ],
     'install-prompt': [
       ['note', 'Yes installs the skill globally for use across projects.'],
-      ['question', 'Is the global option the recommended choice?'],
-      ['question', 'Should users be able to choose which coding agents receive the skill?']
+      ['highlight', 'Show the Foundry skill install prompt only if the skill isn’t installed.'],
+      ['note', 'If the user selects No, show the command to install the skill separately:<code>npx skills add microsoft/azure-skills --skill microsoft-foundry</code>']
     ],
     update: [
       ['note', 'Asks whether to update the Microsoft Foundry skill with the extension.']
     ],
     'update-skill': [
-      ['note', 'Updates the Microsoft Foundry skill across supported coding agents.'],
-      ['question', 'Should users choose which coding agent installations to update?']
+      ['note', 'Updates the Microsoft Foundry skill across supported coding agents.']
     ],
     uninstall: [
       ['note', 'The Microsoft Foundry skill is removed only by running:<code>azd tool uninstall microsoft-foundry</code>'],
-      ['note', 'This command removes the extension, but leaves the skill installed:<code>azd extension uninstall azure.ai.agents</code>'],
-      ['question', 'Should uninstalling the extension also remove the skill?']
+      ['note', 'This command removes the extension, but leaves the skill installed:<code>azd extension uninstall azure.ai.agents</code>']
     ]
   };
   let currentFlow = 'install-prompt';
@@ -302,15 +275,6 @@ kbd{
     return line;
   }
 
-  function setStep(active) {
-    steps.forEach((step, index) => {
-      const number = index + 1;
-      step.classList.toggle('active', number === active);
-      step.classList.toggle('done', number < active || active === 4);
-      step.querySelector('.step-index').textContent = number < active || active === 4 ? '✓' : String(number);
-    });
-  }
-
   function setHint(html) {
     hint.innerHTML = html;
   }
@@ -322,7 +286,7 @@ kbd{
     content.forEach(([type, copy]) => {
       const item = document.createElement('li');
       item.innerHTML = copy;
-      if (type === 'question') item.className = 'question';
+      if (type === 'highlight') item.className = type;
       reviewList.appendChild(item);
     });
   }
@@ -343,20 +307,12 @@ kbd{
       pageTitle.innerHTML = 'Uninstall the Microsoft Foundry skill';
       pageLede.textContent = 'A proposed tool uninstall flow that removes Foundry guidance from supported coding agents.';
       terminalTitle.textContent = 'PowerShell — azd tool uninstall';
-      document.querySelector('.step-list').setAttribute('aria-label', 'Skill uninstall progress');
-      document.getElementById('step-copy-1').innerHTML = '<strong>Find installation</strong>Locate the Foundry skill';
-      document.getElementById('step-copy-2').innerHTML = '<strong>Uninstall skill</strong>Remove Foundry guidance';
-      document.getElementById('step-copy-3').innerHTML = '<strong>Complete</strong>Confirm removal';
       return;
     }
     if (isSkillUpdate) {
       pageTitle.innerHTML = 'Update the Microsoft Foundry skill';
       pageLede.textContent = 'A proposed tool update flow that refreshes Foundry guidance across supported coding agents.';
       terminalTitle.textContent = 'PowerShell — azd tool update';
-      document.querySelector('.step-list').setAttribute('aria-label', 'Skill update progress');
-      document.getElementById('step-copy-1').innerHTML = '<strong>Find installations</strong>Locate supported coding agents';
-      document.getElementById('step-copy-2').innerHTML = '<strong>Update skill</strong>Refresh Foundry guidance';
-      document.getElementById('step-copy-3').innerHTML = '<strong>Complete</strong>Report updated environments';
       return;
     }
     pageTitle.innerHTML = `${isInstall ? 'Install' : 'Update'} Foundry skill with <code>azure.ai.agents</code>`;
@@ -366,18 +322,6 @@ kbd{
         ? 'A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.'
       : 'A proposed update flow that asks before updating the Microsoft Foundry skill with the extension.';
     terminalTitle.textContent = `PowerShell — azd extension ${isInstall ? 'install' : 'update'}`;
-    document.querySelector('.step-list').setAttribute('aria-label', `${isInstall ? 'Install' : 'Update'} progress`);
-    document.getElementById('step-copy-1').innerHTML = isInstall
-        ? '<strong>Start install</strong>Load extension details'
-        : '<strong>Start update</strong>Load extension details';
-    document.getElementById('step-copy-2').innerHTML = isAutoInstall
-      ? '<strong>Add skill</strong>Install Foundry guidance automatically'
-      : isInstall
-        ? '<strong>Confirm skill</strong>Choose whether to add guidance'
-      : '<strong>Confirm skill</strong>Choose whether to update guidance';
-    document.getElementById('step-copy-3').innerHTML = isInstall
-      ? '<strong>Install</strong>Complete extension setup'
-      : '<strong>Update</strong>Update the extension and selected skill';
   }
 
   async function start() {
@@ -386,7 +330,6 @@ kbd{
     promptValue = '';
     screen.innerHTML = '';
     configureFlow();
-    setStep(1);
     if (currentFlow === 'uninstall') {
       await runSkillUninstall();
       return;
@@ -415,13 +358,13 @@ kbd{
   function showSkillPrompt(action) {
     skillAction = action;
     const verb = action === 'update' ? 'update' : 'install';
+    const version = action === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     addLine('');
-    addLine(`<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? (Y/n) <span class="cursor"></span>`);
+    addLine(`<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? (Y/n) <span class="cursor"></span>`);
     if (action === 'install') {
       addLine(`<span class="dim">Adds Foundry guidance for faster development and production-ready patterns.</span>`);
     }
     state = 'skill';
-    setStep(2);
     setHint(action === 'update'
       ? '<kbd>Y</kbd> update skill&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default'
       : '<kbd>Y</kbd> install globally&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default');
@@ -431,18 +374,20 @@ kbd{
   function stagePrompt(value) {
     promptValue = value;
     const verb = skillAction === 'update' ? 'update' : 'install';
+    const version = skillAction === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${verb} the Microsoft Foundry skill`));
     if (!line) return;
     const shown = value ? `<span class="blue">${value}</span>` : '<span class="cursor"></span>';
-    line.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? (Y/n) ${shown}`;
+    line.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? (Y/n) ${shown}`;
   }
 
   async function answerSkill(includeSkill) {
     if (state !== 'skill') return;
     const verb = skillAction === 'update' ? 'update' : 'install';
+    const version = skillAction === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes(`${verb} the Microsoft Foundry skill`));
     if (promptLine) {
-      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
+      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
     }
     if (skillAction === 'update') {
       await runUpdate(includeSkill);
@@ -457,7 +402,6 @@ kbd{
   async function runInstall(installSkill) {
     state = 'busy';
     addLine('');
-    setStep(3);
     setHint('Installing…');
     const token = runId;
     await installLine(`Installing <span class="blue">azure.ai.agents</span> <span class="dim">(1.0.0-beta.16)</span>`, token);
@@ -489,7 +433,6 @@ kbd{
     addLine(`<span class="green">SUCCESS: Extension(s) installed.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setStep(4);
     setHint(installSkill
       ? '<span class="green">✓ Extension and skill installed</span> · Global'
       : '<span class="green">✓ Extension installed</span> · Skill skipped');
@@ -497,9 +440,7 @@ kbd{
 
   async function runUpdate(updateSkill) {
     state = 'busy';
-    setStep(2);
     const token = runId;
-    setStep(3);
     setHint('Updating extension…');
     addLine('');
     await updateLine('azure.ai.agents', '1.0.0-beta.14', '1.0.0-beta.16', '', token);
@@ -514,7 +455,7 @@ kbd{
     if (token !== runId) return;
     if (updateSkill) {
       setHint('Updating Foundry skill…');
-      await updateLine('microsoft-foundry', '1.0.0', '1.1.0', ' skill', token);
+      await updateLine('microsoft-foundry', '1.0.1', '1.1.2', ' skill', token);
       if (token !== runId) return;
     }
     addLine('');
@@ -526,7 +467,6 @@ kbd{
     addLine(`<span class="green">SUCCESS: ${updateSkill ? 'Extension and skill' : 'Extension'} updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setStep(4);
     setHint(updateSkill
       ? '<span class="green">✓ Extension and Foundry skill updated</span>'
       : '<span class="green">✓ Extension updated</span> · Skill skipped');
@@ -541,7 +481,6 @@ kbd{
     setHint('Finding skill installations…');
     await sleep(120);
     if (token !== runId) return;
-    setStep(2);
     setHint('Updating Microsoft Foundry skill…');
     addLine('');
     await operationLine(
@@ -554,12 +493,10 @@ kbd{
       token
     );
     if (token !== runId) return;
-    setStep(3);
     addLine('');
     addLine(`<span class="green">SUCCESS: Skill updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setStep(4);
     setHint('<span class="green">✓ Microsoft Foundry skill updated in 2 locations</span>');
   }
 
@@ -572,7 +509,6 @@ kbd{
     setHint('Finding Microsoft Foundry skill…');
     await sleep(120);
     if (token !== runId) return;
-    setStep(2);
     setHint('Uninstalling Microsoft Foundry skill…');
     addLine('');
     await operationLine(
@@ -585,12 +521,10 @@ kbd{
       token
     );
     if (token !== runId) return;
-    setStep(3);
     addLine('');
     addLine(`<span class="green">SUCCESS: Skill uninstalled.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setStep(4);
     setHint('<span class="green">✓ Microsoft Foundry skill uninstalled</span>');
   }
 
