@@ -64,7 +64,7 @@ h1 code{color:var(--accent);font-family:var(--mono);font-size:1em}
 .flow-tab[disabled]{cursor:not-allowed;opacity:.58}
 .flow-tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .install-options{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
   margin:0 0 14px;
 }
 .install-options[hidden]{display:none}
@@ -118,15 +118,6 @@ h1 code{color:var(--accent);font-family:var(--mono);font-size:1em}
   background:#dedede;vertical-align:-2px;animation:blink 1.05s steps(1) infinite;
 }
 @keyframes blink{50%{opacity:0}}
-.source-list{margin-top:7px}
-.source-row{
-  display:flex;gap:9px;min-height:22px;padding:1px 3px;border-radius:4px;cursor:pointer;
-}
-.source-row:hover{background:rgba(255,255,255,.05)}
-.source-row.selected .source-pointer,.source-row.selected .source-name{color:#4da6ff}
-.source-pointer{width:11px;color:transparent}.source-name{min-width:58px;color:var(--terminal-text)}
-.skill-choice-name{min-width:172px}
-.source-rule{width:314px;max-width:100%;margin:3px 0;color:#3d3d3d;overflow:hidden}
 .side{
   display:flex;flex-direction:column;padding:22px;
   border-left:1px solid var(--border);background:
@@ -187,7 +178,7 @@ kbd{
   background:var(--panel);color:var(--muted);font-weight:600;cursor:pointer;
 }
 .reset:hover{border-color:var(--accent);color:var(--text)}
-.reset:focus-visible,.source-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.reset:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .footer{margin-top:17px;color:var(--dim);font-family:var(--mono);font-size:11px;text-align:center}
 @media(max-width:820px){
   body{padding:24px 14px 36px}
@@ -210,23 +201,19 @@ kbd{
   <h1 id="page-title">Install Foundry skill with <code>azure.ai.agents</code></h1>
   <p class="lede" id="page-lede">A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.</p>
   <nav class="flow-nav" aria-label="Extension lifecycle flows">
-    <button class="flow-tab active" data-flow="install-auto" aria-current="page">Install extension</button>
+    <button class="flow-tab active" data-flow="install-prompt" aria-current="page">Install extension</button>
     <button class="flow-tab" data-flow="update">Update extension</button>
     <button class="flow-tab" data-flow="update-skill">Update skill</button>
     <button class="flow-tab" data-flow="uninstall">Uninstall skill</button>
   </nav>
   <div class="install-options" id="install-options" role="group" aria-label="Install extension flow">
-    <button class="install-option active" data-install-flow="install-auto" type="button">
+    <button class="install-option active" data-install-flow="install-prompt" type="button">
+      <strong>Prompt</strong>
+      <span>Ask before installing the Foundry skill globally.</span>
+    </button>
+    <button class="install-option" data-install-flow="install-auto" type="button">
       <strong>Automatic</strong>
       <span>Install the extension and Foundry skill together.</span>
-    </button>
-    <button class="install-option" data-install-flow="install-prompt" type="button">
-      <strong>Prompt</strong>
-      <span>Choose a global or local skill install.</span>
-    </button>
-    <button class="install-option" data-install-flow="install-multiple" type="button">
-      <strong>Multiple sources</strong>
-      <span>Choose the extension source before installation.</span>
     </button>
   </div>
   <section class="stage" aria-label="Interactive terminal prototype">
@@ -244,12 +231,12 @@ kbd{
         <div class="review-label">Stakeholder review</div>
         <h2 class="review-title" id="review-title">Design notes and questions</h2>
         <ul class="review-list" id="review-list">
-          <li>Installs the Microsoft Foundry skill automatically.</li>
-          <li class="question">Should we prompt users instead?</li>
+          <li>Yes installs the skill globally for use across projects.</li>
+          <li class="question">Is the global option the recommended choice?</li>
         </ul>
       </section>
       <div class="step-list" aria-label="Install progress">
-        <div class="step active" data-step="1"><span class="step-index">1</span><span id="step-copy-1"><strong>Choose source</strong>Select the extension channel</span></div>
+        <div class="step active" data-step="1"><span class="step-index">1</span><span id="step-copy-1"><strong>Start install</strong>Load extension details</span></div>
         <div class="step" data-step="2"><span class="step-index">2</span><span id="step-copy-2"><strong>Confirm skill</strong>Choose whether to add guidance</span></div>
         <div class="step" data-step="3"><span class="step-index">3</span><span id="step-copy-3"><strong>Install</strong>Complete extension setup</span></div>
       </div>
@@ -275,22 +262,18 @@ kbd{
   const installOptionButtons = [...document.querySelectorAll('[data-install-flow]')];
   const flowTabs = [...document.querySelectorAll('.flow-tab[data-flow]')];
   const steps = [...document.querySelectorAll('.step')];
-  const sources = ['azd', 'local'];
   const reviewContent = {
     'install-auto': [
       ['note', 'Installs the Microsoft Foundry skill automatically.'],
       ['question', 'Should we prompt users instead?']
     ],
     'install-prompt': [
-      ['note', 'Defaults to a global skill install for use across projects.'],
-      ['note', 'Users can choose a local install for the current project or skip the skill.'],
+      ['note', 'Yes installs the skill globally for use across projects.'],
       ['question', 'Is the global option the recommended choice?'],
-      ['question', 'Should users be able to choose which coding agents receive the skill?'],
-      ['question', 'Would “Local” be clearer to users than “In this project only”?']
+      ['question', 'Should users be able to choose which coding agents receive the skill?']
     ],
-    'install-multiple': [],
     update: [
-      ['note', 'Updates the extension and Microsoft Foundry skill together.']
+      ['note', 'Asks whether to update the Microsoft Foundry skill with the extension.']
     ],
     'update-skill': [
       ['note', 'Updates the Microsoft Foundry skill across supported coding agents.'],
@@ -302,16 +285,11 @@ kbd{
       ['question', 'Should uninstalling the extension also remove the skill?']
     ]
   };
-  let currentFlow = 'install-auto';
-  let state = 'source';
-  let sourceIndex = 0;
-  let skillIndex = 0;
+  let currentFlow = 'install-prompt';
+  let state = 'busy';
+  let promptValue = '';
+  let skillAction = 'install';
   let runId = 0;
-  const skillChoices = [
-    { value: 'global', label: 'Yes — globally (recommended)', description: '' },
-    { value: 'local', label: 'Yes — in this project only', description: '' },
-    { value: 'skip', label: 'No', description: '' }
-  ];
 
   const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -352,8 +330,7 @@ kbd{
   function configureFlow() {
     renderReviewContent();
     const isAutoInstall = currentFlow === 'install-auto';
-    const isInstall = isAutoInstall || currentFlow === 'install-prompt' || currentFlow === 'install-multiple';
-    const isMultipleSourceInstall = currentFlow === 'install-multiple';
+    const isInstall = isAutoInstall || currentFlow === 'install-prompt';
     const isSkillUpdate = currentFlow === 'update-skill';
     const isSkillUninstall = currentFlow === 'uninstall';
     installOptions.hidden = !isInstall;
@@ -387,107 +364,26 @@ kbd{
       ? 'A proposed install flow that adds the Microsoft Foundry skill automatically as part of the extension installation.'
       : isInstall
         ? 'A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.'
-      : 'A proposed update flow that keeps the Microsoft Foundry skill synchronized with the extension without an additional prompt.';
+      : 'A proposed update flow that asks before updating the Microsoft Foundry skill with the extension.';
     terminalTitle.textContent = `PowerShell — azd extension ${isInstall ? 'install' : 'update'}`;
     document.querySelector('.step-list').setAttribute('aria-label', `${isInstall ? 'Install' : 'Update'} progress`);
-    document.getElementById('step-copy-1').innerHTML = isMultipleSourceInstall
-      ? '<strong>Choose source</strong>Select the extension channel'
-      : isInstall
+    document.getElementById('step-copy-1').innerHTML = isInstall
         ? '<strong>Start install</strong>Load extension details'
         : '<strong>Start update</strong>Load extension details';
     document.getElementById('step-copy-2').innerHTML = isAutoInstall
       ? '<strong>Add skill</strong>Install Foundry guidance automatically'
       : isInstall
-        ? '<strong>Choose scope</strong>Install the skill globally or locally'
-      : '<strong>Update extension</strong>Update the package and dependencies';
+        ? '<strong>Confirm skill</strong>Choose whether to add guidance'
+      : '<strong>Confirm skill</strong>Choose whether to update guidance';
     document.getElementById('step-copy-3').innerHTML = isInstall
       ? '<strong>Install</strong>Complete extension setup'
-      : '<strong>Update skill</strong>Keep Foundry guidance in sync';
-  }
-
-  function renderSourcePicker() {
-    const list = document.createElement('div');
-    list.className = 'source-list';
-    list.id = 'source-list';
-    screen.appendChild(list);
-    sources.forEach((source, index) => {
-      const row = document.createElement('div');
-      row.className = `source-row${index === sourceIndex ? ' selected' : ''}`;
-      row.dataset.index = index;
-      row.tabIndex = 0;
-      row.setAttribute('role', 'option');
-      row.setAttribute('aria-selected', String(index === sourceIndex));
-      row.innerHTML = `<span class="source-pointer">${index === sourceIndex ? '>' : ''}</span><span class="source-name">${source}</span>`;
-      row.addEventListener('click', () => {
-        sourceIndex = index;
-        renderSourceRows();
-        chooseSource();
-      });
-      list.appendChild(row);
-    });
-    const rule = document.createElement('div');
-    rule.className = 'source-rule';
-    rule.textContent = '───────────────────────────────────────';
-    list.appendChild(rule);
-    const filter = document.createElement('div');
-    filter.className = 'dim';
-    filter.textContent = 'Use arrows to move';
-    list.appendChild(filter);
-  }
-
-  function renderSourceRows() {
-    document.querySelectorAll('.source-row').forEach((row, index) => {
-      const selected = index === sourceIndex;
-      row.classList.toggle('selected', selected);
-      row.setAttribute('aria-selected', String(selected));
-      row.querySelector('.source-pointer').textContent = selected ? '>' : '';
-    });
-  }
-
-  function renderSkillPicker() {
-    const list = document.createElement('div');
-    list.className = 'source-list';
-    list.id = 'skill-list';
-    screen.appendChild(list);
-    skillChoices.forEach((choice, index) => {
-      const row = document.createElement('div');
-      row.className = `source-row${index === skillIndex ? ' selected' : ''}`;
-      row.dataset.index = index;
-      row.tabIndex = 0;
-      row.setAttribute('role', 'option');
-      row.setAttribute('aria-selected', String(index === skillIndex));
-      row.innerHTML = `<span class="source-pointer">${index === skillIndex ? '>' : ''}</span><span class="source-name skill-choice-name">${choice.label}</span>`;
-      row.addEventListener('click', () => {
-        skillIndex = index;
-        renderSkillRows();
-        chooseSkill();
-      });
-      list.appendChild(row);
-    });
-    const rule = document.createElement('div');
-    rule.className = 'source-rule';
-    rule.textContent = '───────────────────────────────────────';
-    list.appendChild(rule);
-    const help = document.createElement('div');
-    help.className = 'dim';
-    help.textContent = 'Use arrows to move';
-    list.appendChild(help);
-  }
-
-  function renderSkillRows() {
-    document.querySelectorAll('#skill-list .source-row').forEach((row, index) => {
-      const selected = index === skillIndex;
-      row.classList.toggle('selected', selected);
-      row.setAttribute('aria-selected', String(selected));
-      row.querySelector('.source-pointer').textContent = selected ? '>' : '';
-    });
+      : '<strong>Update</strong>Update the extension and selected skill';
   }
 
   async function start() {
     runId++;
-    state = 'source';
-    sourceIndex = 0;
-    skillIndex = 0;
+    state = 'busy';
+    promptValue = '';
     screen.innerHTML = '';
     configureFlow();
     setStep(1);
@@ -499,7 +395,7 @@ kbd{
       await runSkillUpdate();
       return;
     }
-    const isInstall = currentFlow === 'install-auto' || currentFlow === 'install-prompt' || currentFlow === 'install-multiple';
+    const isInstall = currentFlow === 'install-auto' || currentFlow === 'install-prompt';
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="bright">azd ext ${isInstall ? 'install' : 'update'} azure.ai.agents</span>`);
     addLine(`<span class="bright">${isInstall ? 'Install an azd extension (azd extension install)' : 'Update azd extensions (azd extension update)'}</span>`);
     addLine(`<span class="dim">${isInstall ? 'Installs the specified extension onto the local machine.' : 'Updates the specified extensions on the local machine.'}</span>`);
@@ -508,63 +404,58 @@ kbd{
       return;
     }
     if (currentFlow === 'install-prompt') {
-      showSkillPrompt();
+      showSkillPrompt('install');
       return;
     }
     if (currentFlow === 'update') {
-      await runUpdate();
-      return;
+      showSkillPrompt('update');
     }
-    addLine(`<span class="blue">?</span> The <span class="blue">azure.ai.agents</span> extension was found in multiple sources.`);
-    addLine(`Select the source to continue: <span class="blue">azd</span>`);
-    renderSourcePicker();
-    setHint('<kbd>↑</kbd> <kbd>↓</kbd> move&nbsp;&nbsp;<kbd>Enter</kbd> select');
-    screen.focus({preventScroll:true});
   }
 
-  async function chooseSource() {
-    if (state !== 'source') return;
-    state = 'busy';
-    const selected = sources[sourceIndex];
-    document.getElementById('source-list')?.remove();
-    const sourceLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.startsWith('Select the source'));
-    if (sourceLine) sourceLine.innerHTML = `Select the source to continue: <span class="blue">${selected}</span>`;
-    if (currentFlow === 'update') {
-      await runUpdate();
-      return;
+  function showSkillPrompt(action) {
+    skillAction = action;
+    const verb = action === 'update' ? 'update' : 'install';
+    addLine('');
+    addLine(`<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? (Y/n) <span class="cursor"></span>`);
+    if (action === 'install') {
+      addLine(`<span class="dim">Adds Foundry guidance for faster development and production-ready patterns.</span>`);
     }
-    showSkillPrompt();
-  }
-
-  function showSkillPrompt() {
-    addLine(`<span class="blue">?</span> Install the Microsoft Foundry skill for faster builds and production-ready patterns?`);
-    renderSkillPicker();
     state = 'skill';
     setStep(2);
-    setHint('<kbd>↑</kbd> <kbd>↓</kbd> move&nbsp;&nbsp;<kbd>Enter</kbd> select');
+    setHint(action === 'update'
+      ? '<kbd>Y</kbd> update skill&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default'
+      : '<kbd>Y</kbd> install globally&nbsp;&nbsp;<kbd>N</kbd> skip&nbsp;&nbsp;<kbd>Enter</kbd> accept default');
     screen.focus({preventScroll:true});
   }
 
-  function chooseSkill() {
+  function stagePrompt(value) {
+    promptValue = value;
+    const verb = skillAction === 'update' ? 'update' : 'install';
+    const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${verb} the Microsoft Foundry skill`));
+    if (!line) return;
+    const shown = value ? `<span class="blue">${value}</span>` : '<span class="cursor"></span>';
+    line.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? (Y/n) ${shown}`;
+  }
+
+  async function answerSkill(includeSkill) {
     if (state !== 'skill') return;
-    const choice = skillChoices[skillIndex];
-    document.getElementById('skill-list')?.remove();
-    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes('Install the Microsoft Foundry skill'));
+    const verb = skillAction === 'update' ? 'update' : 'install';
+    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes(`${verb} the Microsoft Foundry skill`));
     if (promptLine) {
-      promptLine.innerHTML = `<span class="blue">?</span> Install the Microsoft Foundry skill for faster builds and production-ready patterns? <span class="blue">${choice.label}</span>`;
+      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
     }
-    answerSkill(choice.value);
+    if (skillAction === 'update') {
+      await runUpdate(includeSkill);
+      return;
+    }
+    if (!includeSkill) {
+      addLine(`Install later: <span class="blue">npx skills add microsoft/azure-skills --skill microsoft-foundry</span>`);
+    }
+    await runInstall(includeSkill);
   }
 
-  async function answerSkill(skillScope) {
-    if (state !== 'skill') return;
-    await runInstall(skillScope);
-  }
-
-  async function runInstall(skillScope) {
+  async function runInstall(installSkill) {
     state = 'busy';
-    const installSkill = skillScope === true || skillScope === 'global' || skillScope === 'local';
-    const isLocalSkill = skillScope === 'local';
     addLine('');
     setStep(3);
     setHint('Installing…');
@@ -585,9 +476,8 @@ kbd{
       if (currentFlow === 'install-auto') {
         addLine(`    The Microsoft Foundry skill is installed with <span class="blue">azure.ai.agents</span>.`);
       }
-      const skillRoot = isLocalSkill ? './' : '~/';
-      addLine(`    ${skillRoot}.agents/skills/microsoft-foundry/  <span class="dim">${isLocalSkill ? 'Current project' : 'Shared with Copilot and other agents'}</span>`);
-      addLine(`    ${skillRoot}.claude/skills/microsoft-foundry/  <span class="dim">${isLocalSkill ? 'Current project · Claude Code' : 'Claude Code'}</span>`);
+      addLine(`    ~/.agents/skills/microsoft-foundry/  <span class="dim">Shared with Copilot and other agents</span>`);
+      addLine(`    ~/.claude/skills/microsoft-foundry/  <span class="dim">Claude Code</span>`);
       addLine(`    <span class="dim">Use</span> <span class="blue">azd tool</span> <span class="dim">to manage the skill.</span>`);
     }
     addLine('');
@@ -601,11 +491,11 @@ kbd{
     state = 'complete';
     setStep(4);
     setHint(installSkill
-      ? `<span class="green">✓ Extension and skill installed</span> · ${isLocalSkill ? 'Local' : 'Global'}`
+      ? '<span class="green">✓ Extension and skill installed</span> · Global'
       : '<span class="green">✓ Extension installed</span> · Skill skipped');
   }
 
-  async function runUpdate() {
+  async function runUpdate(updateSkill) {
     state = 'busy';
     setStep(2);
     const token = runId;
@@ -622,20 +512,24 @@ kbd{
     if (token !== runId) return;
     await updateLine('azure.ai.toolboxes', '1.0.0-beta.6', '1.0.0-beta.7', ' dependency', token);
     if (token !== runId) return;
-    setHint('Updating Foundry skill…');
-    await updateLine('microsoft-foundry', '1.0.0', '1.1.0', ' skill', token);
-    if (token !== runId) return;
+    if (updateSkill) {
+      setHint('Updating Foundry skill…');
+      await updateLine('microsoft-foundry', '1.0.0', '1.1.0', ' skill', token);
+      if (token !== runId) return;
+    }
     addLine('');
     addLine(`<span class="bright">Usage:</span> azd ai agent &lt;command&gt; [options]`);
     addLine(`<span class="bright">Examples:</span>`);
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
     addLine('');
-    addLine(`<span class="green">SUCCESS: Extension and skill updated.</span>`);
+    addLine(`<span class="green">SUCCESS: ${updateSkill ? 'Extension and skill' : 'Extension'} updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setStep(4);
-    setHint('<span class="green">✓ Extension and Foundry skill updated</span>');
+    setHint(updateSkill
+      ? '<span class="green">✓ Extension and Foundry skill updated</span>'
+      : '<span class="green">✓ Extension updated</span> · Skill skipped');
   }
 
   async function runSkillUpdate() {
@@ -722,31 +616,20 @@ kbd{
   }
 
   document.addEventListener('keydown', event => {
-    if (state === 'source') {
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+    if (state === 'skill') {
+      const key = event.key.toLowerCase();
+      if (key === 'y' || key === 'n') {
         event.preventDefault();
-        sourceIndex = event.key === 'ArrowUp'
-          ? (sourceIndex - 1 + sources.length) % sources.length
-          : (sourceIndex + 1) % sources.length;
-        renderSourceRows();
+        stagePrompt(key);
+      } else if (event.key === 'Backspace') {
+        event.preventDefault();
+        stagePrompt('');
       } else if (event.key === 'Enter') {
         event.preventDefault();
-        chooseSource();
-      }
-    } else if (state === 'skill') {
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
-        event.preventDefault();
-        skillIndex = event.key === 'ArrowUp'
-          ? (skillIndex - 1 + skillChoices.length) % skillChoices.length
-          : (skillIndex + 1) % skillChoices.length;
-        renderSkillRows();
-      } else if (event.key === 'Enter') {
-        event.preventDefault();
-        chooseSkill();
+        answerSkill(promptValue !== 'n');
       } else if (event.key === 'Escape') {
         event.preventDefault();
-        skillIndex = skillChoices.length - 1;
-        chooseSkill();
+        answerSkill(false);
       }
     }
   });
