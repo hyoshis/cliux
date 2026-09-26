@@ -142,6 +142,7 @@ h1 code{color:var(--accent);font-family:var(--mono);font-size:1em}
   background:rgba(242,201,76,.1);color:var(--text);font-weight:600;
 }
 .review-list li.highlight::before{display:none}
+.review-list .yellow{color:var(--warning)}
 .review-list code{
   display:block;margin-top:6px;padding:7px 9px;border:1px solid var(--border);
   border-radius:6px;background:var(--terminal);color:#8fc7ff;
@@ -180,7 +181,7 @@ kbd{
 <main class="page">
   <div class="author">Hiyo Shin · Senior Designer, CoreAI</div>
   <h1 id="page-title">Install Foundry skill with <code>azure.ai.agents</code></h1>
-  <p class="lede" id="page-lede">A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.</p>
+  <p class="lede" id="page-lede">A proposed install flow that introduces Microsoft Foundry skill at the point of consent, then makes its installation status explicit.</p>
   <nav class="flow-nav" aria-label="Extension lifecycle flows">
     <button class="flow-tab active" data-flow="install-prompt" aria-current="page">Install extension</button>
     <button class="flow-tab" data-flow="update">Update extension</button>
@@ -213,7 +214,8 @@ kbd{
         <h2 class="review-title" id="review-title">Design requirements</h2>
         <ul class="review-list" id="review-list">
           <li>Yes installs the skill globally for use across projects.</li>
-          <li class="highlight">Show the Foundry skill install prompt only if the skill isn’t installed.</li>
+          <li>Show the Foundry skill install prompt <span class="yellow">only if the skill isn’t installed</span>.</li>
+          <li>If Microsoft Foundry skill is <span class="yellow">already installed but outdated</span>, show a prompt to update it.</li>
           <li>If the user selects No, show the command to install the skill separately:<code>npx skills add microsoft/azure-skills --skill microsoft-foundry</code></li>
         </ul>
       </section>
@@ -240,21 +242,22 @@ kbd{
   const flowTabs = [...document.querySelectorAll('.flow-tab[data-flow]')];
   const reviewContent = {
     'install-auto': [
-      ['note', 'Installs the Microsoft Foundry skill automatically.']
+      ['note', 'Installs Microsoft Foundry skill automatically.']
     ],
     'install-prompt': [
       ['note', 'Yes installs the skill globally for use across projects.'],
-      ['highlight', 'Show the Foundry skill install prompt only if the skill isn’t installed.'],
+      ['note', 'Show the Foundry skill install prompt <span class="yellow">only if the skill isn’t installed</span>.'],
+      ['note', 'If Microsoft Foundry skill is <span class="yellow">already installed but outdated</span>, show a prompt to update it.'],
       ['note', 'If the user selects No, show the command to install the skill separately:<code>npx skills add microsoft/azure-skills --skill microsoft-foundry</code>']
     ],
     update: [
-      ['note', 'Asks whether to update the Microsoft Foundry skill with the extension.']
+      ['note', 'Asks whether to update Microsoft Foundry skill with the extension.']
     ],
     'update-skill': [
-      ['note', 'Updates the Microsoft Foundry skill across supported coding agents.']
+      ['note', 'Updates Microsoft Foundry skill across supported coding agents.']
     ],
     uninstall: [
-      ['note', 'The Microsoft Foundry skill is removed only by running:<code>azd tool uninstall microsoft-foundry</code>'],
+      ['note', 'Microsoft Foundry skill is removed only by running:<code>azd tool uninstall microsoft-foundry</code>'],
       ['note', 'This command removes the extension, but leaves the skill installed:<code>azd extension uninstall azure.ai.agents</code>']
     ]
   };
@@ -304,23 +307,23 @@ kbd{
       option.setAttribute('aria-pressed', String(active));
     });
     if (isSkillUninstall) {
-      pageTitle.innerHTML = 'Uninstall the Microsoft Foundry skill';
+      pageTitle.innerHTML = 'Uninstall Microsoft Foundry skill';
       pageLede.textContent = 'A proposed tool uninstall flow that removes Foundry guidance from supported coding agents.';
       terminalTitle.textContent = 'PowerShell — azd tool uninstall';
       return;
     }
     if (isSkillUpdate) {
-      pageTitle.innerHTML = 'Update the Microsoft Foundry skill';
+      pageTitle.innerHTML = 'Update Microsoft Foundry skill';
       pageLede.textContent = 'A proposed tool update flow that refreshes Foundry guidance across supported coding agents.';
       terminalTitle.textContent = 'PowerShell — azd tool update';
       return;
     }
     pageTitle.innerHTML = `${isInstall ? 'Install' : 'Update'} Foundry skill with <code>azure.ai.agents</code>`;
     pageLede.textContent = isAutoInstall
-      ? 'A proposed install flow that adds the Microsoft Foundry skill automatically as part of the extension installation.'
+      ? 'A proposed install flow that adds Microsoft Foundry skill automatically as part of the extension installation.'
       : isInstall
-        ? 'A proposed install flow that introduces the Microsoft Foundry skill at the point of consent, then makes its installation status explicit.'
-      : 'A proposed update flow that asks before updating the Microsoft Foundry skill with the extension.';
+        ? 'A proposed install flow that introduces Microsoft Foundry skill at the point of consent, then makes its installation status explicit.'
+      : 'A proposed update flow that asks before updating Microsoft Foundry skill with the extension.';
     terminalTitle.textContent = `PowerShell — azd extension ${isInstall ? 'install' : 'update'}`;
   }
 
@@ -360,7 +363,7 @@ kbd{
     const verb = action === 'update' ? 'update' : 'install';
     const version = action === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     addLine('');
-    addLine(`<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? (Y/n) <span class="cursor"></span>`);
+    addLine(`<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? (Y/n) <span class="cursor"></span>`);
     if (action === 'install') {
       addLine(`<span class="dim">Adds Foundry guidance for faster development and production-ready patterns.</span>`);
     }
@@ -375,26 +378,23 @@ kbd{
     promptValue = value;
     const verb = skillAction === 'update' ? 'update' : 'install';
     const version = skillAction === 'update' ? ' (1.0.1 → 1.1.2)' : '';
-    const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${verb} the Microsoft Foundry skill`));
+    const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${verb} Microsoft Foundry skill`));
     if (!line) return;
     const shown = value ? `<span class="blue">${value}</span>` : '<span class="cursor"></span>';
-    line.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? (Y/n) ${shown}`;
+    line.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? (Y/n) ${shown}`;
   }
 
   async function answerSkill(includeSkill) {
     if (state !== 'skill') return;
     const verb = skillAction === 'update' ? 'update' : 'install';
     const version = skillAction === 'update' ? ' (1.0.1 → 1.1.2)' : '';
-    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes(`${verb} the Microsoft Foundry skill`));
+    const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes(`${verb} Microsoft Foundry skill`));
     if (promptLine) {
-      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} the Microsoft Foundry skill${version}? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
+      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
     }
     if (skillAction === 'update') {
       await runUpdate(includeSkill);
       return;
-    }
-    if (!includeSkill) {
-      addLine(`Install later: <span class="blue">npx skills add microsoft/azure-skills --skill microsoft-foundry</span>`);
     }
     await runInstall(includeSkill);
   }
@@ -418,13 +418,18 @@ kbd{
       await installLine(`Installing <span class="blue">microsoft-foundry</span> skill <span class="dim">(1.0.0)</span>`, token);
       if (token !== runId) return;
       if (currentFlow === 'install-auto') {
-        addLine(`    The Microsoft Foundry skill is installed with <span class="blue">azure.ai.agents</span>.`);
+        addLine(`    Microsoft Foundry skill is installed with <span class="blue">azure.ai.agents</span>.`);
       }
       addLine(`    ~/.agents/skills/microsoft-foundry/  <span class="dim">Shared with Copilot and other agents</span>`);
       addLine(`    ~/.claude/skills/microsoft-foundry/  <span class="dim">Claude Code</span>`);
       addLine(`    <span class="dim">Use</span> <span class="blue">azd tool</span> <span class="dim">to manage the skill.</span>`);
     }
     addLine('');
+    if (!installSkill) {
+      addLine(`Install Microsoft Foundry skill later:`);
+      addLine(`<span class="blue">npx skills add microsoft/azure-skills --skill microsoft-foundry</span>`);
+      addLine('');
+    }
     addLine(`<span class="bright">Usage:</span> azd ai agent &lt;command&gt; [options]`);
     addLine(`<span class="bright">Examples:</span>`);
     addLine(`<span class="blue">azd ai agent init</span>`);
