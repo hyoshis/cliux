@@ -363,7 +363,7 @@ kbd{
     const verb = action === 'update' ? 'update' : 'install';
     const version = action === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     addLine('');
-    addLine(`<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? (Y/n) <span class="cursor"></span>`);
+    addLine(`<span class="blue">?</span> Also ${verb} Microsoft Foundry skill plugin${version}? (Y/n) <span class="cursor"></span>`);
     if (action === 'install') {
       addLine(`<span class="dim">Adds Foundry guidance for faster development and production-ready patterns.</span>`);
     }
@@ -381,7 +381,7 @@ kbd{
     const line = [...screen.querySelectorAll('.line')].find(item => item.textContent.includes(`${verb} Microsoft Foundry skill`));
     if (!line) return;
     const shown = value ? `<span class="blue">${value}</span>` : '<span class="cursor"></span>';
-    line.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? (Y/n) ${shown}`;
+    line.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill plugin${version}? (Y/n) ${shown}`;
   }
 
   async function answerSkill(includeSkill) {
@@ -390,7 +390,7 @@ kbd{
     const version = skillAction === 'update' ? ' (1.0.1 → 1.1.2)' : '';
     const promptLine = [...screen.querySelectorAll('.line')].find(line => line.textContent.includes(`${verb} Microsoft Foundry skill`));
     if (promptLine) {
-      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill${version}? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
+      promptLine.innerHTML = `<span class="blue">?</span> Also ${verb} Microsoft Foundry skill plugin${version}? <span class="blue">${includeSkill ? 'Yes' : 'No'}</span>`;
     }
     if (skillAction === 'update') {
       await runUpdate(includeSkill);
@@ -415,14 +415,14 @@ kbd{
     await installLine(`Installing <span class="blue">azure.ai.toolboxes</span> dependency <span class="dim">(1.0.0-beta.7)</span>`, token);
     if (token !== runId) return;
     if (installSkill) {
-      await installLine(`Installing <span class="blue">microsoft-foundry</span> skill <span class="dim">(1.0.0)</span>`, token);
+      await installLine(`<span class="blue">microsoft-foundry</span> skill plugin for Copilot <span class="dim">(1.0.0)</span>`, token);
+      if (token !== runId) return;
+      await installLine(`<span class="blue">microsoft-foundry</span> skill plugin for Claude <span class="dim">(1.0.0)</span>`, token);
       if (token !== runId) return;
       if (currentFlow === 'install-auto') {
         addLine(`    Microsoft Foundry skill is installed with <span class="blue">azure.ai.agents</span>.`);
       }
-      addLine(`    ~/.agents/skills/microsoft-foundry/  <span class="dim">Shared with Copilot and other agents</span>`);
-      addLine(`    ~/.claude/skills/microsoft-foundry/  <span class="dim">Claude Code</span>`);
-      addLine(`    <span class="dim">Use</span> <span class="blue">azd tool</span> <span class="dim">to manage the skill.</span>`);
+      addLine(`    <span class="bright">Use</span> <span class="blue">azd tool</span> <span class="bright">to manage the skill.</span>`);
     }
     addLine('');
     if (!installSkill) {
@@ -460,7 +460,9 @@ kbd{
     if (token !== runId) return;
     if (updateSkill) {
       setHint('Updating Foundry skill…');
-      await updateLine('microsoft-foundry', '1.0.1', '1.1.2', ' skill', token);
+      await updateLine('microsoft-foundry', '1.0.1', '1.1.2', ' skill plugin for Copilot', token);
+      if (token !== runId) return;
+      await updateLine('microsoft-foundry', '1.0.1', '1.1.2', ' skill plugin for Claude', token);
       if (token !== runId) return;
     }
     addLine('');
@@ -489,12 +491,12 @@ kbd{
     setHint('Updating Microsoft Foundry skill…');
     addLine('');
     await operationLine(
-      'Updating <span class="blue">microsoft-foundry</span> in <span class="blue">~/.agents/skills/</span> <span class="dim">(1.0.0 → 1.1.0)</span>',
+      'Updating <span class="blue">microsoft-foundry</span> skill plugin for Copilot <span class="dim">(1.0.0 → 1.1.0)</span>',
       token
     );
     if (token !== runId) return;
     await operationLine(
-      'Updating <span class="blue">microsoft-foundry</span> in <span class="blue">~/.claude/skills/</span> <span class="dim">(1.0.0 → 1.1.0)</span>',
+      'Updating <span class="blue">microsoft-foundry</span> skill plugin for Claude <span class="dim">(1.0.0 → 1.1.0)</span>',
       token
     );
     if (token !== runId) return;
@@ -517,12 +519,12 @@ kbd{
     setHint('Uninstalling Microsoft Foundry skill…');
     addLine('');
     await operationLine(
-      'Uninstalling <span class="blue">microsoft-foundry</span> from <span class="blue">~/.agents/skills/</span>',
+      'Uninstalling <span class="blue">microsoft-foundry</span> skill plugin for Copilot',
       token
     );
     if (token !== runId) return;
     await operationLine(
-      'Uninstalling <span class="blue">microsoft-foundry</span> from <span class="blue">~/.claude/skills/</span>',
+      'Uninstalling <span class="blue">microsoft-foundry</span> skill plugin for Claude',
       token
     );
     if (token !== runId) return;
