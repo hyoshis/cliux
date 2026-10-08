@@ -422,7 +422,7 @@ kbd{
       if (currentFlow === 'install-auto') {
         addLine(`    Microsoft Foundry skill is installed with <span class="blue">azure.ai.agents</span>.`);
       }
-      addLine(`    <span class="bright">Use</span> <span class="blue">azd tool</span> <span class="bright">to manage the skill.</span>`);
+      addLine(`    <span class="bright">Use</span> <span class="blue">azd tool</span> <span class="bright">to manage the skill plugin.</span>`);
     }
     addLine('');
     if (!installSkill) {
@@ -435,12 +435,12 @@ kbd{
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
     addLine('');
-    addLine(`<span class="green">SUCCESS: Extension(s) installed.</span>`);
+    addLine(`<span class="green">SUCCESS: ${installSkill ? 'Extension and skill plugins' : 'Extension(s)'} installed.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setHint(installSkill
-      ? '<span class="green">✓ Extension and skill installed</span> · Global'
-      : '<span class="green">✓ Extension installed</span> · Skill skipped');
+      ? '<span class="green">✓ Extension and skill plugins installed</span> · Global'
+      : '<span class="green">✓ Extension installed</span> · Skill plugin skipped');
   }
 
   async function runUpdate(updateSkill) {
@@ -471,12 +471,12 @@ kbd{
     addLine(`<span class="blue">azd ai agent init</span>`);
     addLine(`<span class="blue">azd ai agent init --kind prompt-voice --agent-name my-voice-agent</span>`);
     addLine('');
-    addLine(`<span class="green">SUCCESS: ${updateSkill ? 'Extension and skill' : 'Extension'} updated.</span>`);
+    addLine(`<span class="green">SUCCESS: ${updateSkill ? 'Extension and skill plugins' : 'Extension'} updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
     setHint(updateSkill
-      ? '<span class="green">✓ Extension and Foundry skill updated</span>'
-      : '<span class="green">✓ Extension updated</span> · Skill skipped');
+      ? '<span class="green">✓ Extension and Foundry skill plugins updated</span>'
+      : '<span class="green">✓ Extension updated</span> · Skill plugin skipped');
   }
 
   async function runSkillUpdate() {
@@ -501,10 +501,10 @@ kbd{
     );
     if (token !== runId) return;
     addLine('');
-    addLine(`<span class="green">SUCCESS: Skill updated.</span>`);
+    addLine(`<span class="green">SUCCESS: Skill plugins updated.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setHint('<span class="green">✓ Microsoft Foundry skill updated in 2 locations</span>');
+    setHint('<span class="green">✓ Microsoft Foundry skill plugins updated in 2 locations</span>');
   }
 
   async function runSkillUninstall() {
@@ -529,10 +529,10 @@ kbd{
     );
     if (token !== runId) return;
     addLine('');
-    addLine(`<span class="green">SUCCESS: Skill uninstalled.</span>`);
+    addLine(`<span class="green">SUCCESS: Skill plugins uninstalled.</span>`);
     addLine(`<span class="bright">PS C:\\Users\\hyoshi&gt;</span> <span class="cursor"></span>`);
     state = 'complete';
-    setHint('<span class="green">✓ Microsoft Foundry skill uninstalled</span>');
+    setHint('<span class="green">✓ Microsoft Foundry skill plugins uninstalled</span>');
   }
 
   async function updateLine(name, fromVersion, toVersion, suffix, token) {
