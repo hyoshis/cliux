@@ -29,7 +29,7 @@ Send that link to engineers — no build step, no local setup required.
 
 1. Copy an existing folder in `prototypes/` (or start from scratch).
 2. Keep it self-contained: an `index.html` plus any local assets, or reference shared files from `/assets`.
-3. Add a short entry to [`prototypes/README.md`](./prototypes/README.md) and a link on the landing [`index.html`](./index.html).
+3. Add a short entry to [`prototypes/README.md`](./prototypes/README.md) and, for CLI UX prototypes, a prototype card on the landing [`index.html`](./index.html). Include its product in `data-categories` (`azd` or `foundry`; space-separated for multiple products) and useful commands or synonyms in `data-keywords`. The homepage search, filters, and counts use these cards automatically; the initial counts in the HTML should also match the collection.
 4. Commit and push to `main`. It goes live automatically.
 
 ## Enabling GitHub Pages (one-time)
@@ -38,7 +38,15 @@ Repo **Settings → Pages → Build and deployment**:
 - **Source:** Deploy from a branch
 - **Branch:** `main` / `/ (root)`
 
-The landing page (`index.html`) then serves at the live site URL above and links to every prototype.
+The landing page (`index.html`) then serves at the live site URL above and links to the CLI UX prototype collection.
+
+## Prototype directory
+
+The homepage is a searchable collection of Azure Developer CLI and Foundry UX prototypes, with product filters, illustrative terminal previews, and direct links to each prototype's deployed GitHub Pages URL, including when previewing the homepage locally. Research decks remain published at their own URLs but are not included in the homepage collection. Search matches titles, descriptions, tags, commands, and folder names. Press `/` to focus search and `Escape` to clear it. All listed prototype links remain available without JavaScript.
+
+Each card shows **Last published** using the UTC completion date of the first successful GitHub Pages build containing that prototype's latest folder change. After publishing a prototype update, refresh its card's `<time datetime="...">`, visible date, and tooltip from the Pages build history. These dates are static metadata, not local file timestamps or runtime GitHub API requests.
+
+Homepage-only styles and behavior live in `assets/css/home.css` and `assets/js/home.js`; the shared `site.css` used by other pages is unchanged.
 
 ## Local preview
 

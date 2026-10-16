@@ -3,64 +3,153 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cliux — CLI UX prototypes & guidelines</title>
-  <link rel="stylesheet" href="./assets/css/site.css" />
+  <meta name="description" content="Explore Hiyo Shin's Azure Developer CLI and Foundry UX prototypes. Interactive experiments in making the command line clearer, safer, and more human." />
+  <meta name="theme-color" content="#090b10" />
+  <title>Hiyo Shin's prototypes — cliux</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23090b10'/%3E%3Cpath d='m16 19 13 13-13 13m19 0h14' fill='none' stroke='%23479ef5' stroke-width='5'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="./assets/css/home.css" />
+  <script src="./assets/js/home.js" defer></script>
 </head>
 <body>
-  <header class="site-header">
-    <h1>cliux</h1>
-    <p class="tagline">CLI UX prototypes, design-review elements, and guidelines.</p>
+  <a class="skip-link" href="#prototypes">Skip to prototypes</a>
+  <header class="site-header page-width">
+    <a class="wordmark" href="./" aria-label="cliux home"><span class="brand-mark" aria-hidden="true">&gt;_</span> cliux<span class="wordmark-divider" aria-hidden="true">/</span><span class="wordmark-label">design lab</span></a>
+    <p class="attribution">Senior Designer, CoreAI</p>
   </header>
 
-  <main class="container">
-    <section>
-      <h2>Prototypes</h2>
-      <p class="section-note">Deployable, shareable prototypes. Click through to view.</p>
-      <ul class="card-list" id="prototype-list">
-        <li class="card">
-          <a href="./prototypes/azd-extension-install/">azd · Extension auto-install</a>
-          <p>Interactive terminal prototype of the <code>azd up</code> extension-install UX — single/multiple extensions and source selection. Drive it with clicks or keyboard.</p>
-        </li>
-        <li class="card">
-          <a href="./prototypes/ext-redirect/">azd · Extension redirect safety</a>
-          <p>Interactive terminal prototype for cross-website extension redirects, secure defaults, and non-interactive automation behavior.</p>
-        </li>
-        <li class="card">
-          <a href="./prototypes/agentic-cli-analysis/">Agentic CLI competitive analysis</a>
-          <p>Interactive slide deck comparing AI CLI products, interaction patterns, visual systems, and product positioning.</p>
-        </li>
-        <li class="card">
-          <a href="./presentations/copilot-learnings/">Making changes in a production codebase</a>
-          <p>Presentation on what Hiyo Shin learned using GitHub Copilot to update customer-facing commands in Azure Developer CLI.</p>
-        </li>
-      </ul>
+  <main class="page-width">
+    <section class="hero" aria-labelledby="page-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Azure Developer CLI + Foundry</p>
+        <h1 id="page-title"><span class="accent">Hiyo Shin's</span> prototypes</h1>
+      </div>
     </section>
 
-    <section>
-      <h2>Guidelines</h2>
-      <p class="section-note">Principles and patterns for CLI UX.</p>
-      <ul class="card-list">
-        <li class="card">
-          <a href="./guidelines/">CLI UX guidelines</a>
-          <p>Written guidance, principles, and reusable patterns.</p>
-        </li>
-      </ul>
-    </section>
+    <section class="catalog" id="prototypes" aria-labelledby="catalog-title" tabindex="-1">
+      <h2 class="sr-only" id="catalog-title">Browse prototypes</h2>
 
-    <section>
-      <h2>Components</h2>
-      <p class="section-note">Reusable design-review UI elements.</p>
-      <ul class="card-list">
-        <li class="card">
-          <a href="./components/">Design-review components</a>
-          <p>Next buttons, design-decision callouts, and other review helpers.</p>
+      <div class="catalog-tools" id="catalog-tools" hidden>
+        <div class="search-field" role="search" aria-label="Search the prototype collection">
+          <label class="search-prompt" for="prototype-search"><span aria-hidden="true">&gt;</span><span class="search-command" aria-hidden="true">find</span><span class="sr-only">Search prototypes</span></label>
+          <input id="prototype-search" type="search" placeholder="Search prototypes, commands, or ideas..." autocomplete="off" spellcheck="false" aria-controls="prototype-list" aria-describedby="search-hint" />
+          <button class="clear-search" id="clear-search" type="button" hidden aria-label="Clear search">&times;</button>
+          <kbd class="search-shortcut" aria-hidden="true">/</kbd>
+        </div>
+        <span class="sr-only" id="search-hint">Search by title, description, product, or command. Press slash to focus search, or Escape to clear it.</span>
+        <div class="filter-row">
+          <div class="filters" role="group" aria-label="Filter by product">
+            <button class="filter" type="button" data-filter="all" aria-pressed="true">All <span data-filter-count="all">6</span></button>
+            <button class="filter" type="button" data-filter="azd" aria-pressed="false">azd <span data-filter-count="azd">5</span></button>
+            <button class="filter" type="button" data-filter="foundry" aria-pressed="false">Foundry <span data-filter-count="foundry">2</span></button>
+          </div>
+          <p class="result-count" id="result-count" role="status" aria-live="polite" aria-atomic="true">Showing all 6 prototypes</p>
+        </div>
+      </div>
+
+      <ul class="prototype-grid" id="prototype-list">
+        <li class="prototype-card" data-categories="azd foundry" data-keywords="azure developer cli azure.ai.agents consent lifecycle update uninstall npx skills agent">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/fndry-skill-install/" aria-labelledby="skill-title" aria-describedby="skill-description skill-published">
+            <div class="card-preview preview-green" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> skills / install</div>
+              <div class="preview-lines"><p><span class="terminal-green">&gt;</span> azd extension install azure.ai.agents</p><p class="terminal-muted">Give your coding agent Foundry know-how.</p><p><span class="terminal-green">?</span> Install Microsoft Foundry skill? <span class="terminal-green">(Y/n)</span></p><p class="terminal-muted"><span class="terminal-green">&#10095;</span> Yes, install globally</p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">azd + Foundry</span><span>Interactive flow</span></div>
+              <h3 id="skill-title">Microsoft Foundry skill install <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="skill-description">A clear moment of consent for adding agent skills. Explore install, update, and uninstall flows.</p>
+              <div class="card-tags"><span>Skills</span><span>Consent</span><span>Extension lifecycle</span></div>
+              <div class="card-published" id="skill-published"><span>Last published</span><time datetime="2026-10-08T01:49:38Z" title="October 8, 2026 at 01:49 UTC">Oct 8, 2026</time></div>
+            </div>
+          </a>
+        </li>
+        <li class="prototype-card" data-categories="azd" data-keywords="azure developer cli azd up extension source selection single multiple auto-install">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/azd-extension-install/" aria-labelledby="extension-title" aria-describedby="extension-description extension-published">
+            <div class="card-preview preview-blue" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> extensions / auto-install</div>
+              <div class="preview-lines"><p><span class="terminal-blue">&gt;</span> azd up</p><p class="terminal-muted">This project needs an extension.</p><p><span class="terminal-blue">?</span> Install the required extension? <span class="terminal-blue">(Y/n)</span></p><p class="terminal-muted"><span class="terminal-blue">&#10003;</span> A little less setup. A little more building.</p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">azd</span><span>Interactive flow</span></div>
+              <h3 id="extension-title">Extension auto-install <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="extension-description">Keep setup moving when a project needs extensions. Compare single, multiple, and source-selection scenarios.</p>
+              <div class="card-tags"><span>Extensions</span><span>Onboarding</span><span>azd up</span></div>
+              <div class="card-published" id="extension-published"><span>Last published</span><time datetime="2026-08-26T00:29:45Z" title="August 26, 2026 at 00:29 UTC">Aug 26, 2026</time></div>
+            </div>
+          </a>
+        </li>
+        <li class="prototype-card" data-categories="azd" data-keywords="azure developer cli azd up provision preflight severity permissions critical warnings deployment">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/validation-warning/" aria-labelledby="validation-title" aria-describedby="validation-description validation-published">
+            <div class="card-preview preview-amber" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> deployment / validation</div>
+              <div class="preview-lines"><p><span class="terminal-amber">&gt;</span> azd up</p><p class="terminal-amber">(!) Critical warning: Missing permissions</p><p class="terminal-muted">Deployment will likely fail.</p><p><span class="terminal-amber">?</span> Proceed with deployment anyway? <span class="terminal-amber">[y/N]</span></p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">azd</span><span>Message comparison</span></div>
+              <h3 id="validation-title">Validation warnings <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="validation-description">Make important warnings harder to miss. Compare current messaging with clearer severity and actionable next steps.</p>
+              <div class="card-tags"><span>Warnings</span><span>Deployment</span><span>Safer defaults</span></div>
+              <div class="card-published" id="validation-published"><span>Last published</span><time datetime="2026-10-08T01:24:16Z" title="October 8, 2026 at 01:24 UTC">Oct 8, 2026</time></div>
+            </div>
+          </a>
+        </li>
+        <li class="prototype-card" data-categories="azd" data-keywords="azure developer cli extension download cross-website redirects security trust boundary https http no-prompt force automation">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/ext-redirect/" aria-labelledby="redirect-title" aria-describedby="redirect-description redirect-published">
+            <div class="card-preview preview-cyan" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> extensions / trust boundary</div>
+              <div class="preview-lines"><p><span class="terminal-cyan">&gt;</span> azd extension install</p><p class="terminal-muted">The download redirects to another website.</p><p><span class="terminal-cyan">source.example</span> <span class="terminal-muted">&rarr;</span> <span class="terminal-amber">download.example</span></p><p><span class="terminal-cyan">?</span> Continue with the new source? <span class="terminal-cyan">[y/N]</span></p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">azd</span><span>Interactive flow</span></div>
+              <h3 id="redirect-title">Extension redirect safety <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="redirect-description">Make trust changes visible. Explore cross-website redirects, HTTPS downgrades, and non-interactive behavior.</p>
+              <div class="card-tags"><span>Trust</span><span>Downloads</span><span>Automation</span></div>
+              <div class="card-published" id="redirect-published"><span>Last published</span><time datetime="2026-08-28T21:37:49Z" title="August 28, 2026 at 21:37 UTC">Aug 28, 2026</time></div>
+            </div>
+          </a>
+        </li>
+        <li class="prototype-card" data-categories="azd" data-keywords="azure developer cli azd init archived repo repository templates cancellation warnings alternatives">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/archived-repo/" aria-labelledby="archived-title" aria-describedby="archived-description archived-published">
+            <div class="card-preview preview-amber" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> templates / archived repository</div>
+              <div class="preview-lines"><p><span class="terminal-amber">&gt;</span> azd init</p><p class="terminal-amber">(!) This template is no longer maintained.</p><p><span class="terminal-amber">?</span> Continue using this template? <span class="terminal-amber">(y/N)</span></p><p class="terminal-muted">CANCELLED: Initialization stopped.</p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">azd</span><span>Message comparison</span></div>
+              <h3 id="archived-title">Archived template prompts <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="archived-description">Help people choose maintained templates. Compare warning copy, honest cancellation states, and suggested alternatives.</p>
+              <div class="card-tags"><span>Templates</span><span>Warnings</span><span>azd init</span></div>
+              <div class="card-published" id="archived-published"><span>Last published</span><time datetime="2026-08-18T21:54:07Z" title="August 18, 2026 at 21:54 UTC">Aug 18, 2026</time></div>
+            </div>
+          </a>
+        </li>
+        <li class="prototype-card" data-categories="foundry" data-keywords="microsoft foundry devpack winget install installer windows linux toolkit component selection setup">
+          <a class="prototype-link" href="https://hyoshis.github.io/cliux/prototypes/foundry-devpack/" aria-labelledby="devpack-title" aria-describedby="devpack-description devpack-published">
+            <div class="card-preview preview-purple" aria-hidden="true">
+              <div class="preview-label"><span class="preview-dot"></span> devpack / getting started</div>
+              <div class="preview-lines"><p><span class="terminal-purple">&gt;</span> winget install Microsoft.FoundryDevPack</p><p class="terminal-muted">Your Foundry development setup, simplified.</p><p><span class="terminal-purple">&#10003;</span> One-step install</p><p><span class="terminal-purple">&#10003;</span> Or explore choosing your tools</p></div>
+            </div>
+            <div class="card-body">
+              <div class="card-meta"><span class="product-label">Foundry</span><span>Interactive flow</span></div>
+              <h3 id="devpack-title">DevPack install redesign <span class="card-arrow" aria-hidden="true">&nearr;</span></h3>
+              <p id="devpack-description">A more considered first run. Try a one-step install and a future flow for choosing the Foundry tools you need.</p>
+              <div class="card-tags"><span>Installation</span><span>Windows + Linux</span><span>Onboarding</span></div>
+              <div class="card-published" id="devpack-published"><span>Last published</span><time datetime="2026-08-29T02:15:11Z" title="August 29, 2026 at 02:15 UTC">Aug 29, 2026</time></div>
+            </div>
+          </a>
         </li>
       </ul>
+      <div class="empty-state" id="empty-state" hidden>
+        <span class="empty-symbol" aria-hidden="true">&gt;_</span>
+        <h3>No matching prototypes</h3>
+        <p>Try a different word or product filter. “install”, “warnings”, or “azd” are good places to start.</p>
+        <button class="reset-button" id="reset-search" type="button">Reset search and filters <span aria-hidden="true">&larr;</span></button>
+      </div>
+      <noscript><p class="noscript-note">All prototypes are listed above. Enable JavaScript to search and filter the collection.</p></noscript>
     </section>
   </main>
 
-  <footer class="site-footer">
-    <p>github.com/hyoshis/cliux</p>
+  <footer class="site-footer page-width">
+    <p>Built to explore. Shared to make it better.</p>
   </footer>
 </body>
 </html>
