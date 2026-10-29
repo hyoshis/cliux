@@ -6,7 +6,6 @@
   const hint = document.getElementById('hint');
   const title = document.getElementById('terminal-title');
   const restart = document.getElementById('restart');
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const project = { key: 'terraform', provider: 'Terraform', name: 'Order Processing', folder: 'order-processing', template: 'contoso/order-processing-terraform', environment: 'orders-dev', entry: 'main.tf', service: 'api' };
   let controller;
   let activeInput = null;
@@ -59,28 +58,9 @@
     hint.textContent = text;
   }
 
-  function wait(milliseconds, signal, readingPause = false) {
-    return new Promise((resolve, reject) => {
-      if (signal.aborted) {
-        reject(signal.reason);
-        return;
-      }
-      const timer = window.setTimeout(() => {
-        signal.removeEventListener('abort', abort);
-        resolve();
-      }, reducedMotion.matches && !readingPause ? 25 : milliseconds);
-      function abort() {
-        window.clearTimeout(timer);
-        reject(signal.reason);
-      }
-      signal.addEventListener('abort', abort, { once: true });
-    });
-  }
-
-  async function progress(description, signal, milliseconds = 650) {
-    const element = line(`( ) ${description}`, 'orange');
-    await wait(milliseconds, signal);
-    element.className = 'line';
+  async function progress(description, signal) {
+    if (signal.aborted) throw signal.reason;
+    const element = line(`(\u2713) Done: ${description}`);
     element.innerHTML = `<span class="green">(\u2713) Done:</span> ${escapeHtml(description)}`;
     scroll();
   }
@@ -103,9 +83,7 @@
       ? 'The demo sends this prepared request automatically. No input needed.'
       : 'The demo uses the shown default automatically. No input needed.');
     if (command) line('Prepared request (sent automatically by the demo)', 'dim output-heading');
-    const output = line(command ? `${prefix} ${shown}` : `? ${prefix}`, command ? 'white command-line' : '');
-    // Reading pauses remain useful when reduced motion is enabled.
-    await wait(command ? 2200 : 1400, signal, true);
+    const output = line(command ? `${prefix} ${shown}` : `? ${prefix} ${shown} (demo default)`, command ? 'white command-line' : '');
     if (!command) {
       output.innerHTML = `<span class="blue">?</span> ${escapeHtml(prefix)} <span class="blue">${escapeHtml(shown)}</span> <span class="dim">(demo default)</span>`;
     }
@@ -340,7 +318,7 @@
       'Replaces setup rediscovery with a repeatable onboarding path.',
     ]);
     await progress('Copying the platform template into your workspace', signal);
-    await progress(`Creating azd environment ${environment}`, signal, 450);
+    await progress(`Creating azd environment ${environment}`, signal);
     line('  azure.yaml        Application and infrastructure configuration', 'dim');
     line(`  infra\\${team.entry.padEnd(10)} Platform-owned ${team.provider} infrastructure`, 'dim');
     line('  README.md         Team onboarding guidance', 'dim');
@@ -353,33 +331,48 @@
   }
 
   async function recommendSkills(team, signal) {
-    setNotes('Azure Skills recommendation', 'The developer is not building alone.', [
-      'The project is onboarded. The coding agent still needs relevant Azure guidance.',
-      'Shows Microsoft as the publisher and the source repository.',
-      'Illustrates a consent-first installation flow using labeled demo defaults.',
+    setNotes('Azure Skills / package', 'Guidance, or guidance plus Azure tools?', [
+      'Skills only adds Azure deployment and troubleshooting guidance.',
+      'The proposed plugin bundles the skills with Azure MCP Server tool integration.',
+      'Actual tool use still requires Azure authentication and existing permissions.',
     ], true);
-    line('[Design preview - not shipped] azd recommends Azure Skills for this project.', 'amber output-heading');
-    line('Next: Azure work with a coding assistant. Relevant Azure guidance is not installed.');
+    line('[Design preview - not shipped] Equip your coding assistant for Azure.', 'amber output-heading');
+    line('Choose skills for guidance, or a plugin that adds an Azure MCP Server integration.');
     field('Deployment:', 'azure-deploy', 'blue');
     field('Troubleshooting:', 'azure-diagnostics', 'blue');
     field('Publisher:', 'Microsoft');
-    field('Source:', 'https://github.com/microsoft/azure-skills', 'dim');
-    if (!await confirm('Install the recommended Azure skills?', signal)) {
-      line('Skipped Azure Skills installation. No changes were made to your coding assistant.', 'dim');
+    field('Skills source:', 'https://github.com/microsoft/azure-skills', 'dim');
+    setHint('Choose 1 for Skills only or 2 for Plugin, then press Enter. You can also use the arrow keys.');
+    const packageKind = await request({
+      prefix: 'Select what to install:', value: 'skill', auto: false, label: 'Azure installation package',
+      choices: [
+        { key: 'skill', label: 'Azure Skills only', description: 'Azure workflow guidance', aliases: ['1', 'skills', 'skill only', 'skills only'] },
+        { key: 'plugin', label: 'Azure plugin (skills + MCP server)', description: 'Guidance plus Azure tools', aliases: ['2', 'plug-in', 'bundle'] },
+      ],
+    }, signal);
+    const includeMcp = packageKind === 'plugin';
+    const packageName = includeMcp ? 'Azure plugin (skills + Azure MCP Server)' : 'Azure Skills only';
+    field('Package:', packageName, 'blue');
+    if (includeMcp) {
+      field('MCP server:', 'Azure MCP Server', 'blue');
+      line('MCP adds tool integration, not Azure permissions. Review tool actions before running them.', 'amber');
+    }
+    if (!await confirm('Install this package?', signal)) {
+      line('Skipped package installation. No changes were made to your coding assistant.', 'dim');
       return;
     }
     setNotes('Azure Skills / target assistant', 'Install only where the developer chooses.', [
       'Targets GitHub Copilot or Claude Code.',
       'Does not silently install into every assistant.',
-      'Keeps the source and installation choice reviewable.',
+      includeMcp ? 'Configures the proposed MCP integration for the selected assistant only.' : 'Keeps the source and installation choice reviewable.',
     ], true);
     const assistant = await choose('Select a coding assistant:', [
       { key: 'copilot', label: 'GitHub Copilot', aliases: ['1', 'github copilot'] },
       { key: 'claude', label: 'Claude Code', aliases: ['2', 'claude code'] },
     ], signal);
     setNotes('Azure Skills / installation scope', 'Make the change and its scope explicit.', [
-      'Project scope keeps guidance local to this workspace.',
-      'User scope makes it available across projects for the selected assistant.',
+      'Project scope keeps the selected package local to this workspace.',
+      'User scope applies the package across projects for the selected assistant.',
       'Neither choice grants Azure permissions or replaces platform controls.',
     ], true);
     const scope = await choose('Select the installation scope:', [
@@ -388,20 +381,22 @@
     ], signal);
     field('Assistant:', assistantName(assistant));
     field('Scope:', scope === 'project' ? `C:\\work\\${team.folder} only` : 'Across your projects, for this assistant');
-    setHint('Simulating the proposed skill installation...');
-    setNotes('Azure Skills / installation', 'Add relevant guidance, not hidden access.', [
-      `Installs the selected guidance for ${assistantName(assistant)} only.`,
+    setHint('Completing the proposed package setup in the simulation...');
+    setNotes('Azure Skills / installation', includeMcp ? 'Give the agent guidance and Azure tools.' : 'Give the agent Azure workflow guidance.', [
+      `${packageName} for ${assistantName(assistant)} only.`,
       scope === 'project' ? 'Changes only this project in the proposed experience.' : 'Makes guidance available across projects for this assistant.',
-      'Installed guidance still needs to be loaded in an assistant session.',
+      includeMcp ? 'Actual MCP tool use requires Azure authentication and permissions.' : 'Installed guidance still needs to be loaded in an assistant session.',
     ], true);
     await progress('Installing Azure deployment guidance (azure-deploy)', signal);
     await progress('Installing Azure troubleshooting guidance (azure-diagnostics)', signal);
-    skillInstallation = { assistant, scope };
+    if (includeMcp) {
+      await progress('Setting up Azure MCP Server integration (proposed plugin)', signal);
+      line('MCP configuration is simulated. No Azure tool calls or permission changes occur.', 'dim');
+    }
+    skillInstallation = { assistant, scope, packageKind };
     lastAssistant = assistant;
-    line(`SUCCESS: Azure skills installed for ${assistantName(assistant)}.`, 'green');
-    line('Installed, not yet loaded. Start a new assistant session to use the guidance.', 'amber');
-    setHint('Skill setup is complete in the demo. Continuing to the assistant...');
-    await wait(1800, signal, true);
+    line(`SUCCESS: ${packageName} setup complete for ${assistantName(assistant)} (simulated).`, 'green');
+    line('Ready for a new assistant session. Installed configuration is not the same as loaded guidance.', 'amber');
   }
 
   async function deploy(team, environment, signal) {
@@ -419,31 +414,32 @@
       'Uses the application configuration supplied with the template.',
       'Keeps packaging inside the same azd up workflow.',
     ]);
-    await progress(`Packaging service ${team.service}`, signal, 600);
+    await progress(`Packaging service ${team.service}`, signal);
     line('Provisioning Azure resources (azd provision)', 'white output-heading');
     setNotes('azd up / provision', "Use the team's existing Terraform.", [
       'Provisions from infra\\main.tf, not a rewritten stack.',
       'Creates the Azure resources defined by the platform-owned template.',
       'Permissions and isolation remain responsibilities of platform controls.',
     ]);
-    await progress(`Provisioning from the platform's infra\\${team.entry}`, signal, 800);
+    await progress(`Provisioning from the platform's infra\\${team.entry}`, signal);
     line('Deploying services (azd deploy)', 'white output-heading');
     setNotes('azd up / deploy', 'Turn the starting point into a running service.', [
       'Publishes the API to the provisioned environment.',
       `Uses the named environment ${environment}.`,
       'Returns a service endpoint; this demonstration is simulated.',
     ]);
-    await progress(`Deploying service ${team.service} to ${environment}`, signal, 650);
+    await progress(`Deploying service ${team.service} to ${environment}`, signal);
     line('SUCCESS: Your application was provisioned and deployed to Azure.', 'green');
     field('Endpoint:', `https://${environment}.example.invalid`, 'blue');
   }
 
   async function showAgent(signal) {
     const assistantCommand = lastAssistant === 'claude' ? 'claude' : 'copilot';
+    const includeMcp = skillInstallation?.packageKind === 'plugin';
     setNotes(assistantCommand, 'Bring the agent onto the paved road.', [
       'Opens a separate prepared assistant session.',
       'Azure Skills are preloaded for this illustration, not automatically loaded by installation.',
-      skillInstallation ? 'Combines the project starting point with relevant Azure guidance.' : 'Your skipped installation remains unchanged; this is a separately prepared setup.',
+      includeMcp ? 'Includes Azure MCP Server configuration in the prepared illustration.' : skillInstallation ? 'Combines the project starting point with relevant Azure guidance.' : 'Your skipped installation remains unchanged; this is a separately prepared setup.',
     ]);
     await exactCommand(assistantCommand, [], signal);
     line(`${assistantName(lastAssistant)} - prepared assistant session / illustrative output`, 'blue');
@@ -451,6 +447,10 @@
       ? 'Prepared separately with skills preloaded; installation alone does not load an existing session.'
       : 'Installation was skipped. This separate prepared session has skills preloaded; it is not the result of that skipped flow.', 'dim');
     field('Loaded skills:', 'azure-deploy, azure-diagnostics', 'dim');
+    if (includeMcp) {
+      field('MCP integration:', 'Azure MCP Server (prepared demo configuration)', 'dim');
+      line('No MCP tools are invoked by this prototype.', 'dim');
+    }
     const task = "Add a health endpoint to this service. Follow the project's existing conventions, keep its infrastructure provider unchanged, and explain any deployment changes before making them.";
     setNotes('Coding assistant task', 'Work with the project, not around it.', [
       'Requests a bounded change: add a health endpoint.',
@@ -462,7 +462,6 @@
       validate: (value) => value === task ? '' : 'This is a prepared response for the suggested task. Use the prefilled task to continue.',
     }, signal);
     setHint('Showing the prepared assistant response...');
-    await wait(600, signal);
     line('Proposed change: GET /health, following the sample service\'s Express route pattern.');
     line('Infrastructure: Terraform unchanged. No deployment configuration changes proposed.');
     line('Review the diff before applying it. No changes have been applied.', 'dim');
@@ -488,7 +487,7 @@
     line('All walkthrough steps are finished. No commands were executed.', 'dim');
     setNotes('Demo complete', 'From platform patterns to useful work.', [
       'The developer followed the platform-owned Terraform starting point through init and up.',
-      'Skill-installation consent, assistant selection, and scope were illustrated using labeled demo defaults.',
+      'Your selected package was illustrated; assistant and scope used labeled demo defaults.',
       'The prepared assistant offered a bounded change for human review.',
     ]);
     setHint('All steps are complete. Click Restart demo when you want to begin again.');
