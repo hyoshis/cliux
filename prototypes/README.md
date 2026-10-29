@@ -21,7 +21,7 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 
 | Prototype | Description | Link |
 | --- | --- | --- |
-| **azd · Ignite paved road demo** | Follow Order Processing from its approved Terraform template through `azd init` / `azd up`, then preview Azure Skills onboarding for its coding agent. Keyboard-driven terminal with live explanatory bullets. | [`ignite/`](./ignite/) · [live](https://hyoshis.github.io/cliux/prototypes/ignite/) |
+| **Agentic platform engineering** | A platform-approved path to Azure for developers and their coding agents. Interactive Terraform walkthrough with live story notes and a design preview of agent onboarding. | [`ignite/`](./ignite/) · [live](https://hyoshis.github.io/cliux/prototypes/ignite/) |
 | **azd · Microsoft Foundry skill install** | Interactive `azure.ai.agents` install flow that asks before adding reusable Microsoft Foundry guidance for coding agents. | [`fndry-skill-install/`](./fndry-skill-install/) · [live](https://hyoshis.github.io/cliux/prototypes/fndry-skill-install/) |
 | **azd · Extension auto-install** | Interactive terminal prototype of the `azd up` extension-install UX (single/multiple extensions, source selection). | [`azd-extension-install/`](./azd-extension-install/) · [live](https://hyoshis.github.io/cliux/prototypes/azd-extension-install/) |
 | **Foundry DevPack · Install redesign** | Interactive redesigns for today’s one-step install and a possible future flow for choosing which Foundry tools to install. | [`foundry-devpack/`](./foundry-devpack/) · [live](https://hyoshis.github.io/cliux/prototypes/foundry-devpack/) |
