@@ -46,6 +46,8 @@
     document.getElementById('notes-command').textContent = context;
     document.getElementById('notes-title').textContent = heading;
     document.getElementById('notes-preview').hidden = !preview;
+    document.getElementById('skills-evidence').hidden = !preview;
+    document.querySelector('.notes-footnote').hidden = preview;
     document.getElementById('notes-list').replaceChildren(...bullets.map((text) => {
       const item = document.createElement('li');
       item.textContent = text;

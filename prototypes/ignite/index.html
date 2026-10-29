@@ -23,7 +23,7 @@
 <body>
   <main class="wrap">
     <div class="masthead">
-      <p class="kicker"><span aria-hidden="true">+</span> Agentic platform engineering</p>
+      <p class="kicker"><span aria-hidden="true">+</span> Platform engineering on Azure</p>
       <p class="author" aria-label="Collaborators">
         <span>Hiyo Shin &middot; Senior Designer, CoreAI</span>
         <span>Kristen Womack &middot; Principal PM, Dev Platform</span>
@@ -59,6 +59,23 @@
           <li>The developer gets Order Processing&rsquo;s app code, Terraform infrastructure, and onboarding together.</li>
           <li>The developer starts from approved patterns&mdash;not a wiki and three scripts.</li>
         </ul>
+        <section class="skills-evidence" id="skills-evidence" aria-labelledby="skills-evidence-title" hidden>
+          <h3 id="skills-evidence-title">Why Azure guidance matters</h3>
+          <p class="evidence-caption">Azure-kusto evaluation</p>
+          <dl class="evidence-grid">
+            <div>
+              <dt>Pass rate</dt>
+              <dd><strong>94.5%</strong><span>Agent + skill (86/91)</span><span class="evidence-baseline">Agent only: 90.1% (82/91)</span></dd>
+            </div>
+            <div>
+              <dt>Research time</dt>
+              <dd><strong>12.2 s</strong><span>Agent + skill &middot; 2 turns</span><span class="evidence-baseline">Agent only: 176.9 s &middot; 39 turns</span></dd>
+            </div>
+          </dl>
+          <p class="evidence-coverage">Core plugin: <strong>25 skills</strong> across <strong>4 areas</strong>.</p>
+          <p class="evidence-footnote">From the supplied Azure Skills slide. Pass rate: 91 scenarios &times; 5 reps. Research: 1 run. GPT-5.6 Sol answers; Claude Opus 4.8 judges. Results may vary across skills.</p>
+          <a class="evidence-link" href="https://aka.ms/azure-skills" target="_blank" rel="noopener noreferrer">Explore Azure Skills <span aria-hidden="true">&nearr;</span></a>
+        </section>
         <p class="notes-footnote">Templates provide starting points; platform controls enforce boundaries. Confirm Terraform&rsquo;s feature status in the azd build used on stage.</p>
       </aside>
       <section class="terminal" aria-label="Interactive azd CLI demo">
@@ -72,6 +89,7 @@
         <div id="screen" class="screen" tabindex="0" aria-label="Terminal. Type at the current prompt and press Enter.">
           <div id="transcript" role="log" aria-label="CLI output" aria-live="polite" aria-relevant="additions text"></div>
         </div>
+        <p class="terminal-credit">Powered by Azure Developer CLI</p>
       </section>
     </div>
     <div class="controls">
