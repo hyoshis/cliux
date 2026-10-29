@@ -59,7 +59,7 @@
     hint.textContent = text;
   }
 
-  function wait(milliseconds, signal) {
+  function wait(milliseconds, signal, readingPause = false) {
     return new Promise((resolve, reject) => {
       if (signal.aborted) {
         reject(signal.reason);
@@ -68,7 +68,7 @@
       const timer = window.setTimeout(() => {
         signal.removeEventListener('abort', abort);
         resolve();
-      }, reducedMotion.matches ? 25 : milliseconds);
+      }, reducedMotion.matches && !readingPause ? 25 : milliseconds);
       function abort() {
         window.clearTimeout(timer);
         reject(signal.reason);
@@ -91,7 +91,30 @@
     scroll();
   }
 
-  function request({ prefix, value = '', label, choices = [], validate, command = false }, signal) {
+  async function automaticPrompt({ prefix, value, choices, validate, command }, signal) {
+    if (signal.aborted) throw signal.reason;
+    const choice = choices.find((item) => item.key === value);
+    if (choices.length && !choice) throw new Error(`Invalid demo default for "${prefix}".`);
+    const answer = choice ? choice.key : value.trim();
+    const error = validate ? validate(answer) : '';
+    if (error) throw new Error(error);
+    const shown = choice ? choice.label : answer;
+    setHint(command
+      ? 'The demo sends this prepared request automatically. No input needed.'
+      : 'The demo uses the shown default automatically. No input needed.');
+    if (command) line('Prepared request (sent automatically by the demo)', 'dim output-heading');
+    const output = line(command ? `${prefix} ${shown}` : `? ${prefix}`, command ? 'white command-line' : '');
+    // Reading pauses remain useful when reduced motion is enabled.
+    await wait(command ? 2200 : 1400, signal, true);
+    if (!command) {
+      output.innerHTML = `<span class="blue">?</span> ${escapeHtml(prefix)} <span class="blue">${escapeHtml(shown)}</span> <span class="dim">(demo default)</span>`;
+    }
+    scroll();
+    return answer;
+  }
+
+  function request({ prefix, value = '', label, choices = [], validate, command = false, auto = !command }, signal) {
+    if (auto) return automaticPrompt({ prefix, value, choices, validate, command }, signal);
     return new Promise((resolve, reject) => {
       if (signal.aborted) {
         reject(signal.reason);
@@ -255,7 +278,7 @@
       if (['help', '?'].includes(value.toLowerCase())) {
         line('This is a scripted CLI prototype, not a connected shell.', 'dim');
         line(`Next command: ${suggested}`, 'blue');
-        line('Commands are editable. Press Enter to run; type responses at the inline prompts.', 'dim');
+        line('Press Enter only for highlighted commands. The demo fills setup prompts automatically.', 'dim');
         continue;
       }
       if (accepted(value)) return value;
@@ -271,14 +294,12 @@
   }
 
   async function choose(prefix, choices, signal) {
-    setHint('Enter accepts the selected answer. Type a choice or use the up/down arrow keys, then Enter.');
     return request({ prefix, value: choices[0].key, choices }, signal);
   }
 
   async function confirm(prefix, signal) {
-    setHint('Enter accepts Yes. Type n and press Enter to skip. Nothing is installed without confirmation.');
     const answer = await request({
-      prefix: `${prefix} (Y/n)`, value: 'y',
+      prefix: `${prefix} (Y/n)`, value: 'Yes',
       validate: (value) => ['', 'y', 'yes', 'n', 'no'].includes(value.toLowerCase()) ? '' : 'Type y for Yes or n for No, then press Enter.',
     }, signal);
     return !['n', 'no'].includes(answer.toLowerCase());
@@ -308,7 +329,6 @@
       'Uses the same platform-owned app and infrastructure patterns.',
       'A name alone does not enforce resource isolation.',
     ]);
-    setHint('Enter accepts the environment name. Type to replace it; Escape restores the suggested name.');
     const environment = await request({
       prefix: 'Enter a new environment name:', value: team.environment,
       validate: (value) => /^[a-z][a-z0-9-]{1,30}[a-z0-9]$/.test(value) ? '' : 'For this demo, use 3-32 lowercase letters, numbers, or hyphens; start with a letter and end with a letter or number.',
@@ -336,7 +356,7 @@
     setNotes('Azure Skills recommendation', 'The developer is not building alone.', [
       'The project is onboarded. The coding agent still needs relevant Azure guidance.',
       'Shows Microsoft as the publisher and the source repository.',
-      'Asks for consent before installing anything.',
+      'Illustrates a consent-first installation flow using labeled demo defaults.',
     ], true);
     line('[Design preview - not shipped] azd recommends Azure Skills for this project.', 'amber output-heading');
     line('Next: Azure work with a coding assistant. Relevant Azure guidance is not installed.');
@@ -380,6 +400,8 @@
     lastAssistant = assistant;
     line(`SUCCESS: Azure skills installed for ${assistantName(assistant)}.`, 'green');
     line('Installed, not yet loaded. Start a new assistant session to use the guidance.', 'amber');
+    setHint('Skill setup is complete in the demo. Continuing to the assistant...');
+    await wait(1800, signal, true);
   }
 
   async function deploy(team, environment, signal) {
@@ -435,9 +457,8 @@
       'Explicitly preserves the Terraform infrastructure provider.',
       'Asks for deployment impact to be explained before changes are made.',
     ]);
-    setHint('The assistant task is prefilled. Enter shows the prepared response; Escape restores the task.');
     await request({
-      prefix: '>', value: task, command: true, label: 'Prepared assistant task',
+      prefix: '>', value: task, command: true, auto: true, label: 'Prepared assistant task',
       validate: (value) => value === task ? '' : 'This is a prepared response for the suggested task. Use the prefilled task to continue.',
     }, signal);
     setHint('Showing the prepared assistant response...');
@@ -467,7 +488,7 @@
     line('All walkthrough steps are finished. No commands were executed.', 'dim');
     setNotes('Demo complete', 'From platform patterns to useful work.', [
       'The developer followed the platform-owned Terraform starting point through init and up.',
-      'Azure Skills onboarding was previewed with an explicit installation choice.',
+      'Skill-installation consent, assistant selection, and scope were illustrated using labeled demo defaults.',
       'The prepared assistant offered a bounded change for human review.',
     ]);
     setHint('All steps are complete. Click Restart demo when you want to begin again.');
