@@ -470,7 +470,6 @@
     ]);
     setHint('All steps are complete. Click Restart demo when you want to begin again.');
     restart.hidden = false;
-    screen.focus({ preventScroll: true });
     scroll();
   }
 
