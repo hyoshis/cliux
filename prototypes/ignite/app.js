@@ -58,9 +58,30 @@
     hint.textContent = text;
   }
 
+  function processingPause(signal) {
+    return new Promise((resolve, reject) => {
+      if (signal.aborted) {
+        reject(signal.reason);
+        return;
+      }
+      const timer = window.setTimeout(() => {
+        signal.removeEventListener('abort', abort);
+        resolve();
+      }, 400);
+      function abort() {
+        window.clearTimeout(timer);
+        reject(signal.reason);
+      }
+      signal.addEventListener('abort', abort, { once: true });
+    });
+  }
+
   async function progress(description, signal) {
     if (signal.aborted) throw signal.reason;
-    const element = line(`(\u2713) Done: ${description}`);
+    const element = line(`Processing: ${description}`, 'orange');
+    element.innerHTML = `<span class="processing-spinner" aria-hidden="true"></span> ${escapeHtml(description)}`;
+    await processingPause(signal);
+    element.className = 'line';
     element.innerHTML = `<span class="green">(\u2713) Done:</span> ${escapeHtml(description)}`;
     scroll();
   }
@@ -462,6 +483,7 @@
       validate: (value) => value === task ? '' : 'This is a prepared response for the suggested task. Use the prefilled task to continue.',
     }, signal);
     setHint('Showing the prepared assistant response...');
+    await progress('Preparing the illustrative assistant response', signal);
     line('Proposed change: GET /health, following the sample service\'s Express route pattern.');
     line('Infrastructure: Terraform unchanged. No deployment configuration changes proposed.');
     line('Review the diff before applying it. No changes have been applied.', 'dim');
