@@ -478,8 +478,9 @@
       'Explicitly preserves the Terraform infrastructure provider.',
       'Asks for deployment impact to be explained before changes are made.',
     ]);
+    setHint('Press Enter to send the highlighted request and continue.');
     await request({
-      prefix: '>', value: task, command: true, auto: true, label: 'Prepared assistant task',
+      prefix: '>', value: task, command: true, auto: false, label: 'Prepared assistant task',
       validate: (value) => value === task ? '' : 'This is a prepared response for the suggested task. Use the prefilled task to continue.',
     }, signal);
     setHint('Showing the prepared assistant response...');
