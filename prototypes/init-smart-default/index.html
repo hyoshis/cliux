@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A design exploration for Azure Developer CLI smart defaults. Research, competitive analysis, and interactive init-to-deployment prototypes.">
+  <meta name="theme-color" content="#f6f5f0">
+  <meta property="og:title" content="azd smart defaults | Less setup. More momentum.">
+  <meta property="og:description" content="An evidence-led design proposal and interactive CLI playground for progressive onboarding to Azure.">
+  <title>azd smart defaults &mdash; Design exploration</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231f2926'/%3E%3Cpath d='m16 20 12 12-12 12m20 0h13' fill='none' stroke='%23e4efae' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+  <script src="prototype.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <aside class="sidebar" aria-label="Design exploration navigation">
+    <a class="brand" href="#overview" aria-label="azd / design studies - Smart defaults overview"><span class="brand-symbol" aria-hidden="true">&gt;_</span><span>azd<span class="brand-secondary"> / design studies</span></span></a>
+    <div class="rail-project"><span class="rail-label">EXPLORATION 01</span><p>Smart<br>defaults<span class="accent-dot">.</span></p><span class="rail-status"><span aria-hidden="true"></span> Proposal, not shipped</span></div>
+    <nav class="chapter-nav" aria-label="Chapters">
+      <a href="#overview" aria-current="page"><span>01</span> The opportunity</a>
+      <a href="#current"><span>02</span> Current experience</a>
+      <a href="#competitive"><span>03</span> Competitive signals</a>
+      <a href="#playground"><span>04</span> Prototype playground <span class="nav-live" aria-label="Interactive"></span></a>
+      <a href="#defaults"><span>05</span> Default logic</a>
+      <a href="#edge-cases"><span>06</span> Edges &amp; guardrails</a>
+      <a href="#delivery"><span>07</span> Delivery &amp; validation</a>
+      <a href="#sources"><span>08</span> Evidence &amp; sources</a>
+    </nav>
+    <div class="rail-bottom"><a href="https://github.com/Azure/azure-dev/issues/9642" target="_blank" rel="noopener noreferrer">Azure/azure-dev#9642 <span aria-hidden="true">&#8599;</span></a><p>Make the first useful thing<br>the first thing people do.</p></div>
+  </aside>
+  <div class="page-shell">
+    <header class="topbar">
+      <p class="creator"><strong>Hiyo Shin</strong><span aria-hidden="true"> &middot; </span>Senior Designer, CoreAI</p>
+      <div class="topbar-actions"><button class="text-button" id="print-button" type="button" title="Print or save all chapters as PDF">Print / PDF</button><button class="button button-small button-outline" id="share-button" type="button"><span aria-hidden="true">&#8599;</span> Copy view link</button></div>
+    </header>
+    <main id="main" tabindex="-1">
+      <section class="chapter" id="overview" aria-labelledby="overview-title">
+        <div class="chapter-meta"><span>AZURE DEVELOPER CLI</span><span>UX STRATEGY / OCT 2026</span></div>
+        <div class="hero">
+          <div class="hero-copy"><p class="eyebrow"><span class="small-line" aria-hidden="true"></span> PROGRESSIVE ADOPTION, NOT ANOTHER WIZARD</p><h1 id="overview-title">Less setup.<br>More <em>momentum.</em></h1><p class="hero-description">Help developers get their app to Azure before asking them to learn how azd organizes it.</p><div class="hero-actions"><a class="button button-primary" href="#playground">Try the prototypes <span aria-hidden="true">&#8599;</span></a><a class="inline-link" href="#current">Understand today&rsquo;s flow <span aria-hidden="true">&#8594;</span></a></div></div>
+          <div class="hero-diagram" aria-label="Proposed journey: prepare the app, review the destination, deploy">
+            <div class="diagram-caption"><span class="dot" aria-hidden="true"></span> THE PROPOSED MENTAL MODEL</div>
+            <div class="diagram-step"><span class="diagram-number">01</span><div><code>azd init</code><strong>Prepare my app</strong><span>Local setup. No cloud decisions yet.</span></div><span class="diagram-check" aria-hidden="true">&#10003;</span></div>
+            <div class="diagram-connector" aria-hidden="true"></div>
+            <div class="diagram-step"><span class="diagram-number">02</span><div><code>azd up</code><strong>Review where it will run</strong><span>Known settings, clearly explained.</span></div><span class="diagram-edit" aria-hidden="true">&#8599;</span></div>
+            <div class="diagram-connector" aria-hidden="true"></div>
+            <div class="diagram-step diagram-step-last"><span class="diagram-number">03</span><div><strong>Deploy with confidence</strong><span>Explicit consent before cloud changes.</span></div><span class="diagram-check" aria-hidden="true">&#10003;</span></div>
+            <div class="diagram-underlay"><span>Environments</span><span>Infrastructure</span><span>Lifecycle</span><p>Still there. Revealed when useful.</p></div>
+          </div>
+        </div>
+        <div class="thesis-banner"><span class="label">THE DESIGN THESIS</span><p>Hide the machinery.<br><strong>Not the consequences.</strong></p><span class="thesis-note">Abstract environment setup.<br>Keep cost, destination, and access visible.</span></div>
+        <div class="section-heading"><div><p class="eyebrow">THE OPPORTUNITY</p><h2>Fewer concepts before first value.</h2></div><span class="note-label">PRIMARY JOURNEY: EXISTING APP &#8594; AZURE</span></div>
+        <div class="insight-grid">
+          <article class="insight"><span class="insight-index">01 / TIMING</span><h3>Ask at the moment of need.</h3><p>Prepare the app locally. Defer subscription, region, and deployment decisions until they affect an Azure operation.</p></article>
+          <article class="insight"><span class="insight-index">02 / REPETITION</span><h3>Resolve. Don&rsquo;t reconfirm.</h3><p>A known value should become a visible, editable setting&mdash;not another picker to traverse.</p></article>
+          <article class="insight"><span class="insight-index">03 / CONTROL</span><h3>Keep the escape hatches.</h3><p>Explicit flags, existing environments, templates, and advanced settings remain available from the beginning.</p></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">DESIGN DIRECTIONS</p><h2>Two ideas worth putting in people&rsquo;s hands.</h2></div></div>
+        <div class="direction-grid">
+          <a class="direction-card recommended" href="?concept=progressive#playground"><div class="direction-top"><span class="label">CONCEPT C</span><span class="badge badge-green">Recommended</span></div><h3>Progressive setup</h3><p>App setup first. One editable review when cloud choices become consequential. Environment identity stays underneath until needed.</p><div class="mini-flow"><span>Prepare</span><span aria-hidden="true">&#8594;</span><span>Review</span><span aria-hidden="true">&#8594;</span><span>Deploy</span></div><span class="card-action">Explore the recommended flow <span aria-hidden="true">&#8599;</span></span></a>
+          <a class="direction-card" href="?concept=upfront#playground"><div class="direction-top"><span class="label">CONCEPT B</span><span class="badge">Comparison</span></div><h3>Upfront review</h3><p>Resolve app and cloud configuration in one init summary. More compact than serial prompts, but introduces cloud concepts earlier.</p><div class="mini-flow"><span>Review everything</span><span aria-hidden="true">&#8594;</span><span>Prepare</span></div><span class="card-action">Explore the comparison flow <span aria-hidden="true">&#8599;</span></span></a>
+        </div>
+        <p class="footnote">Concept A&mdash;better defaults in existing prompts&mdash;is an incremental delivery option, not the target experience. These are design hypotheses, not validated usability outcomes.</p>
+      </section>
+
+      <section class="chapter" id="current" aria-labelledby="current-title">
+        <div class="chapter-meta"><span>02 / CURRENT EXPERIENCE</span><span class="badge">Verified source baseline</span></div>
+        <h2 class="page-title" id="current-title">One command.<br><em>Different starting points.</em></h2>
+        <p class="page-description">There isn&rsquo;t one universal init wizard. The redesign must cover the journey from initialization to first deployment, not just move prompts around.</p>
+        <div class="callout"><strong>A useful correction to the problem statement</strong><p>Ordinary existing-code initialization already defers environment creation until <code>azd up</code>, unless a name is supplied. Templates and Aspire differ. Subscription and location are generally resolved when needed for provisioning.</p></div>
+        <div class="segmented" role="group" aria-label="Current initialization path">
+          <button type="button" data-path="code" aria-pressed="true">Existing code</button><button type="button" data-path="template" aria-pressed="false">Template</button><button type="button" data-path="aspire" aria-pressed="false">Aspire</button><button type="button" data-path="minimal" aria-pressed="false">Minimal / blank</button><button type="button" data-path="repeat" aria-pressed="false">Repeat init</button>
+        </div>
+        <div class="journey-panel" id="current-journey" aria-live="polite"></div>
+        <noscript><p>Existing code: choose a starting path, scan code, review detected components, configure component-specific details, and generate project files. Environment creation is normally deferred until azd up. Templates and Aspire initialize environments during init.</p></noscript>
+        <div class="two-column">
+          <article class="paper-card"><span class="label">WHAT IS ALREADY POSSIBLE</span><h3>Defaults exist. Resolution still asks.</h3><pre class="code-block"><code>azd config set defaults.subscription &lt;id&gt;
+azd config set defaults.location westeurope</code></pre><p>The subscription picker can preselect the saved default while still presenting a question. Preselection is not the same as resolving a value without asking again.</p><p class="footnote">The documented key is <code>defaults.location</code>, not <code>defaults.region</code>.</p></article>
+          <article class="paper-card"><span class="label">THE COGNITIVE MISMATCH</span><h3>The user&rsquo;s task is not our object model.</h3><blockquote>&ldquo;Get this app ready for Azure.&rdquo;</blockquote><p>Not: choose an initialization mechanism, name an environment, understand infrastructure, then learn the deployment lifecycle.</p><a class="inline-link" href="#defaults">See the resolution contract <span aria-hidden="true">&#8594;</span></a></article>
+        </div>
+        <p class="footnote">Source-reconstructed, not a recorded terminal session. Baseline: <a href="https://github.com/Azure/azure-dev/releases/tag/azure-dev-cli_1.37.2" target="_blank" rel="noopener noreferrer">azd 1.37.2</a>, <a href="https://github.com/Azure/azure-dev/blob/azure-dev-cli_1.37.2/cli/azd/cmd/init.go" target="_blank" rel="noopener noreferrer">init implementation</a>, and <a href="https://github.com/Azure/azure-dev/blob/azure-dev-cli_1.37.2/cli/azd/internal/repository/app_init.go" target="_blank" rel="noopener noreferrer">existing-app initialization</a>. Exact prompts vary with project, parameters, authentication, and feature state.</p>
+      </section>
+
+      <section class="chapter" id="competitive" aria-labelledby="competitive-title">
+        <div class="chapter-meta"><span>03 / COMPETITIVE SIGNALS</span><span>4 PRODUCTS / FIRST-PARTY EVIDENCE</span></div>
+        <h2 class="page-title" id="competitive-title">Borrow the pattern.<br><em>Not the assumptions.</em></h2>
+        <p class="page-description">How adjacent CLIs handle defaults, saved targets, and the leap from setup to cloud changes. This is a documented-pattern analysis, not a usability benchmark.</p>
+        <div class="competitive-summary"><span class="label">THE SYNTHESIS FOR AZD</span><p><strong>Fly&rsquo;s editable proposal</strong> + <strong>Firebase&rsquo;s progressive targets</strong> + <strong>SAM&rsquo;s setup/deploy boundary.</strong></p><a class="inline-link" href="#playground">Try the combined idea <span aria-hidden="true">&#8594;</span></a></div>
+        <div class="table-wrap"><table class="comparison-table"><caption>Documented onboarding patterns and implications for azd</caption><thead><tr><th scope="col">Product / entry</th><th scope="col">What gets resolved</th><th scope="col">How it persists</th><th scope="col">Cloud-change boundary</th><th scope="col">Lesson for azd</th></tr></thead><tbody>
+          <tr><th scope="row">Fly.io<code>fly launch</code></th><td>Detects app type; proposes name, organization, region, and resources.</td><td>App configuration in <code>fly.toml</code>.</td><td>Launch can provision and deploy; <code>--no-deploy</code> skips deployment, not necessarily app creation.</td><td><span class="table-tag">Propose, then edit</span>Show a coherent plan rather than a chain of unrelated questions.</td></tr>
+          <tr><th scope="row">Vercel<code>vercel</code></th><td>Uses configuration and folder-name defaults; <code>--yes</code> skips setup questions.</td><td>Project/org linking in <code>.vercel</code>.</td><td>A first deployment is production even without <code>--prod</code>; later defaults differ.</td><td><span class="table-tag">Persist the association</span>Do not let convenient defaults conceal destination or exposure.</td></tr>
+          <tr><th scope="row">AWS SAM<code>sam init</code></th><td>Initializes a project; guided deployment offers saved argument defaults.</td><td><code>samconfig.toml</code>; configuration environment defaults to <code>default</code>.</td><td><code>sam deploy</code> is separate; change-set confirmation is configurable.</td><td><span class="table-tag">Separate local and cloud</span>Bracketed defaults still create a lengthy guided flow.</td></tr>
+          <tr><th scope="row">Firebase<code>firebase init</code></th><td>Asks for default project and products to configure.</td><td><code>firebase.json</code> and project aliases in <code>.firebaserc</code>.</td><td>Initialization and <code>firebase deploy</code> are distinct operations.</td><td><span class="table-tag">One destination first</span>Introduce additional aliases only when the user needs them.</td></tr>
+        </tbody></table></div>
+        <div class="section-heading"><div><p class="eyebrow">LOOK CLOSER</p><h3>The evidence behind each takeaway.</h3></div></div>
+        <div class="segmented" role="group" aria-label="Competitor deep dive"><button type="button" data-competitor="fly" aria-pressed="true">Fly.io</button><button type="button" data-competitor="vercel" aria-pressed="false">Vercel</button><button type="button" data-competitor="sam" aria-pressed="false">AWS SAM</button><button type="button" data-competitor="firebase" aria-pressed="false">Firebase</button></div>
+        <article class="competitor-panel" id="competitor-fly">
+          <div class="competitor-heading"><div><span class="label">FLY.IO / RECOMMENDATION FIRST</span><h3>&ldquo;Here&rsquo;s what you&rsquo;re getting.&rdquo;</h3></div><a class="source-link" href="https://fly.io/docs/reference/fly-launch/" target="_blank" rel="noopener noreferrer">Read Fly Launch documentation &#8599;</a></div>
+          <div class="two-column"><div><p>Fly Launch scans supported projects, proposes app configuration, and offers an opportunity to tweak settings before proceeding. Its documented example groups organization, name, region, machine size, and optional databases into a single proposal.</p><pre class="code-block"><code>fly launch
+Scan project
+Propose app configuration
+Offer to tweak settings
+Create / build / provision / deploy</code></pre><span class="footnote">Schematic sequence; not a verbatim transcript.</span></div><div class="borrow-stack"><div><span class="badge badge-green">Borrow</span><h4>A coherent editable proposal</h4><p>Make the configuration legible as a whole; let the user change a specific value without restarting.</p></div><div><span class="badge badge-amber">Adapt carefully</span><h4>Location and execution boundaries</h4><p>Fly&rsquo;s example recommends a fast region. Azure needs workload and policy checks, not proximity alone. Fly launch may also run local commands; don&rsquo;t equate launch with harmless preparation.</p></div></div></div>
+        </article>
+        <article class="competitor-panel" id="competitor-vercel">
+          <div class="competitor-heading"><div><span class="label">VERCEL / REMEMBER THE PROJECT</span><h3>A linked folder becomes a repeatable workflow.</h3></div><a class="source-link" href="https://vercel.com/docs/projects/deploy-from-cli" target="_blank" rel="noopener noreferrer">Read deployment guide &#8599;</a></div>
+          <div class="two-column"><div><p>Project linking persists project and organization configuration locally. The deploy command&rsquo;s <code>--yes</code> option accepts setup defaults inferred from <code>vercel.json</code> and the folder name.</p><pre class="code-block"><code>vercel link
+Persist project / org association
+vercel deploy
+vercel deploy --prod</code></pre><a class="source-link" href="https://vercel.com/docs/cli/deploy#yes" target="_blank" rel="noopener noreferrer">Default acceptance and --yes &#8599;</a></div><div class="borrow-stack"><div><span class="badge badge-green">Borrow</span><h4>Make repeat use uneventful</h4><p>Resolve identity once; avoid asking people to select a known destination on every run.</p></div><div><span class="badge badge-amber">Adapt carefully</span><h4>Convenient does not mean non-production</h4><p>Vercel documents that the first deployment of a new project is production even without <code>--prod</code>. azd must make destination and consequences visible rather than rely on users knowing exceptions.</p></div></div></div>
+        </article>
+        <article class="competitor-panel" id="competitor-sam">
+          <div class="competitor-heading"><div><span class="label">AWS SAM / CONFIGURATION WITHOUT A NAMING EXERCISE</span><h3>A default environment can stay in the background.</h3></div><a class="source-link" href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html" target="_blank" rel="noopener noreferrer">Read SAM configuration reference &#8599;</a></div>
+          <div class="two-column"><div><p>SAM&rsquo;s configuration environment is <code>default</code> unless overridden. Project initialization and cloud deployment are separate. Guided deployment offers saved settings in brackets and can write arguments back to configuration.</p><pre class="code-block"><code>sam init
+sam build
+sam deploy --guided
+Saved arguments in samconfig.toml</code></pre><a class="source-link" href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-init.html" target="_blank" rel="noopener noreferrer">Non-interactive initialization reference &#8599;</a></div><div class="borrow-stack"><div><span class="badge badge-green">Borrow</span><h4>Do not require a configuration name first</h4><p>A default identity can support first use without teaching multiple named configurations.</p></div><div><span class="badge badge-amber">Adapt carefully</span><h4>Saved answers are not fewer decisions</h4><p>The documented guided flow still asks for stack, region, permissions, rollback, and save settings. Group related consequences and remove redundant questions rather than merely prefill them.</p></div></div></div>
+        </article>
+        <article class="competitor-panel" id="competitor-firebase">
+          <div class="competitor-heading"><div><span class="label">FIREBASE / PROGRESSIVE TARGETS</span><h3>Start with one project. Add aliases later.</h3></div><a class="source-link" href="https://firebase.google.com/docs/cli#manage_project_aliases" target="_blank" rel="noopener noreferrer">Read project alias documentation &#8599;</a></div>
+          <div class="two-column"><div><p>Initialization associates the local directory with a default Firebase project. Developers can add more project aliases later using <code>firebase use --add</code>, or override a target for one command with <code>--project</code>.</p><pre class="code-block"><code>firebase init
+firebase deploy
+firebase use --add
+firebase deploy --project=staging</code></pre></div><div class="borrow-stack"><div><span class="badge badge-green">Borrow</span><h4>Introduce multiplicity at the second target</h4><p>Explain environments when developers want a separate testing, staging, or production destination.</p></div><div><span class="badge badge-amber">Adapt carefully</span><h4>Do not replace one platform quiz with another</h4><p>Firebase still asks developers to choose products at initialization. azd should use evidence from the app to recommend supported components without making platform taxonomy the first task.</p></div></div></div>
+        </article>
+        <div class="callout callout-neutral"><strong>Research limits</strong><p>First-party documentation reviewed October 30, 2026. No comparative task timing, prompt-count benchmark, or user-preference study was performed. These products differ in scope; patterns are transferable, not proof of equivalent safety or effort. AWS SAM is the CLI comparison here, not an audit of the AWS console screenshots in the issue.</p></div>
+      </section>
+
+      <section class="chapter" id="playground" aria-labelledby="playground-title">
+        <div class="chapter-meta"><span>04 / PROTOTYPE PLAYGROUND</span><span class="badge badge-green">Interactive exploration</span></div>
+        <h2 class="page-title" id="playground-title">Feel the difference.<br><em>Then break the happy path.</em></h2>
+        <p class="page-description">Compare two proposed CLI experiences with the same sample app. Click terminal choices, or focus a choice and use arrow keys and Enter.</p>
+        <div class="prototype-controls">
+          <div><span class="control-label" id="concept-label">DESIGN CONCEPT</span><div class="segmented concept-switch" role="group" aria-labelledby="concept-label"><button type="button" data-concept="progressive" aria-pressed="true">C. Progressive setup <span class="recommended-mark" aria-label="Recommended">&#10003;</span></button><button type="button" data-concept="upfront" aria-pressed="false">B. Upfront review</button></div></div>
+          <div class="scenario-fields"><label>Starting point<select id="prototype-route"><option value="code">Existing app</option><option value="template">Sample template</option></select></label><label>Scenario<select id="prototype-scenario"><option value="saved">Saved defaults</option><option value="multiple">Multiple subscriptions</option><option value="stale">Unavailable default</option><option value="region">Restricted region</option><option value="targets">Multiple environments</option><option value="agent">Agent / CI</option></select></label></div>
+        </div>
+        <p class="simulation-notice"><span class="notice-symbol" aria-hidden="true">i</span> Design simulation. All values and outcomes are illustrative. No sign-in, Azure calls, hooks, file changes, or charges.</p>
+        <div class="prototype-workspace">
+          <div class="terminal-window">
+            <div class="terminal-titlebar"><div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div><span id="terminal-caption">checkout &mdash; proposed azd experience</span><button type="button" id="reset-prototype" class="terminal-reset">Reset <span aria-hidden="true">&#8634;</span></button></div>
+            <div class="terminal-body" id="prototype-terminal" role="region" aria-label="Interactive CLI simulation" tabindex="-1"></div>
+            <div class="terminal-footer"><span id="terminal-stage">LOCAL PREPARATION</span><span>SIMULATED TERMINAL</span></div>
+          </div>
+          <aside class="prototype-notes" aria-label="Design annotations">
+            <div class="annotation-header"><span class="label">DESIGN LENS</span><span class="annotation-number" id="annotation-number">01</span></div>
+            <h3 id="annotation-title">Start with the app, not the object model.</h3>
+            <p id="annotation-body">The developer confirms what azd found. Cloud destination and environment identity are not prerequisites for local preparation.</p>
+            <div class="annotation-rule"><span class="label">WHAT TO WATCH</span><p id="annotation-watch">Can someone explain what will happen next without understanding an azd environment?</p></div>
+            <div class="prototype-stepper" aria-label="Journey progress"><span data-progress="prepare">Prepare</span><span data-progress="review">Review</span><span data-progress="deploy">Deploy</span></div>
+            <a class="inline-link" href="#defaults">Why these defaults? <span aria-hidden="true">&#8594;</span></a>
+          </aside>
+        </div>
+        <p class="footnote" id="prototype-status" role="status" aria-live="polite"></p>
+        <div class="two-column prototype-reading">
+          <article><span class="label">C / THE RECOMMENDATION</span><h3>Defer the concept, not the control.</h3><p>Prepare locally, generate environment identity underneath when needed, then review cloud consequences at <code>azd up</code>. Multiple targets make environment identity visible again.</p></article>
+          <article><span class="label">B / THE TRADE-OFF</span><h3>One summary can still be too early.</h3><p>Reviewing everything at init reduces serial prompts but requires subscription and region knowledge before local setup is complete. Cloud changes still need separate consent.</p></article>
+        </div>
+        <noscript><p class="callout">Enable JavaScript for the interactive simulations. The design rationale, competitive analysis, rules, and sources are available without it.</p></noscript>
+      </section>
+
+      <section class="chapter" id="defaults" aria-labelledby="defaults-title">
+        <div class="chapter-meta"><span>05 / DEFAULT LOGIC</span><span>DETERMINISTIC FIRST</span></div>
+        <h2 class="page-title" id="defaults-title">A default is a contract.<br><em>Not a lucky guess.</em></h2>
+        <p class="page-description">Every resolved value needs a source, validation, stable persistence, and an obvious way to override it.</p>
+        <div class="resolution-chain" aria-label="Proposed conceptual resolution priority"><div><span>01</span><strong>Explicit intent</strong><small>Flags and existing input semantics</small></div><span aria-hidden="true">&#8594;</span><div><span>02</span><strong>Saved project settings</strong><small>The selected environment association</small></div><span aria-hidden="true">&#8594;</span><div><span>03</span><strong>User defaults</strong><small>Only where project values are absent</small></div><span aria-hidden="true">&#8594;</span><div><span>04</span><strong>Supported inference</strong><small>Evidence, not arbitrary fallback</small></div></div>
+        <p class="footnote">Proposed conceptual contract, not a replacement specification for existing precedence. Document and preserve flag / process-variable / file semantics per field. Policy constrains eligible values at every level.</p>
+        <div class="table-wrap"><table><caption>Proposed defaults and resolution rules</caption><thead><tr><th scope="col">Setting</th><th scope="col">Resolve from</th><th scope="col">Ask only when</th><th scope="col">Never do this</th></tr></thead><tbody>
+          <tr><th scope="row">App components</th><td>Supported local project evidence and explicit configuration.</td><td>Detection is ambiguous or incomplete.</td><td>Invent an unsupported architecture to reach zero prompts.</td></tr>
+          <tr><th scope="row">Environment identity</th><td>Existing association; otherwise a validated generated name persisted once when needed.</td><td>Targets conflict, identity is invalid, or the user requests another copy.</td><td>Rename an established environment because the folder name changed.</td></tr>
+          <tr><th scope="row">Subscription</th><td>Explicit or saved intent; propose a sole eligible subscription transparently.</td><td>No valid destination can be resolved unambiguously.</td><td>Choose alphabetically, switch billing scopes, or assume &ldquo;dev&rdquo; means safe.</td></tr>
+          <tr><th scope="row">Region</th><td>Valid saved intent; supported recommendations constrained by workload and policy.</td><td>No valid choice exists or constraints invalidate the selection.</td><td>Silently move a workload to another geography.</td></tr>
+          <tr><th scope="row">Hosting</th><td>Existing/template choice or an explainable supported recommendation.</td><td>There is a material unresolved architecture choice.</td><td>Silently redesign the app or change security posture.</td></tr>
+          <tr><th scope="row">Required parameters</th><td>Explicit configuration or documented template defaults.</td><td>A consequential required value is missing.</td><td>Guess business data, credentials, or authorization choices.</td></tr>
+        </tbody></table></div>
+        <div class="two-column"><article class="paper-card"><span class="badge badge-green">MVP</span><h3>No model required.</h3><p>Rules can resolve saved settings, supported app types, names, and conditional prompts. The resolver should be inspectable, predictable, and shared by interactive and automated use.</p></article><article class="paper-card"><span class="badge">Future experiment</span><h3>Recommendations are not authorization.</h3><p>The issue&rsquo;s JEV-style / offline-model idea could help ambiguous recommendations. A model must not autonomously choose billing scope, data residency, production destination, or security posture.</p></article></div>
+        <div class="callout"><strong>Persistence matters as much as inference.</strong><p>Project-specific edits must not silently update global defaults. Changing a subscription invalidates dependent validation. Explain why a value was chosen, save only the intended scope, and never replace explicit intent with a suggestion.</p></div>
+      </section>
+
+      <section class="chapter" id="edge-cases" aria-labelledby="edges-title">
+        <div class="chapter-meta"><span>06 / EDGES &amp; GUARDRAILS</span><span>LESS FRICTION &#8800; LESS SAFETY</span></div>
+        <h2 class="page-title" id="edges-title">The happy path is easy.<br><em>Trust is in the edges.</em></h2>
+        <p class="page-description">Remove unnecessary questions. Keep the decisions that protect destination, ownership, access, and recovery.</p>
+        <div class="edge-grid">
+          <details open><summary><span class="risk-dot risk-amber" aria-hidden="true"></span> Accounts &amp; destination <span class="detail-count">3 cases</span></summary><div class="detail-content"><h4>No sign-in or subscription</h4><p>Permit supported local preparation. Resolve access when cloud operations require it.</p><h4>Multiple tenants or subscriptions</h4><p>Ask for the unresolved destination; never choose by alphabetical order or recency alone. Disambiguate names with tenant and subscription identity.</p><h4>Expired or inaccessible default</h4><p>Explain the failure and require deliberate replacement. Never silently switch billing scope.</p><a href="?scenario=stale#playground" class="inline-link">Try an unavailable default &#8599;</a></div></details>
+          <details open><summary><span class="risk-dot risk-red" aria-hidden="true"></span> Policy &amp; consequences <span class="detail-count">3 cases</span></summary><div class="detail-content"><h4>Region, capacity, or quota restrictions</h4><p>Keep the intended value visible. Explain constraints and offer checked alternatives without automatically applying them.</p><h4>Production or multiple targets</h4><p>Show the active environment prominently once ambiguity exists. A name containing &ldquo;dev&rdquo; does not prove a destination is safe.</p><h4>Public access and cost</h4><p>Show material consequences before cloud changes. Label estimates and validation limits honestly.</p><a href="?scenario=region#playground" class="inline-link">Try a restricted region &#8599;</a></div></details>
+          <details><summary><span class="risk-dot risk-amber" aria-hidden="true"></span> Files, templates &amp; detection <span class="detail-count">3 cases</span></summary><div class="detail-content"><h4>Unsupported code or monorepo</h4><p>Offer component selection, manual configuration, template, or minimal setup. Do not claim detection success without evidence.</p><h4>Existing files or dirty repository</h4><p>Preview proposed changes and protect edits. Consent to initialize is not permission to overwrite.</p><h4>Hooks, extensions, and third-party code</h4><p>Disclose execution and installation implications separately. A template can do more than copy files.</p></div></details>
+          <details><summary><span class="risk-dot risk-green" aria-hidden="true"></span> Identity &amp; recovery <span class="detail-count">3 cases</span></summary><div class="detail-content"><h4>Partial failure and repeated runs</h4><p>Reuse valid persisted state. Avoid duplicate environments and repeated resources. Clearly distinguish local completion from cloud completion.</p><h4>Cloned repositories, worktrees, collisions</h4><p>Matching names are not evidence of deployment ownership. Distinguish reusing a target from creating another copy.</p><h4>Changes after deployment</h4><p>Explain replacement, migration, and resource-identity consequences before changing environment names or regions.</p></div></details>
+          <details><summary><span class="risk-dot risk-red" aria-hidden="true"></span> Agents &amp; automation <span class="detail-count">2 cases</span></summary><div class="detail-content"><h4>Non-interactive invocations</h4><p>Use the same deterministic resolver, without interactive questions. Fail with the missing decision and an actionable remedy.</p><h4>Consent boundaries</h4><p>No-prompt mode is not unlimited authorization. Preserve explicit automation intent and existing script compatibility.</p><a href="?scenario=agent#playground" class="inline-link">Try agent / CI mode &#8599;</a></div></details>
+          <details><summary><span class="risk-dot risk-green" aria-hidden="true"></span> Accessibility &amp; terminal modes <span class="detail-count">2 cases</span></summary><div class="detail-content"><h4>Keyboard and screen reader access</h4><p>Choices need usable focus, readable labels, and meaningful announcements. Do not rely on color for state.</p><h4>Basic terminals and reduced motion</h4><p>Provide readable plain text. Browser interaction and animated spinners must not be required for task completion.</p></div></details>
+        </div>
+        <div class="principle-quote"><span class="label">NON-NEGOTIABLE</span><p>&ldquo;Remembered configuration should reduce repetition,<br>not conceal target changes.&rdquo;</p></div>
+      </section>
+
+      <section class="chapter" id="delivery" aria-labelledby="delivery-title">
+        <div class="chapter-meta"><span>07 / DELIVERY &amp; VALIDATION</span><span>PROPOSED PLAN</span></div>
+        <h2 class="page-title" id="delivery-title">Start bounded.<br><em>Measure the whole journey.</em></h2>
+        <p class="page-description">Improve the path from an existing app to first successful deployment, then extend the same mental model across the other starting points.</p>
+        <div class="roadmap">
+          <article><span class="roadmap-number">01</span><div><span class="label">BASELINE</span><h3>Inventory the decisions.</h3><p>Map existing-code, Aspire, template, minimal, repeat-init, and agent paths. Record why each prompt exists.</p><p class="exit"><strong>Exit:</strong> Agree what to remove, defer, combine, or keep explicit.</p></div></article>
+          <article><span class="roadmap-number">02</span><div><span class="label">DESIGN &amp; TEST</span><h3>Compare the concepts, including failure.</h3><p>Test progressive setup against upfront review with Azure newcomers, returning users, and multi-subscription developers. Test agents separately.</p><p class="exit"><strong>Exit:</strong> People understand action and destination without learning environments first.</p></div></article>
+          <article><span class="roadmap-number">03</span><div><span class="label">BOUNDED MVP</span><h3>Ship the existing-code journey first.</h3><p>Reuse defaults, remove redundant prompts, persist identity, and provide editable deployment review. Gate intentional behavior changes.</p><p class="exit"><strong>Exit:</strong> Script compatibility preserved; invalid defaults never cause silent destination changes.</p></div></article>
+          <article><span class="roadmap-number">04</span><div><span class="label">EXTEND</span><h3>Make the model consistent.</h3><p>Bring templates and Aspire into the same conceptual experience. Improve second-environment discovery without hiding active targets.</p><p class="exit"><strong>Exit:</strong> No surprising differences in when concepts or consequences appear.</p></div></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">SUCCESS CRITERIA</p><h3>Speed is not the only signal.</h3></div><span class="note-label">TARGETS SET AFTER BASELINING</span></div>
+        <div class="metric-grid"><article><span class="metric-symbol" aria-hidden="true">&#8594;</span><h4>Momentum</h4><p>Time, unnecessary decisions, help-seeking, and abandonment through first deployment.</p></article><article><span class="metric-symbol" aria-hidden="true">&#9673;</span><h4>Comprehension</h4><p>Can users identify subscription, region, destination, and public-access outcome?</p></article><article><span class="metric-symbol" aria-hidden="true">&#8634;</span><h4>Recovery</h4><p>Can they resolve invalid defaults, unsupported detection, and partial failures?</p></article><article><span class="metric-symbol" aria-hidden="true">&#10003;</span><h4>Trust</h4><p>Default correction, duplicate resources, unintended targets, and repeat-run behavior.</p></article></div>
+        <div class="two-column"><article class="paper-card"><span class="label">STAKEHOLDER DECISIONS</span><h3>What needs alignment?</h3><ul class="clean-list"><li>Make existing code the first MVP journey.</li><li>Keep local preparation separate from cloud consent.</li><li>Agree where generated identity is created and persisted.</li><li>Define destination-change and production guardrails.</li><li>Validate resource-preview feasibility before promising coverage.</li></ul></article><article class="paper-card"><span class="label">ENGINEERING VALIDATION</span><h3>What the prototype does not prove.</h3><p>Template and Aspire naming dependencies, resource-plan coverage, available policy/region checks, hook behavior, and field-specific precedence need engineering validation. A static simulation is not an azd implementation.</p><p class="footnote">High default acceptance alone is not success; it can also mean blind confirmation.</p></article></div>
+      </section>
+
+      <section class="chapter" id="sources" aria-labelledby="sources-title">
+        <div class="chapter-meta"><span>08 / EVIDENCE &amp; SOURCES</span><span>REVIEWED OCT 30, 2026</span></div>
+        <h2 class="page-title" id="sources-title">A proposal you can<br><em>trace back to evidence.</em></h2>
+        <p class="page-description">Current behavior, documented competitor patterns, and proposed interactions are intentionally kept distinct.</p>
+        <div class="evidence-legend"><span><span class="badge">Verified baseline</span> Released azd source / documentation</span><span><span class="badge badge-green">Proposal</span> Design hypotheses to validate</span><span><span class="badge badge-amber">Illustrative</span> Prototype fixtures, not Azure results</span></div>
+        <div class="source-group"><h3>Problem &amp; azd baseline</h3>
+          <a class="source-row" href="https://github.com/Azure/azure-dev/issues/9642" target="_blank" rel="noopener noreferrer"><span>01</span><div><strong>Azure/azure-dev#9642 &mdash; azd init smart defaults</strong><p>Issue framing, customer context, route considerations, and offline-recommendation exploration.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://github.com/Azure/azure-dev/releases/tag/azure-dev-cli_1.37.2" target="_blank" rel="noopener noreferrer"><span>02</span><div><strong>azd 1.37.2 release</strong><p>Released-source baseline used for this exploration; not the locally installed prerelease.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://github.com/Azure/azure-dev/blob/azure-dev-cli_1.37.2/cli/azd/cmd/init.go" target="_blank" rel="noopener noreferrer"><span>03</span><div><strong>Init command implementation</strong><p>Entry choices, template/minimal paths, environment setup, and repeat-init behavior.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://github.com/Azure/azure-dev/blob/azure-dev-cli_1.37.2/cli/azd/internal/repository/app_init.go" target="_blank" rel="noopener noreferrer"><span>04</span><div><strong>Existing-app initialization</strong><p>Detection, component confirmation, Aspire differences, and deferred environment initialization.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://github.com/Azure/azure-dev/blob/azure-dev-cli_1.37.2/cli/azd/pkg/prompt/prompter.go" target="_blank" rel="noopener noreferrer"><span>05</span><div><strong>Prompt and default-selection implementation</strong><p>Subscription defaults can preselect a value while still presenting the picker.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/reference#azd-config-set" target="_blank" rel="noopener noreferrer"><span>06</span><div><strong>azd configuration reference</strong><p>Documented defaults.subscription and defaults.location keys.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/work-with-environments" target="_blank" rel="noopener noreferrer"><span>07</span><div><strong>Environment management</strong><p>Saved targets, selection, and explicit environment overrides.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/azd-up-workflow" target="_blank" rel="noopener noreferrer"><span>08</span><div><strong>The azd up workflow</strong><p>Packaging, provisioning, deployment, and their relation to project assets.</p></div><span aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="source-group"><h3>Competitive documentation</h3>
+          <a class="source-row" href="https://fly.io/docs/reference/fly-launch/" target="_blank" rel="noopener noreferrer"><span>09</span><div><strong>Fly Launch overview</strong><p>Detection, proposed configuration, customization, provisioning, and deployment.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://vercel.com/docs/cli/deploy#yes" target="_blank" rel="noopener noreferrer"><span>10</span><div><strong>Vercel deploy reference</strong><p>Inferred defaults and --yes setup behavior.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://vercel.com/docs/projects/deploy-from-cli" target="_blank" rel="noopener noreferrer"><span>11</span><div><strong>Vercel project deployment guide</strong><p>Local linking and the first-deployment production exception.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-config.html" target="_blank" rel="noopener noreferrer"><span>12</span><div><strong>AWS SAM configuration</strong><p>Default configuration environment, persistence, precedence, and guided deployment example.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/sam-cli-command-reference-sam-init.html" target="_blank" rel="noopener noreferrer"><span>13</span><div><strong>AWS SAM init reference</strong><p>Initialization flags, non-interactive requirements, and template trust implications.</p></div><span aria-hidden="true">&#8599;</span></a>
+          <a class="source-row" href="https://firebase.google.com/docs/cli#manage_project_aliases" target="_blank" rel="noopener noreferrer"><span>14</span><div><strong>Firebase CLI and project aliases</strong><p>Initialization, default project association, aliases, and per-command overrides.</p></div><span aria-hidden="true">&#8599;</span></a>
+        </div>
+        <div class="callout callout-neutral"><strong>About this artifact</strong><p>Independent UX design exploration, not a shipped Azure feature or a deployment tool. AI-assisted research and prototyping; AI-generated content may be incorrect. Verify implementation details against the linked sources before engineering decisions. No analytics, external fonts, or cloud connections are used by this dashboard.</p></div>
+      </section>
+      <footer class="page-footer"><span>azd / smart defaults</span><span>Design exploration &middot; October 2026</span><a href="https://github.com/Azure/azure-dev/issues/9642" target="_blank" rel="noopener noreferrer">Azure/azure-dev#9642 &#8599;</a></footer>
+    </main>
+    <div class="toast" id="share-status" role="status" aria-live="polite" hidden></div>
+  </div>
+</body>
+</html>

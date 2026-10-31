@@ -21,6 +21,7 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 
 | Prototype | Description | Link |
 | --- | --- | --- |
+| **azd · Smart defaults** | Stakeholder design dashboard with current initialization paths, four competitive deep dives, default rules, guardrails, and two interactive CLI concepts. | [`init-smart-default/`](./init-smart-default/) · [live](https://hyoshis.github.io/cliux/prototypes/init-smart-default/) |
 | **Awesome azd · Catalog consolidation** | Comparison study and design rationale, with a recommended catalog-first design, complete faceted browsing, a hybrid goal finder, rich detail pages, and agent-readable content. | [`awesome-azd/`](./awesome-azd/) · [live](https://hyoshis.github.io/cliux/prototypes/awesome-azd/) |
 | **Agentic platform engineering** | A platform-approved path to Azure for developers and their coding agents. Interactive Terraform walkthrough with live story notes and a design preview of agent onboarding. | [`ignite/`](./ignite/) · [live](https://hyoshis.github.io/cliux/prototypes/ignite/) |
 | **azd · Microsoft Foundry skill install** | Interactive `azure.ai.agents` install flow that asks before adding reusable Microsoft Foundry guidance for coding agents. | [`fndry-skill-install/`](./fndry-skill-install/) · [live](https://hyoshis.github.io/cliux/prototypes/fndry-skill-install/) |
