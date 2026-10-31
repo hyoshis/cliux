@@ -21,6 +21,7 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 
 | Prototype | Description | Link |
 | --- | --- | --- |
+| **Awesome azd · Catalog consolidation** | Comparison study and design rationale, with a recommended catalog-first design, complete faceted browsing, a hybrid goal finder, rich detail pages, and agent-readable content. | [`awesome-azd/`](./awesome-azd/) · [live](https://hyoshis.github.io/cliux/prototypes/awesome-azd/) |
 | **Agentic platform engineering** | A platform-approved path to Azure for developers and their coding agents. Interactive Terraform walkthrough with live story notes and a design preview of agent onboarding. | [`ignite/`](./ignite/) · [live](https://hyoshis.github.io/cliux/prototypes/ignite/) |
 | **azd · Microsoft Foundry skill install** | Interactive `azure.ai.agents` install flow that asks before adding reusable Microsoft Foundry guidance for coding agents. | [`fndry-skill-install/`](./fndry-skill-install/) · [live](https://hyoshis.github.io/cliux/prototypes/fndry-skill-install/) |
 | **azd · Extension auto-install** | Interactive terminal prototype of the `azd up` extension-install UX (single/multiple extensions, source selection). | [`azd-extension-install/`](./azd-extension-install/) · [live](https://hyoshis.github.io/cliux/prototypes/azd-extension-install/) |
