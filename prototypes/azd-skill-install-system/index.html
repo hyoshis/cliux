@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="description" content="An experience strategy and interactive scenario lab for installing Azure skills through azd. Explore the recommendation, competitive evidence, and user-control patterns.">
+  <title>The right skills, at the right moment | azd experience strategy</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2329473f'/%3E%3Cpath d='m16 20 12 12-12 12m20 0h12' fill='none' stroke='%23d8ed9c' stroke-width='5'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script src="scenarios.js" defer></script>
+  <script src="terminal.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <aside class="sidebar" aria-label="Strategy dashboard">
+    <a class="brand" href="#overview" aria-label="azd skills strategy overview"><span class="brand-mark">&gt;_</span><span>azd <strong> / skills</strong></span></a>
+    <p class="sidebar-label">EXPERIENCE STRATEGY</p>
+    <nav aria-label="Dashboard sections">
+      <a href="#overview" data-page="overview"><span>01</span> The recommendation</a>
+      <a href="#options" data-page="options"><span>02</span> Design directions</a>
+      <a href="#lab" data-page="lab"><span>03</span> Scenario lab <i class="nav-dot" aria-hidden="true"></i></a>
+      <a href="#competitive" data-page="competitive"><span>04</span> Competitive landscape</a>
+      <a href="#contract" data-page="contract"><span>05</span> The UX contract</a>
+      <a href="#roadmap" data-page="roadmap"><span>06</span> Decisions &amp; rollout</a>
+    </nav>
+    <div class="sidebar-bottom">
+      <span class="status-dot"></span> A proposal, not a product spec
+      <p>Explore the decisions.<br>Try the experience.<br>Challenge the assumptions.</p>
+      <button class="text-button" id="print-button" type="button">Print / save as PDF <span aria-hidden="true">&#8599;</span></button>
+    </div>
+  </aside>
+  <div class="workspace">
+    <header class="topbar">
+      <p class="author">Hiyo Shin <span aria-hidden="true">&middot;</span> Senior Designer, CoreAI</p>
+      <div class="topbar-actions"><span class="badge neutral">Design exploration</span><button class="button small" id="share-button" type="button">Copy view link <span aria-hidden="true">&#8599;</span></button></div>
+    </header>
+    <main id="main" tabindex="-1">
+      <section id="overview" class="page" aria-labelledby="overview-title">
+        <div class="eyebrow"><span class="tiny-line"></span> AZURE DEVELOPER CLI <span class="eyebrow-separator">/</span> SKILL INSTALLATION</div>
+        <div class="hero">
+          <div>
+            <h1 id="overview-title">The right skills.<br>At the <em>right moment.</em></h1>
+            <p class="hero-lede">Make Azure expertise available when it helps the developer move forward. Not because they happened to run an Azure command.</p>
+            <div class="hero-actions"><a class="button primary" href="#lab">Try the scenarios <span aria-hidden="true">&#8594;</span></a><a class="text-link" href="#competitive">See the competitive evidence <span aria-hidden="true">&#8599;</span></a></div>
+          </div>
+          <aside class="thesis-card">
+            <span class="eyebrow light">THE DESIGN THESIS</span>
+            <p>Install capability.<br><em>Not clutter.</em></p>
+            <div class="thesis-flow"><span>Understand intent</span><span>Review the change</span><span>Continue the task</span></div>
+            <div class="thesis-foot">One deliberate decision.<br>No surprise setup.</div>
+          </aside>
+        </div>
+        <div class="summary-strip">
+          <div><span class="strip-number">01</span><span>Explicit setup<br><strong>A front door for the willing</strong></span></div>
+          <div><span class="strip-number">06</span><span>Core journeys<br><strong>Plus a no-prompt guardrail</strong></span></div>
+          <div><span class="strip-number">00</span><span>Silent optional installs<br><strong>Consent is not inherited</strong></span></div>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">EXECUTIVE RECOMMENDATION</p><h2>One system. Two ways in.</h2></div><span class="badge green">Recommended direction</span></div>
+        <div class="recommendation-grid">
+          <article class="paper-card"><span class="card-index">A / USER-INITIATED</span><h3>&ldquo;Set up my assistant for Azure.&rdquo;</h3><p>Offer a discoverable setup command for developers who want to equip an assistant deliberately. Review capabilities, select a target, choose a scope, and install once.</p><a class="text-link" href="#lab?scenario=setup">Try explicit setup <span aria-hidden="true">&#8594;</span></a></article>
+          <article class="paper-card"><span class="card-index">B / TASK-INITIATED</span><h3>&ldquo;Help me do this particular thing.&rdquo;</h3><p>Recommend the smallest useful set after a strong signal: a related extension, a relevant project, or an explicit request for AI help. Never turn normal CLI use into a setup funnel.</p><a class="text-link" href="#lab?scenario=troubleshoot">Try a contextual offer <span aria-hidden="true">&#8594;</span></a></article>
+        </div>
+        <aside class="callout"><span class="callout-symbol" aria-hidden="true">&#8594;</span><div><h3>The problem was not necessarily the command. It was the contract.</h3><p>Revisiting <code>azd tool</code> can make sense. The earlier frustration suggests a hypothesis to test: people reject unrequested, irrelevant setup more than an intentional setup destination. Timing, scope, and consent all need to change.</p></div></aside>
+        <div class="section-heading"><div><p class="eyebrow">BUILDING ON THE EXISTING EXPLORATIONS</p><h2>Keep the intent. Tighten the control.</h2></div></div>
+        <div class="review-grid">
+          <article class="paper-card"><span class="badge neutral">Foundry flow</span><h3>A strong contextual starting point</h3><p>Keep the companion-skill offer, installed-state check, independent lifecycle, and visible recovery path.</p><p class="delta"><strong>Refine:</strong> replace one broad &ldquo;Yes&rdquo; with a review of the target assistant and scope. A global install into both Copilot and Claude is more than extension consent implies.</p><a href="..\fndry-skill-install\index.html" class="text-link">Reference prototype <span aria-hidden="true">&#8599;</span></a></article>
+          <article class="paper-card"><span class="badge neutral">Ignite flow</span><h3>Good choices, too much ceremony</h3><p>Keep skills vs. plugin, selected-assistant targeting, visible scope, and the distinction between installed and loaded.</p><p class="delta"><strong>Refine:</strong> use azd&rsquo;s native prompts, with a plain-text plan and known defaults that can be changed. Ask for extra detail only when needed; do not replace the CLI with a form. Offer setup after an explicit assistance choice, not every <code>azd init</code>.</p><a href="..\ignite\index.html" class="text-link">Reference prototype <span aria-hidden="true">&#8599;</span></a></article>
+        </div>
+        <p class="fineprint">These are design interpretations, not findings from a controlled user study. The strategy separates optional agent guidance from required extension or runtime dependencies.</p>
+      </section>
+
+      <section id="options" class="page" aria-labelledby="options-title">
+        <div class="eyebrow">02 / DESIGN DIRECTIONS</div>
+        <h1 id="options-title" class="page-title">Three options.<br><em>Native to azd.</em></h1>
+        <p class="page-lede">Same installation contract, three terminal-native ways to reach it. These are CLI interaction options within the hybrid strategy: use azd&rsquo;s questions, arrow-key lists, text output, and confirmations&mdash;never web forms inside the terminal.</p>
+        <div class="options-grid">
+          <article class="direction-card"><span class="card-index">OPTION A / COMPANION PROMPT</span><h2>Ask first.<br>Refine after.</h2><p>A short, skippable yes/no invitation after a relevant extension or project action. If accepted, select the assistant and scope, then confirm the final plan.</p><pre class="cli-preview"><span class="cli-dim">Extension installed.</span>
+<span class="cli-blue">?</span> Also install Foundry guidance?
+  <span class="cli-blue">[y/N]</span> No</pre><dl><dt>Best for</dt><dd>The Foundry companion offer when the user has not asked to configure an assistant.</dd><dt>Trade-off</dt><dd>A gentle interruption, but more prompts on the accepted path. The first Yes expresses interest, not blanket install consent.</dd></dl><a class="button" href="#lab?scenario=foundry&amp;design=companion">Try companion prompt <span aria-hidden="true">&#8594;</span></a></article>
+          <article class="direction-card"><span class="card-index">OPTION B / EXPLICIT WIZARD</span><h2>A deliberate<br>setup command.</h2><p>A user-run setup command asks what to install, for which assistant, and at which scope. Finish with a plain-text summary and a native confirmation.</p><pre class="cli-preview"><span class="cli-dim">&gt; azd tool configure</span>
+<span class="cli-blue">?</span> Select what to install:
+  <span class="cli-blue">&gt; Relevant Azure skills only</span>
+    Full Azure plugin + MCP</pre><dl><dt>Best for</dt><dd>Intentional onboarding, workshops, documentation, and returning after a decline. No project required.</dd><dt>Trade-off</dt><dd>More decisions, but at the right moment. Keep the existing package boundaries visible.</dd></dl><a class="button" href="#lab?scenario=setup&amp;design=wizard">Try setup wizard <span aria-hidden="true">&#8594;</span></a></article>
+          <article class="direction-card recommended"><div class="recommendation-ribbon">RECOMMENDED FOR KNOWN CONTEXT</div><span class="card-index">OPTION C / REVIEWED DEFAULTS</span><h2>Show the plan.<br>Let me adjust.</h2><p>When the active assistant and workspace are known, print the plan first. One arrow-key choice installs that plan, opens native customization prompts, or skips.</p><pre class="cli-preview"><span class="cli-dim">Assistant: Copilot CLI
+Scope:     This project only</span>
+<span class="cli-blue">?</span> How would you like to continue?
+  <span class="cli-blue">&gt; Install with these settings</span>
+    Change assistant or scope
+    Not now</pre><dl><dt>Best for</dt><dd>AI-assisted setup and task-specific guidance where defaults are based on known context, not guessed.</dd><dt>Trade-off</dt><dd>A shorter common path, provided the assistant, source, scope, and contents are clear before Enter approves.</dd></dl><a class="button primary" href="#lab?scenario=project&amp;design=defaults">Try reviewed defaults <span aria-hidden="true">&#8594;</span></a></article>
+        </div>
+        <aside class="callout"><span class="callout-symbol" aria-hidden="true">&gt;</span><div><h3>One native interaction language, not three installers.</h3><p>Blue <code>?</code> questions and <code>&gt;</code> selections; arrow keys and filtering; <code>[y/N]</code> confirmations; plain output for plans, errors, and completion. A is the lightest invitation, B is the explicit front door, and C reduces repeated configuration when context is known. All use the same installation, consent, and readiness rules.</p></div></aside>
+        <p class="fineprint">Interaction reference: azd&rsquo;s <a href="https://github.com/Azure/azure-dev/blob/main/cli/azd/pkg/ux/select.go" target="_blank" rel="noopener noreferrer">Select</a>, <a href="https://github.com/Azure/azure-dev/blob/main/cli/azd/pkg/ux/confirm.go" target="_blank" rel="noopener noreferrer">Confirm</a>, and <a href="https://github.com/Azure/azure-dev/blob/main/cli/azd/pkg/ux/prompt_message.go" target="_blank" rel="noopener noreferrer">prompt formatting</a> primitives. Terminal colors follow the existing azd prototypes. The skill flows and command model remain design proposals; this page does not claim they ship today.</p>
+        <div class="section-heading"><div><p class="eyebrow">THE TRIGGER LADDER</p><h2>Earn the interruption.</h2></div></div>
+        <div class="intent-ladder">
+          <article><span class="ladder-level">LOW SIGNAL</span><h3>An Azure-related command</h3><p><code>azd init</code>, <code>azd up</code>, or a deployment error by itself.</p><strong>No optional skill prompt.</strong></article>
+          <article><span class="ladder-level">RELEVANT SIGNAL</span><h3>A matching tool or project</h3><p>Foundry extension installed; trusted project declares relevant recommendations.</p><strong>One skippable offer.</strong></article>
+          <article><span class="ladder-level">EXPLICIT SIGNAL</span><h3>A request for assistance</h3><p>Assistant setup, AI-assisted initialization, or &ldquo;Help me troubleshoot.&rdquo;</p><strong>Review guidance before handoff.</strong></article>
+        </div>
+        <aside class="callout"><span class="callout-symbol" aria-hidden="true">!</span><div><h3>&ldquo;Needed&rdquo; must not quietly mean &ldquo;mandatory.&rdquo;</h3><p>A skill can improve an agent workflow without being a prerequisite for the underlying CLI command. If a particular assisted mode truly cannot work without it, explain that requirement and provide an exit to the non-AI workflow. Required dependencies follow their existing installation contract.</p></div></aside>
+        <div class="section-heading"><div><p class="eyebrow">PROPOSED COMMAND MODEL</p><h2>One place to return to.</h2></div><span class="badge amber">Naming to validate</span></div>
+        <div class="command-model"><code>azd tool configure</code><span>Set up an assistant for Azure</span><code>azd tool list</code><span>See skills, sources, targets, versions, and readiness</span><code>azd tool update &lt;skill&gt;</code><span>Review and update a selected installation</span><code>azd tool uninstall &lt;skill&gt;</code><span>Remove only a chosen target and scope</span></div>
+        <p class="fineprint">This is a conceptual command model, not a claim that these exact subcommands, flags, or behavior ship today. Prefer host-native package managers underneath; azd should orchestrate, not fork the ecosystem.</p>
+      </section>
+
+      <section id="lab" class="page" aria-labelledby="lab-title">
+        <div class="eyebrow">03 / INTERACTIVE SCENARIO LAB</div>
+        <div class="section-heading lab-heading"><div><h1 id="lab-title" class="page-title">Feel the <em>difference.</em></h1><p class="page-lede">Choose a moment, change the conditions, and make the decisions yourself.</p></div><span class="badge green"><span class="status-dot"></span> Interactive simulation</span></div>
+        <div class="simulation-notice"><strong>Safe to explore.</strong> No commands, installs, sign-ins, or Azure requests run. Skill flows are proposed. Use azd-style keyboard prompts inside the terminal; the browser controls outside it only change the demo. Installation and decline memory lasts for this tab.</div>
+        <noscript><p class="callout">Enable JavaScript to use the scenario lab. The strategy, comparison, and UX guidance remain available below.</p></noscript>
+        <div class="lab-layout">
+          <aside class="scenario-picker" aria-label="Choose a scenario"><p class="eyebrow">CHOOSE A MOMENT</p><div id="scenario-buttons"></div></aside>
+          <div class="lab-main">
+            <div class="lab-context"><div><span class="eyebrow" id="scenario-group">TOOL SETUP</span><h2 id="scenario-title">Install the Foundry extension</h2></div><div class="lab-toolbar"><button class="button small" id="restart-scenario" type="button">Restart flow <span aria-hidden="true">&#8634;</span></button><button class="text-button" id="reset-demo" type="button">Reset demo session</button></div></div>
+            <div class="fixture-controls">
+              <label for="cli-design">CLI design option<select id="cli-design"><option value="companion">A &middot; Companion prompt</option><option value="wizard">B &middot; Explicit setup wizard</option><option value="defaults">C &middot; Reviewed defaults</option></select></label>
+              <label for="environment-state">Environment state<select id="environment-state"></select></label>
+              <label for="install-result">Simulate install result<select id="install-result"><option value="success">Success; reload needed</option><option value="active">Success; active now</option><option value="failure">Download fails</option><option value="partial">Partial installation</option></select></label>
+            </div>
+            <p class="design-description" id="design-description"></p>
+            <div class="terminal">
+              <div class="terminal-top"><div class="window-dots" aria-hidden="true"><i></i><i></i><i></i></div><span>PowerShell <span aria-hidden="true">&middot;</span> azd</span><span class="terminal-simulation">SIMULATED</span></div>
+              <div class="terminal-screen" id="terminal-screen" tabindex="0" role="region" aria-label="Interactive azd terminal simulation">
+                <div class="terminal-transcript" id="transcript" role="log" aria-label="Simulated terminal output" aria-live="polite" aria-relevant="additions"></div>
+                <div class="terminal-interaction" id="interaction"></div>
+              </div>
+            </div>
+            <div class="terminal-demo-tools" aria-label="Demo controls outside the terminal">
+              <p id="terminal-help">Click the terminal to type. <kbd>&uarr;</kbd> <kbd>&darr;</kbd> move, <kbd>Enter</kbd> submits, <kbd>Ctrl+C</kbd> cancels. No web dropdowns or buttons appear inside the terminal.</p>
+              <div class="demo-keyboard" role="group" aria-label="Send a key to the simulated terminal"><span>Demo keys</span><button type="button" data-terminal-key="ArrowUp" aria-label="Press Arrow Up">&uarr;</button><button type="button" data-terminal-key="ArrowDown" aria-label="Press Arrow Down">&darr;</button><button type="button" data-terminal-key="Enter">Enter</button><button type="button" data-terminal-key="y" aria-label="Type y">y</button><button type="button" data-terminal-key="n" aria-label="Type n">n</button><button type="button" data-terminal-key="Control+c">Ctrl+C</button></div>
+              <div class="demo-status"><span>Demo status: <strong id="flow-status" role="status">Press Enter to run the suggested command</strong></span><button type="button" class="text-button" id="activate-session" disabled>Simulate new assistant session</button></div>
+              <p class="fineprint">Recovery fixture: accepting Retry assumes the network or host registration issue has been resolved. Source policy blocks never enter this retry path.</p>
+            </div>
+            <div class="lab-insight"><span class="insight-marker" aria-hidden="true">&#8599;</span><div><h3>Why this moment?</h3><p id="scenario-why"></p><p id="scenario-trigger" class="trigger-copy"></p></div></div>
+          </div>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">WHAT TO TRY</p><h2>The happy path is only half the design.</h2></div></div>
+        <div class="try-grid">
+          <a href="#lab?scenario=plain&state=missing"><strong>Do nothing, correctly.</strong><span>Ordinary azd init should not promote skills.</span><span aria-hidden="true">&#8594;</span></a>
+          <a href="#lab?scenario=clone&state=bundled"><strong>Respect what is there.</strong><span>Project-bundled guidance means no duplicate install.</span><span aria-hidden="true">&#8594;</span></a>
+          <a href="#lab?scenario=troubleshoot&state=declined"><strong>Remember &ldquo;not now.&rdquo;</strong><span>Same context, no repeated recommendation.</span><span aria-hidden="true">&#8594;</span></a>
+          <a href="#lab?scenario=assisted&state=ci"><strong>Keep automation predictable.</strong><span>No prompts or surprise downloads in CI.</span><span aria-hidden="true">&#8594;</span></a>
+        </div>
+      </section>
+
+      <section id="competitive" class="page" aria-labelledby="competitive-title">
+        <div class="eyebrow">04 / COMPETITIVE LANDSCAPE</div>
+        <h1 id="competitive-title" class="page-title">Borrow the pattern.<br><em>Not the blind spots.</em></h1>
+        <p class="page-lede">A first-party documentation review of four adjacent installation models, plus the existing Azure baseline. These are interaction-pattern comparisons, not benchmark scores or hands-on usability results.</p>
+        <div class="evidence-meta"><span class="badge neutral">Reviewed 30 Oct 2026</span><span>Documented fact <span class="legend-dot fact"></span></span><span>Design interpretation <span class="legend-dot interpretation"></span></span><span>Unknowns stay explicit</span></div>
+        <div class="competitive-feature">
+          <div><span class="eyebrow light">THE AWS LESSON</span><h2>A simple command<br>can express a <em>clear intention.</em></h2><code>aws configure agent-toolkit</code></div>
+          <div><p>AWS documents an explicit wizard that detects agents, installs default skills, and configures the AWS MCP Server. Skills go to global agent configuration directories; selected clients need a restart.</p><p><strong>Borrow:</strong> a memorable setup destination.<br><strong>Do not copy by default:</strong> global scope or all-agent lifecycle targeting. AWS documents that install/update/remove operations default to all detected agents unless an agent is specified.</p><a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/aws-cli.html" target="_blank" rel="noopener noreferrer">Read the AWS source [1] <span aria-hidden="true">&#8599;</span></a></div>
+        </div>
+        <div class="comparison-filters" role="group" aria-label="Filter competitive patterns"><button type="button" data-compare-filter="all" aria-pressed="true">All patterns</button><button type="button" data-compare-filter="entry" aria-pressed="false">Entry point &amp; consent</button><button type="button" data-compare-filter="scope" aria-pressed="false">Scope &amp; lifecycle</button></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Competitive comparison, scroll horizontally on small screens">
+          <table class="comparison-table">
+            <caption>Documented installation patterns and the implication for azd</caption>
+            <thead><tr><th scope="col">Product / role</th><th scope="col" data-column="entry">Entry &amp; package</th><th scope="col" data-column="scope">Scope &amp; lifecycle</th><th scope="col">Implication for azd</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">AWS Agent Toolkit<a href="#source-1">Official docs [1]</a></th><td data-column="entry"><span class="fact-label">DOCUMENTED</span>Explicit <code>aws configure agent-toolkit</code> wizard. Default AWS skills + MCP configuration; agent detection.</td><td data-column="scope">Global agent directories. Skill install/update/remove default to all detected agents; <code>--agent</code> narrows the target. Restart the client.</td><td><span class="interpretation-label">INTERPRETATION</span>Make setup intentional and memorable. Keep target and scope narrower by default. Per-skill consent inside the wizard is not established by this source.</td></tr>
+              <tr><th scope="row">Claude Code plugins<a href="#source-2">Official docs [2]</a></th><td data-column="entry"><span class="fact-label">DOCUMENTED</span>Interactive <code>/plugin install</code> opens details before installation. Shows components; some official details include context-cost estimates.</td><td data-column="scope">User, repository, and local-only scope. Install summary distinguishes active, reload required, configuration required, and load failure.</td><td><span class="interpretation-label">INTERPRETATION</span>Use one reviewable plan and a precise readiness receipt. Do not assume every client supports the same scopes or live reload.</td></tr>
+              <tr><th scope="row">Vercel Skills CLI<a href="#source-3">Official repository [3]</a></th><td data-column="entry"><span class="fact-label">DOCUMENTED</span><code>npx skills add</code> selects skills and coding agents. Installs reusable instructions, not a full cloud-tool setup wizard.</td><td data-column="scope">Project-local by default; <code>-g</code> enables cross-project use. List, check, update, and remove commands provide a return path.</td><td><span class="interpretation-label">INTERPRETATION</span>Reuse a skill installer rather than invent another format. Make scope tangible. Its instructions can still invoke tools; &ldquo;skills only&rdquo; is not a safety guarantee.</td></tr>
+              <tr><th scope="row">GitHub Copilot CLI plugins<a href="#source-4">Official docs [4]</a></th><td data-column="entry"><span class="fact-label">DOCUMENTED</span>Marketplace discovery or an explicit plugin install. Packages can include skills, agents, hooks, and MCP configuration.</td><td data-column="scope">List, update, disable, enable, and uninstall. Repository defaults have local overrides; enterprise managed settings take precedence.</td><td><span class="interpretation-label">INTERPRETATION</span>Prefer native host lifecycle and policy. Do not interpret an azd recommendation as permission to override an enterprise block.</td></tr>
+              <tr class="azure-baseline"><th scope="row">Azure Skills today<span class="badge green">Existing baseline</span><a href="#source-5">Microsoft Learn [5, 6]</a></th><td data-column="entry"><span class="fact-label">DOCUMENTED</span>Azure core plugin already bundles skills and MCP integration. A separate Foundry skill-only install is documented. Specialized plugins are separately installable.</td><td data-column="scope">Host-specific plugin setup and update paths. Azure credentials and resource permissions remain separate concerns. Reload/restart may be needed.</td><td><span class="interpretation-label">INTERPRETATION</span>The new design is azd orchestration, not a new Azure bundle. Show the real package boundary, including both Azure and Foundry MCP configurations where applicable.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">THE STRATEGIC OPENING</p><h2>Be better at relevance, not bigger at installation.</h2></div></div>
+        <div class="three-grid">
+          <article class="paper-card"><span class="card-index">BORROW</span><h3>Explicit setup + visible scope</h3><p>AWS contributes the front door. Claude contributes review and readiness. Skills CLI contributes granular, project-aware installation.</p></article>
+          <article class="paper-card"><span class="card-index">DIFFERENTIATE</span><h3>A task-aware invitation</h3><p>azd knows the selected workflow and project. Use that context to explain a recommendation, not to infer broad installation consent.</p></article>
+          <article class="paper-card"><span class="card-index">VALIDATE</span><h3>The friction hypothesis</h3><p>These sources do not prove that our hybrid improves adoption or task success. Test comprehension, interruption, trust, and task resumption.</p></article>
+        </div>
+        <div class="sources" aria-labelledby="sources-title"><h2 id="sources-title">Evidence &amp; source notes</h2><p>Primary sources reviewed on 30 October 2026. Features evolve; verify exact host support and package manifests before engineering handoff. No numeric competitive scoring is implied.</p>
+          <ol>
+            <li id="source-1"><a href="https://docs.aws.amazon.com/agent-toolkit/latest/userguide/aws-cli.html" target="_blank" rel="noopener noreferrer">AWS: Agent Toolkit CLI</a><span>Wizard, global directories, all-agent defaults for skill operations, agent targeting, restart, and lifecycle commands.</span></li>
+            <li id="source-2"><a href="https://code.claude.com/docs/en/discover-plugins" target="_blank" rel="noopener noreferrer">Anthropic: Install and manage Claude Code plugins</a><span>Pre-install review, install scopes, component disclosure, context-cost estimates on supported views, and activation states.</span></li>
+            <li id="source-3"><a href="https://github.com/vercel-labs/skills" target="_blank" rel="noopener noreferrer">Vercel Labs: Skills CLI</a><span>Skill/agent selection, project-default installation, global option, and lifecycle. CLI versions and experimental features may change.</span></li>
+            <li id="source-4"><a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-finding-installing" target="_blank" rel="noopener noreferrer">GitHub: Find and install Copilot CLI plugins</a><span>Marketplaces, explicit installation, enable/disable, removal, and managed-policy precedence. <a href="https://docs.github.com/en/copilot/how-tos/copilot-cli/customize-copilot/plugins-creating" target="_blank" rel="noopener noreferrer">Plugin components and formats</a>.</span></li>
+            <li id="source-5"><a href="https://learn.microsoft.com/azure/developer/azure-skills/install" target="_blank" rel="noopener noreferrer">Microsoft: Install and configure Azure Skills</a><span>Existing core plugin and specialized-plugin installation; host-specific configuration and update instructions.</span></li>
+            <li id="source-6"><a href="https://learn.microsoft.com/azure/foundry/how-to/develop/use-microsoft-foundry-skill" target="_blank" rel="noopener noreferrer">Microsoft: Use the Foundry Skill in coding agents</a><span>Documented Foundry skill-only path versus Azure plugin with skill, Azure MCP, and Foundry MCP configuration.</span></li>
+          </ol>
+        </div>
+      </section>
+
+      <section id="contract" class="page" aria-labelledby="contract-title">
+        <div class="eyebrow">05 / THE UX CONTRACT</div>
+        <h1 id="contract-title" class="page-title">Predictable by design.<br><em>Respectful by default.</em></h1>
+        <p class="page-lede">Every entry point should make the same promises. The install invitation changes with the task; the rules do not.</p>
+        <div class="contract-principles">
+          <article><span>01</span><h2>Explain the value</h2><p>Name the task benefit, source, publisher, and exact contents. Avoid vague claims like &ldquo;required for Azure.&rdquo;</p></article>
+          <article><span>02</span><h2>Bound the change</h2><p>One selected assistant. Project scope where supported. Explicit disclosure for user-wide or broader package changes.</p></article>
+          <article><span>03</span><h2>Honor the answer</h2><p>Skipping optional guidance preserves the original workflow. Consent is not inherited from a template or extension.</p></article>
+          <article><span>04</span><h2>Prove readiness</h2><p>Separate installed, discovered, loaded, authenticated, and permitted. Never promise that a skill repaired a deployment.</p></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">RECOMMENDATION MEMORY</p><h2>Not now must mean something.</h2></div><span class="badge amber">Proposed policy</span></div>
+        <div class="memory-rule"><div><span class="eyebrow">SUPPRESSION KEY</span><code>project + assistant + purpose + capability set</code><p>Remember a decline for this context. A new CLI invocation, restart, or patch release is not a new reason to ask.</p></div><div><span class="eyebrow">RESURFACE ONLY WHEN</span><p>The user explicitly returns to setup, requests a materially different assistance task, or reviews a changed recommendation that affects the needed capabilities. Explain the difference; never silently reset &ldquo;not now.&rdquo;</p></div></div>
+        <div class="section-heading"><div><p class="eyebrow">STATE &amp; RECOVERY RULES</p><h2>Design the less convenient moments.</h2></div></div>
+        <div class="state-rules">
+          <details open><summary>Already installed, bundled, or supplied by another installer</summary><p>Resolve usable guidance for the actual host, scope, and version. Recognized project-local skills count; do not download another copy merely to claim ownership. Record provenance without adopting or deleting externally managed files.</p><a href="#lab?scenario=clone&state=bundled">Try bundled guidance &#8594;</a></details>
+          <details><summary>Multiple assistants or no supported assistant</summary><p>Default to a known active host, visibly; otherwise ask. Detection is not permission to target every assistant. If no host exists, explain the prerequisite and let the user continue without skills. Installing a runtime or assistant needs separate consent.</p><a href="#lab?scenario=setup&state=no-assistant">Try a missing prerequisite &#8594;</a></details>
+          <details><summary>Optional updates and custom content</summary><p>Keep compatible installed guidance usable. Offer a reviewable update without silently replacing modified or user-authored files. A conflict is a stop-and-review state, not permission to back up and overwrite. Version pinning and host precedence need an engineering contract.</p><a href="#lab?scenario=project&state=conflict">Try a custom-content conflict &#8594;</a></details>
+          <details><summary>Offline, proxy, approved sources, and organization policy</summary><p>Report the actual acquisition problem. Continue the non-AI workflow where possible. Offer approved-source instructions or an administrator path, not an automatic unapproved mirror. Policy denial is not a transient network error to retry around.</p><a href="#lab?scenario=assisted&state=blocked">Try policy denial &#8594;</a></details>
+          <details><summary>Partial installation and retry</summary><p>Report per-item status and remaining work. Retry only failed items; do not repeat already successful installs. Avoid destructive rollback of shared assets. If an optional bundle fails, preserve the original command and explain which assisted capabilities are unavailable.</p><a href="#lab?scenario=clone&result=partial">Try a partial install &#8594;</a></details>
+          <details><summary>Installed but not ready in the current session</summary><p>Ask the host what is active where supported. A new file on disk does not prove a running agent has loaded it. Provide host-specific reload guidance or a new-session handoff and preserve the original task. MCP configuration is not authentication or action approval.</p><a href="#lab?scenario=assisted">Try the readiness handoff &#8594;</a></details>
+          <details><summary>Shared skills, extension removal, and cleanup</summary><p>Do not remove shared guidance when its companion extension is removed. Explicit removal names the assistant and scope and touches only installer-owned content. In-use detection, ownership records, and cross-installer identity are engineering questions; absence of telemetry is not proof that a skill is unused.</p><a href="#lab?scenario=setup&state=installed">Try lifecycle management &#8594;</a></details>
+          <details><summary>Non-interactive commands and coding agents</summary><p>Return a machine-readable plan, missing capability identifiers, and actionable next steps. Optional guidance should not change the original command's exit status. Acquisition requires explicit preapproval with target, scope, and source; generic yes-to-all must not imply consent to unrelated installs.</p><a href="#lab?scenario=assisted&state=ci">Try automation &#8594;</a></details>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">KEEP THE CONCEPTS SEPARATE</p><h2>Guidance is not permission.</h2></div></div>
+        <div class="concept-grid"><article><h3>Skill</h3><p>Workflow instructions, sometimes with scripts or tool references. Review source and content; skill-only does not mean risk-free.</p></article><article><h3>Plugin</h3><p>A packaging boundary. May contain skills, MCP servers, hooks, and other components. Disclose the actual manifest.</p></article><article><h3>MCP connection</h3><p>Tool integration. Configuring it does not grant Azure permissions or approve future actions.</p></article><article><h3>Extension / runtime</h3><p>A CLI capability or executable dependency. Its installation has a separate requirement and consent model.</p></article></div>
+      </section>
+
+      <section id="roadmap" class="page" aria-labelledby="roadmap-title">
+        <div class="eyebrow">06 / DECISIONS &amp; ROLLOUT</div>
+        <h1 id="roadmap-title" class="page-title">Ship the smallest<br><em>trustworthy system.</em></h1>
+        <p class="page-lede">Start by making one relevant offer work well. Expand only when state, scope, and recovery behave consistently.</p>
+        <div class="roadmap-track">
+          <article><span class="phase-number">01</span><div><span class="eyebrow">FIRST / FOUNDATIONAL CONTRACT</span><h2>One contextual companion</h2><p>Foundry extension completion: missing-state detection, selected assistant, explicit scope, skip, install receipt, and readiness. Keep the existing extension installation independent.</p><strong>Exit criterion:</strong> users can explain what changed and continue after declining or a failed optional install.</div></article>
+          <article><span class="phase-number">02</span><div><span class="eyebrow">NEXT / INTENTIONAL SETUP</span><h2>A front door and a return path</h2><p>Explicit assistant setup and management without an azd project. Use the same plan model, package boundaries, provenance, update, and removal behavior.</p><strong>Exit criterion:</strong> setup is idempotent and never changes an unselected assistant or scope.</div></article>
+          <article><span class="phase-number">03</span><div><span class="eyebrow">THEN / CONTEXTUAL EXPANSION</span><h2>Projects and AI handoffs</h2><p>Trusted project recommendations, bundled-skill recognition, assistance-gated setup, and requested troubleshooting. Apply suppression across all entry points.</p><strong>Exit criterion:</strong> no repeated prompts, no downloads on ordinary init or failure alone, and no policy bypass.</div></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">DECISIONS FOR THE ROOM</p><h2>Align on policy before polishing prompts.</h2></div></div>
+        <div class="decision-list">
+          <article><span>01</span><div><h3>What is the unit of installation?</h3><p>Individual skills for narrow tasks; the existing full Azure plugin only when a user chooses broader tooling. Validate real catalog and host capabilities before promising selective plugin contents.</p></div><span class="badge green">Recommend</span></article>
+          <article><span>02</span><div><h3>Where does the setup destination live?</h3><p>Evaluate azd tool as an orchestration surface against native host commands. Keep one recognizable management path and avoid a second package registry.</p></div><span class="badge amber">Validate naming</span></article>
+          <article><span>03</span><div><h3>What does &ldquo;project-local&rdquo; mean?</h3><p>Distinguish local files for this developer from committed recommendations for a team. Never silently commit setup or imply that a clone grants installation consent.</p></div><span class="badge amber">Host contract</span></article>
+          <article><span>04</span><div><h3>When is a skill truly required?</h3><p>Make recommended guidance optional by default. Document any specific assisted mode that cannot continue without it, and offer an explicit return to the non-AI workflow.</p></div><span class="badge amber">Product decision</span></article>
+        </div>
+        <div class="section-heading"><div><p class="eyebrow">VALIDATION PLAN</p><h2>Measure useful adoption. Not install volume.</h2></div></div>
+        <div class="validation-grid">
+          <article class="paper-card"><h3>Formative tasks</h3><p>Start without skills, install for one assistant, decline and repeat the task, join a project with bundled guidance, recover from a partial failure, and ask for deployment help.</p><p>Compare explicit-only, contextual-only, and hybrid entry points. Include new Azure users, experienced CLI users, and platform-managed teams.</p></article>
+          <article class="paper-card"><h3>Primary outcomes</h3><ul class="clean-list"><li>Can users predict the target, scope, and contents before confirming?</li><li>Can they complete or resume their original task?</li><li>Do irrelevant offers and repeat prompts fall?</li><li>Does the installed guidance become usable in the intended host?</li></ul></article>
+          <article class="paper-card"><h3>Guardrails &amp; instrumentation</h3><p>Track offer reason, plan acceptance, skipped reason when volunteered, per-item completion, readiness outcome, and task resumption with appropriate consent.</p><p>No transcript, project-code, or secret collection. Set numerical targets after a baseline; install rate alone is not a success metric.</p></article>
+        </div>
+        <aside class="closing-note"><span class="eyebrow">THE STAKEHOLDER TAKEAWAY</span><h2>Make setup easy to choose.<br><em>Make it safe to ignore.</em></h2><a class="button primary" href="#lab">Test the recommendation <span aria-hidden="true">&#8594;</span></a></aside>
+      </section>
+      <footer class="page-footer"><span>azd / skills &mdash; Experience strategy, October 2026</span><span>Proposed flows &middot; Public-source analysis &middot; No real installations</span><p>AI-generated content may be incorrect. Verify source documentation and host capabilities before implementation.</p></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body>
+</html>
