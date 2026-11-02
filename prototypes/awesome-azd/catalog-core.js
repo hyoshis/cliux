@@ -53,9 +53,9 @@
     const query = serialize(state, { collection, from });
     return `${root}templates/${template.id}/index.html${query ? `?${query}` : ""}`;
   }
-  function listingUrl({ root = "", state = {}, collection = "", finder = false } = {}) {
+  function listingUrl({ root = "", state = {}, collection = "", finder = false, featured = false } = {}) {
     const query = serialize(state, { collection: finder ? collection : "" });
-    return `${root}${finder ? "find.html" : collection ? "templates/ai/index.html" : "catalog.html"}${query ? `?${query}` : ""}`;
+    return `${root}${finder ? "find.html" : collection ? "templates/ai/index.html" : featured ? "catalog-featured.html" : "catalog.html"}${query ? `?${query}` : ""}`;
   }
   function icon(task) {
     const paths = {
@@ -69,17 +69,19 @@
     return `<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${paths[task] || paths["Build a web app"]}"/></svg>`;
   }
   function card(template, config = {}) {
-    const id = `template-${template.id.replace(/[^a-z0-9]/g, "-")}`;
+    const featured = config.featured;
+    const id = `${featured ? "featured" : "template"}-${template.id.replace(/[^a-z0-9]/g, "-")}`;
+    const heading = featured ? "h3" : "h2";
     const host = template.host || "Hosting options in repository";
     const languages = template.languages.length ? template.languages : ["Bring your own code"];
-    return `<a class="catalog-card" href="${detailUrl(template, config)}" aria-labelledby="${id}">
-      <div class="catalog-card-top"><span class="catalog-task-icon">${icon(template.task)}</span><span class="catalog-author">${escape(template.authorship)} authored</span></div>
-      <span class="catalog-task">${escape(template.task)}</span>
-      <h2 id="${id}">${escape(template.title)}</h2>
+    return `<a class="catalog-card${featured ? " featured-card" : ""}" href="${detailUrl(template, config)}" aria-labelledby="${id}">
+      <div class="catalog-card-top"><span class="catalog-task-icon">${icon(template.task)}</span>${featured ? `<span class="catalog-task">${escape(template.task)}</span>` : `<span class="catalog-author">${escape(template.authorship)} authored</span>`}</div>
+      ${featured ? "" : `<span class="catalog-task">${escape(template.task)}</span>`}
+      <${heading} id="${id}">${escape(template.title)}</${heading}>
       <p class="catalog-card-summary">${escape(template.description)}</p>
       <div class="catalog-card-tags">${languages.map(language => `<span class="tag">${escape(language)}</span>`).join("")}${template.iac ? `<span class="tag">${escape(template.iac)}</span>` : ""}</div>
-      <div class="catalog-card-host">${escape(host)}</div>
-      <div class="catalog-card-bottom"><span>View template <span aria-hidden="true">&#8594;</span></span><small>${template.collections.includes("ai") ? "AI collection" : "azd template"}</small></div>
+      ${featured ? "" : `<div class="catalog-card-host">${escape(host)}</div>`}
+      <div class="catalog-card-bottom"><span>View template <span aria-hidden="true">&#8594;</span></span>${featured ? "" : `<small>${template.collections.includes("ai") ? "AI collection" : "azd template"}</small>`}</div>
     </a>`;
   }
   function filterPanel(records, state) {

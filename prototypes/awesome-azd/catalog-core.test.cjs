@@ -1,5 +1,7 @@
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
+const { readFileSync } = require("node:fs");
+const path = require("node:path");
 const C = require("./catalog-core.js");
 const { templates } = require("./templates.json");
 const ids = state => C.filter(templates, state).map(template => template.id);
@@ -75,4 +77,31 @@ test("escaped search content cannot become card markup or unescaped query attrib
   assert(link.includes("index.html?"));
   assert(!link.includes("<img"));
   assert.equal(new URLSearchParams(link.split("?")[1]).get("from"), "finder");
+});
+
+test("featured cards have distinct accessible labels and retain detail navigation context", () => {
+  const template = templates[0];
+  const state = C.parse("?sort=az", templates);
+  const regular = C.card(template, { state });
+  const featured = C.card(template, { state, featured: true });
+  assert.match(featured, /class="catalog-card featured-card"/);
+  assert.match(featured, /<h3 id="featured-[^"]+">/);
+  assert.notEqual(featured.match(/aria-labelledby="([^"]+)"/)[1], regular.match(/aria-labelledby="([^"]+)"/)[1]);
+  assert(featured.includes(`href="${C.detailUrl(template, { state })}"`));
+  assert(!featured.includes("catalog-card-host"));
+});
+
+test("the featured catalog shows three distinct use cases before search without removing them from results", () => {
+  const html = readFileSync(path.join(__dirname, "catalog-featured.html"), "utf8");
+  const section = html.match(/<section class="catalog-featured" id="catalog-featured"[\s\S]*?<\/section>/)?.[0];
+  assert(section, "Expected a featured templates section");
+  assert(!html.includes('<section class="selected-hero"'), "The featured variant must not also show the original hero");
+  assert(html.indexOf(section) < html.indexOf('id="catalog-discovery"'));
+  const links = [...section.matchAll(/<a class="catalog-card featured-card" href="([^"]+)"/g)];
+  assert.equal(links.length, 3);
+  assert.equal(new Set([...section.matchAll(/<span class="catalog-task">([^<]+)<\/span>/g)].map(match => match[1])).size, 3);
+  const results = html.slice(html.indexOf('id="catalog-results"'));
+  for (const [, href] of links) assert(results.includes(`href="${href}"`), "Featured templates must remain in the full catalog");
+  const elementIds = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+  assert.equal(new Set(elementIds).size, elementIds.length, "Featured and regular cards must not duplicate element IDs");
 });

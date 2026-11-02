@@ -2,11 +2,12 @@
   const C = window.AzdCatalog;
   const root = document.body.dataset.root || "";
   const finder = document.body.dataset.mode === "finder";
+  const featuredLayout = document.body.dataset.layout === "featured";
   const collection = document.body.dataset.collection || (finder && new URLSearchParams(location.search).get("collection") === "ai" ? "ai" : "");
   const records = window.AZD_CATALOG.templates.filter(template => !collection || template.collections.includes(collection));
   let state = C.parse(location.search, records);
   const hasCriteria = () => Boolean(state.q || C.facets.some(facet => state[facet.key].length));
-  const context = () => ({ root, state, collection, from: finder ? "finder" : "catalog" });
+  const context = () => ({ root, state, collection, from: finder ? "finder" : featuredLayout ? "featured" : "catalog" });
   function syncUrl() {
     const query = C.serialize(state, { collection: finder ? collection : "" });
     history.replaceState(null, "", `${location.pathname}${query ? `?${query}` : ""}${location.hash}`);
@@ -16,6 +17,11 @@
   }
   function catalogRefresh() {
     const results = C.filter(records, state);
+    const featured = document.getElementById("catalog-featured");
+    if (featured) {
+      featured.hidden = hasCriteria();
+      if (!featured.hidden) featured.querySelector(".featured-template-grid").innerHTML = records.filter(template => template.featured).map(template => C.card(template, { ...context(), featured: true })).join("");
+    }
     document.getElementById("catalog-results").innerHTML = results.length ? results.map(template => C.card(template, context())).join("") : emptyState();
     const count = `${results.length} of ${records.length} examples${state.q ? ` for "${state.q}"` : ""}`;
     document.getElementById("catalog-result-count").textContent = count;
@@ -38,7 +44,10 @@
     const activeCount = C.facets.reduce((count, facet) => count + state[facet.key].length, 0);
     document.getElementById("catalog-filter-toggle").textContent = `Filters${activeCount ? ` (${activeCount})` : ""}`;
     for (const link of document.querySelectorAll("[data-collection-link]")) {
-      link.href = C.listingUrl({ root, state, collection: link.dataset.collectionLink });
+      link.href = C.listingUrl({ root, state, collection: link.dataset.collectionLink, featured: featuredLayout });
+    }
+    for (const link of document.querySelectorAll("[data-catalog-design]")) {
+      link.href = C.listingUrl({ root, state, featured: link.dataset.catalogDesign === "featured" });
     }
     syncUrl();
   }
@@ -100,12 +109,13 @@
   }
 
   const form = document.getElementById("template-finder");
+  const answer = document.getElementById("finder-answer");
+  const preferences = document.getElementById("finder-options");
   form.elements.language.setAttribute("aria-label", "Language");
   form.elements.host.setAttribute("aria-label", "Default host");
   const heading = document.getElementById("finder-result-heading");
   const description = document.getElementById("finder-answer-description");
   const matches = document.getElementById("finder-matches");
-  const examples = document.querySelector(".finder-examples");
   const criteria = document.getElementById("finder-criteria");
   const warnings = document.getElementById("finder-warnings");
   const results = document.getElementById("finder-results");
@@ -118,38 +128,34 @@
     for (const radio of form.querySelectorAll('input[name="goal"]')) radio.checked = state.tasks.includes(radio.value);
     form.elements.language.value = state.languages.length === 1 ? state.languages[0] : "";
     form.elements.host.value = state.hosts.length === 1 ? state.hosts[0] : "";
+    preferences.open = Boolean(state.languages.length || state.hosts.length);
   }
   function showError(message) {
+    answer.hidden = false;
     heading.textContent = "Let's clarify your criteria.";
     description.textContent = message;
+    description.hidden = false;
     matches.hidden = true;
-    examples.hidden = false;
     status.textContent = message;
     heading.focus();
   }
   function finderRefresh(focus = false) {
     if (!hasCriteria()) {
-      showError("Choose a goal, language or host, or describe an idea using catalog terms. No results have been assumed.");
+      showError("Choose a goal, language or host, or describe your idea.");
       syncUrl();
       return;
     }
     if (state.unavailable.length) messages = [...new Set([...messages, `Saved criteria not available in this collection: ${state.unavailable.join("; ")}.`])];
     const found = C.filter(records, state);
+    answer.hidden = false;
     matches.hidden = false;
-    examples.hidden = true;
-    heading.textContent = found.length ? `${found.length} matching ${found.length === 1 ? "starting point" : "starting points"}.` : "No confirmed match yet.";
-    description.textContent = "Review the criteria below. Remove anything that doesn't describe your intent; every remaining group must match.";
+    heading.textContent = found.length ? `${found.length} matching ${found.length === 1 ? "template" : "templates"}` : "No matching examples";
+    description.hidden = found.length > 0;
+    description.textContent = "Try removing a filter or changing your preferences.";
     status.textContent = `${found.length} of ${records.length} examples match your criteria.`;
     criteria.innerHTML = C.chips(state);
     warnings.innerHTML = messages.map(message => `<p class="finder-warning">${C.escape(message)}</p>`).join("");
-    results.innerHTML = found.length ? found.map(template => {
-      const evidence = C.facets.flatMap(facet => {
-        const values = state[facet.key].filter(value => C.fieldValues(template, facet.field).includes(value));
-        return values.length ? [`${facet.label}: ${values.join(", ")}`] : [];
-      });
-      if (state.q) evidence.push(`Catalog text contains: ${state.q}`);
-      return `<article class="finder-result">${C.card(template, context())}<div class="finder-match-evidence"><b>Why it matches</b><ul>${evidence.map(item => `<li>${C.escape(item)}</li>`).join("")}</ul></div></article>`;
-    }).join("") : emptyState();
+    results.innerHTML = found.map(template => `<article class="finder-result">${C.card(template, context())}</article>`).join("");
     document.getElementById("finder-open-catalog").href = C.listingUrl({ root, state, collection });
     syncUrl();
     if (focus) heading.focus();
@@ -166,22 +172,23 @@
       if (explicit) inferred.state[key] = [explicit];
     }
     if (!C.facets.some(facet => inferred.state[facet.key].length)) {
-      showError(inferred.warnings[0] || "We couldn't identify a supported goal or stack from that description. Try a quick choice or an example. This is a keyword matcher, not a general-purpose AI assistant.");
+      showError(inferred.warnings[0] || "We couldn't match that description. Choose a goal or try a language or service name.");
       return;
     }
     state = inferred.state;
     messages = inferred.warnings;
-    if (text) messages.push("Matched only the visible catalog criteria. Other details in your description still need repository review. Nothing was sent to an AI service.");
     finderRefresh(true);
   }
   function resetFinder() {
     form.reset();
     state = C.parse("", records);
     messages = [];
-    heading.textContent = "A little context goes a long way.";
-    description.textContent = "Try an example or choose your own goal. You can edit every inferred criterion before deciding.";
+    answer.hidden = true;
+    preferences.open = false;
+    heading.textContent = "Your matches";
+    description.textContent = "Choose your preferences, then find matching templates.";
+    description.hidden = false;
     matches.hidden = true;
-    examples.hidden = false;
     status.textContent = "Finder cleared. Choose a goal or describe your idea.";
     syncUrl();
     form.querySelector('input[name="goal"]').focus();
@@ -195,11 +202,7 @@
   document.addEventListener("click", event => {
     const button = event.target.closest("button");
     if (!button) return;
-    if (button.dataset.example) {
-      form.reset();
-      form.elements.idea.value = button.dataset.example;
-      submitIdea();
-    } else if (button.dataset.remove) {
+    if (button.dataset.remove) {
       if (button.dataset.remove === "q") state.q = "";
       else state[button.dataset.remove] = state[button.dataset.remove].filter(value => value !== button.dataset.value);
       if (button.dataset.remove === "tasks") {

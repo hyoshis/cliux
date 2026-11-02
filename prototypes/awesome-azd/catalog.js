@@ -11,6 +11,7 @@ window.AZD_CATALOG = {
   "templates": [
     {
       "id": "azure-samples/azure-search-openai-demo",
+      "featured": true,
       "sourceId": "5f6de8e1-9742-4888-ae09-30347b4f4445",
       "title": "Chat with your documents",
       "subtitle": "RAG with Azure AI Search + Python",
@@ -381,6 +382,7 @@ window.AZD_CATALOG = {
     },
     {
       "id": "azure-samples/get-started-with-ai-agents",
+      "featured": true,
       "sourceId": "35fede2d-4da6-43e2-b679-c593c6fd40da",
       "title": "Build your first knowledge agent",
       "subtitle": "Getting started with Microsoft Foundry agents",
@@ -439,6 +441,7 @@ window.AZD_CATALOG = {
     },
     {
       "id": "azure-samples/msdocs-django-postgresql-sample-app",
+      "featured": true,
       "sourceId": "aca56c78-0e01-4525-b678-c3d5c28be1be",
       "title": "Start a Django web app",
       "subtitle": "Django + PostgreSQL on App Service",
