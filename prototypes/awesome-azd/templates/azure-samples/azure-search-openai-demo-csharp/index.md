@@ -2,7 +2,7 @@
 
 > Start a C# conversational app grounded in enterprise data, using Azure AI Search and Azure OpenAI.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/azure-search-openai-demo-csharp`
 - Source UUID: `75989eb4-f7e0-4dab-be54-262775942d4e`
@@ -49,7 +49,7 @@ Declared services are not a guarantee of default provisioning. The verified defa
 Inspect the repository and hooks before running:
 
 ```sh
-azd init -t https://github.com/Azure-Samples/azure-search-openai-demo-csharp
+azd init -t azure-search-openai-demo-csharp
 ```
 
 Discovery is read-only. Before any `azd up`, review the subscription, permissions, region, quota, security and charges, and obtain approval. Charges can continue after an interrupted deployment. `azd down` deletes resources and also requires approval.

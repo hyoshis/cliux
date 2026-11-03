@@ -2,7 +2,7 @@
 
 > Build a conversational experience over your own documents, with search-grounded answers and citations.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/azure-search-openai-demo`
 - Source UUID: `5f6de8e1-9742-4888-ae09-30347b4f4445`

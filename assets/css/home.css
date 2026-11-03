@@ -128,6 +128,10 @@ h2 { display: flex; align-items: center; gap: var(--space-3); font-size: 1.625re
 .result-count { flex-shrink: 0; font-family: var(--mono); font-size: var(--text-xs); color: var(--dim); }
 .prototype-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-5); list-style: none; padding: 0; margin: 0; }
 .prototype-card { min-width: 0; }
+.prototype-card.has-backup { display: flex; flex-direction: column; }
+.prototype-card.has-backup > .prototype-link { height: auto; flex: 1; }
+.prototype-backup-link { display: inline-flex; align-self: flex-start; align-items: center; gap: var(--space-2); margin-top: var(--space-2); color: var(--muted); font-size: var(--text-xs); }
+.prototype-backup-link:hover { color: var(--accent); }
 .prototype-link { display: flex; flex-direction: column; height: 100%; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); overflow: hidden; }
 .prototype-link:hover { border-color: var(--border-hover); background: var(--surface-hover); }
 .prototype-link:focus-visible { outline-offset: 4px; }

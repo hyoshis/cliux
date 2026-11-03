@@ -2,7 +2,7 @@
 
 > Explore a RAG application that answers questions about rows in a PostgreSQL database.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/rag-postgres-openai-python`
 - Source UUID: `952bd229-f367-4875-b95c-5c0c430abe45`

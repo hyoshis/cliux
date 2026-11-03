@@ -1,30 +1,26 @@
 # Awesome azd catalog-first prototype
 
-> 9 source-linked examples demonstrating template discovery, evaluation and agent retrieval. Not the full Awesome azd catalog or approved contract v1.
+> 20 source-linked design examples, not the full Awesome azd catalog. The local design-study-2 schema is not the production contract.
 
-Match explicit task and technical constraints with the shared JSON catalog, then retrieve per-template Markdown. Null or unlisted metadata means unknown, not supported. Service tags do not establish the default host. Do not infer price, deployment health, model availability, security or production readiness. Discovery is read-only; review repository hooks and obtain approval before execution or cloud changes.
+Read the catalog JSON, shortlist declared matches, then read template Markdown and the linked repository setup instructions. Null or unlisted metadata means unknown, not supported; service tags do not establish default hosting. Do not infer costs, model availability, security or deployment readiness. Review repository hooks and obtain approval before execution or cloud changes.
 
-## Discovery
+Share this index explicitly: automatic discovery is not guaranteed. The intended production location is /awesome-azd/llms.txt.
 
-- [Retrieval guide](agent-guide.md): Facets, matching semantics, provenance and safety.
-- [Catalog JSON](templates.json): Only hand-edited record source; schemaVersion design-study-2.
-- [Catalog index](index.md): Concise list of all 9 prototype examples.
-- [AI collection](templates/ai/index.md): Membership derived from the same records, not another catalog.
+## Prototype retrieval
 
-## Template details
+- [Prototype JSON](templates.json): The 20 sample records shared by the gallery and generated Markdown; schemaVersion design-study-2.
+- [Template index](index.md): Links to each example's Markdown, repository and setup guidance.
+- [Retrieval guide](agent-guide.md): Sample fields, matching rules and source limitations.
 
-- [Chat with your documents](templates/azure-samples/azure-search-openai-demo/index.md): Chat with documents; Python, TypeScript; Azure Container Apps.
-- [Ask questions of your database](templates/azure-samples/rag-postgres-openai-python/index.md): Query a database; Python; Azure Container Apps.
-- [Build a .NET knowledge assistant](templates/azure-samples/azure-search-openai-demo-csharp/index.md): Chat with documents; C# / .NET; Azure Container Apps.
-- [Bring document chat to Java](templates/azure-samples/azure-search-openai-demo-java/index.md): Chat with documents; Java; default host unknown.
-- [Give your agent new tools](templates/azure-samples/remote-mcp-functions-typescript/index.md): Build an MCP server; TypeScript; Azure Functions.
-- [Explore .NET Aspire + Storage](templates/fboucher/aspireazstorage/index.md): Build a web app; C# / .NET; Azure Container Apps.
-- [Build your first knowledge agent](templates/azure-samples/get-started-with-ai-agents/index.md): Build an AI agent; Python; Azure Container Apps.
-- [Start a Django web app](templates/azure-samples/msdocs-django-postgresql-sample-app/index.md): Build a web app; Python; Azure App Service.
-- [Bring your own app with Terraform](templates/azure-samples/azd-starter-terraform/index.md): Start with infrastructure; bring your own code; default host unknown.
+## Existing production catalog
+
+- [Production JSON](https://azure.github.io/awesome-azd/templates.json): Full published inventory from the existing canonical catalog; not replaced by this prototype.
+- [Production schema](https://github.com/Azure/awesome-azd/blob/main/docs/templates-schema.md): Field definitions and gallery filtering rules.
+
+The production JSON is a flat array, unlike this prototype's templates array. For gallery discovery, include only records whose templateType is absent, null or empty. Entries such as extension.ai.agent are for specialized azd flows that build agents, not coding-agent access to the gallery. Production records provide discovery metadata; follow each source link for complete setup requirements. Evolve the existing catalog for richer metadata rather than create an agent-only dataset.
 
 ## Optional
 
+- [AI collection](templates/ai/index.md): A view of the same prototype records, not another inventory.
 - [Source initiative](https://github.com/Azure/awesome-azd/issues/1085): Consolidation scope and launch requirements.
-- [Upstream production catalog](https://github.com/Azure/awesome-azd/blob/main/website/static/templates.json): The existing source of truth; not replaced by this prototype.
 - [llms.txt proposal](https://llmstxt.org/): Discovery guidance, not access control or guaranteed agent support.

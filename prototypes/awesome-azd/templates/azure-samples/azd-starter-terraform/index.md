@@ -2,7 +2,7 @@
 
 > Start with Terraform infrastructure modules and azd configuration, then add your own application code.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/azd-starter-terraform`
 - Source UUID: `23ccf0c3-8850-4593-805e-6a0fd42c1093`
@@ -46,7 +46,11 @@ Declared services are not a guarantee of default provisioning. The verified defa
 
 ## Supported next step
 
-A remote init command is not independently confirmed. [Follow repository setup](https://github.com/Azure-Samples/azd-starter-terraform#readme); do not invent a root-level command.
+Inspect the repository and hooks before running:
+
+```sh
+azd init -t azd-starter-terraform
+```
 
 Discovery is read-only. Before any `azd up`, review the subscription, permissions, region, quota, security and charges, and obtain approval. Charges can continue after an interrupted deployment. `azd down` deletes resources and also requires approval.
 

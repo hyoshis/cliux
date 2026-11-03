@@ -4,9 +4,10 @@
   else root.AzdCatalog = api;
 })(globalThis, function () {
   const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
+  const compactNumber = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
   const facets = [
-    { key: "tasks", param: "task", field: "task", label: "What you want to build", open: true },
-    { key: "languages", param: "language", field: "languages", label: "Language", open: true },
+    { key: "tasks", param: "task", field: "task", label: "Use case", open: true },
+    { key: "languages", param: "language", field: "languages", label: "Language" },
     { key: "services", param: "service", field: "services", label: "Azure services", open: true },
     { key: "hosts", param: "host", field: "host", label: "Default hosting" },
     { key: "frameworks", param: "framework", field: "frameworks", label: "Framework" },
@@ -47,15 +48,24 @@
   function filter(records, state) {
     const result = records.filter(template => matches(template, state));
     if (state.sort === "az") result.sort((a, b) => a.title.localeCompare(b.title));
+    else if (!state.q && facets.every(facet => !state[facet.key]?.length)) result.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
     return result;
+  }
+  function count(records, weights = null) {
+    if (weights === null) return records.length;
+    return records.reduce((total, template) => {
+      const weight = weights[template.id];
+      if (!Number.isInteger(weight) || weight < 1) throw new RangeError(`Invalid preview weight for ${template.id}`);
+      return total + weight;
+    }, 0);
   }
   function detailUrl(template, { root = "", state = {}, collection = "", from = "catalog" } = {}) {
     const query = serialize(state, { collection, from });
     return `${root}templates/${template.id}/index.html${query ? `?${query}` : ""}`;
   }
-  function listingUrl({ root = "", state = {}, collection = "", finder = false, featured = false } = {}) {
-    const query = serialize(state, { collection: finder ? collection : "" });
-    return `${root}${finder ? "find.html" : collection ? "templates/ai/index.html" : featured ? "catalog-featured.html" : "catalog.html"}${query ? `?${query}` : ""}`;
+  function listingUrl({ root = "", state = {}, collection = "", finder = false } = {}) {
+    const query = serialize(state);
+    return `${root}${collection ? "templates/ai/index.html" : "catalog.html"}${query ? `?${query}` : ""}${finder ? "#catalog-describe" : ""}`;
   }
   function icon(task) {
     const paths = {
@@ -72,26 +82,33 @@
     const featured = config.featured;
     const id = `${featured ? "featured" : "template"}-${template.id.replace(/[^a-z0-9]/g, "-")}`;
     const heading = featured ? "h3" : "h2";
-    const host = template.host || "Hosting options in repository";
+    const service = template.host || template.services[0];
     const languages = template.languages.length ? template.languages : ["Bring your own code"];
-    return `<a class="catalog-card${featured ? " featured-card" : ""}" href="${detailUrl(template, config)}" aria-labelledby="${id}">
-      <div class="catalog-card-top"><span class="catalog-task-icon">${icon(template.task)}</span>${featured ? `<span class="catalog-task">${escape(template.task)}</span>` : `<span class="catalog-author">${escape(template.authorship)} authored</span>`}</div>
-      ${featured ? "" : `<span class="catalog-task">${escape(template.task)}</span>`}
+    const highlighted = template.featured && config.highlightFeatured !== false;
+    const authorshipIcon = template.authorship === "Microsoft" ? "authored-microsoft.svg" : template.authorship === "Community" ? "authored-community.svg" : "";
+    const authorshipMark = authorshipIcon ? `<img class="catalog-authorship-icon" src="${escape((config.root ?? "") + "assets/" + authorshipIcon)}" width="14" height="14" alt="" aria-hidden="true">` : "";
+    const badge = highlighted ? `<span class="catalog-featured-badge"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 3 14.8 8.7 21.1 9.6 16.6 14 17.7 20.3 12 17.3 6.3 20.3 7.4 14 2.9 9.6 9.2 8.7Z"/></svg>Featured</span>` : "";
+    const stats = template.repositoryStats;
+    const repositoryStats = stats ? `<div class="catalog-repo-stats"><span class="catalog-repo-stat" title="${stats.stars.toLocaleString("en-US")} stars"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21.1 9.6 16.6 14 17.7 20.3 12 17.3 6.3 20.3 7.4 14 2.9 9.6 9.2 8.7Z"/></svg><span aria-hidden="true">${compactNumber.format(stats.stars).toLowerCase()}</span><span class="sr-only">${stats.stars.toLocaleString("en-US")} stars</span></span></div>` : "";
+    return `<article class="catalog-card${featured ? " featured-card" : highlighted ? " promoted-card" : ""}">
+      <a class="catalog-card-link" href="${escape(detailUrl(template, config))}" aria-labelledby="${id}">
+      <div class="catalog-card-top"><span class="catalog-author">${authorshipMark}${escape(template.authorship)} Authored</span>${badge}</div>
       <${heading} id="${id}">${escape(template.title)}</${heading}>
       <p class="catalog-card-summary">${escape(template.description)}</p>
-      <div class="catalog-card-tags">${languages.map(language => `<span class="tag">${escape(language)}</span>`).join("")}${template.iac ? `<span class="tag">${escape(template.iac)}</span>` : ""}</div>
-      ${featured ? "" : `<div class="catalog-card-host">${escape(host)}</div>`}
-      <div class="catalog-card-bottom"><span>View template <span aria-hidden="true">&#8594;</span></span>${featured ? "" : `<small>${template.collections.includes("ai") ? "AI collection" : "azd template"}</small>`}</div>
-    </a>`;
+      <div class="catalog-card-meta"><div class="catalog-card-tags">${languages.map(language => `<span class="tag">${escape(language)}</span>`).join("")}${template.iac ? `<span class="tag">${escape(template.iac)}</span>` : ""}${service ? `<span class="tag">${escape(service)}</span>` : ""}</div>${repositoryStats}</div>
+      </a>
+      ${template.initCommand ? `<div class="catalog-card-command"><code title="${escape(template.initCommand)}">${escape(template.initCommand)}</code><button class="catalog-copy-command" type="button" data-copy="${escape(template.initCommand)}" aria-label="Copy init command for ${escape(template.title)}" title="Copy init command"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><rect x="8" y="8" width="11" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h3"/></svg></button></div>` : `<a class="catalog-card-setup" href="${escape(template.readme)}" target="_blank" rel="noopener">View setup instructions &#8599;</a>`}
+    </article>`;
   }
-  function filterPanel(records, state) {
-    return `<div class="catalog-filter-heading"><h2>Filter templates</h2><button class="link-button" type="button" data-clear>Clear all</button></div>${facets.map(facet => {
+  function filterPanel(records, state, weights = null) {
+    return `<div class="catalog-filter-heading"><h2>Filter templates</h2><button class="link-button" type="button" data-clear>Clear all</button></div>${facets.filter(facet => !["services", "hosts", "topics"].includes(facet.key)).map(facet => {
       const values = options(records, facet);
-      return `<details class="catalog-facet" data-facet-section="${facet.key}" ${facet.open || state[facet.key]?.length ? "open" : ""}><summary>${escape(facet.label)}<span>${values.length}</span></summary><fieldset><legend class="sr-only">${escape(facet.label)}</legend>${values.map(value => {
-        const count = records.filter(template => matches(template, state, facet.key) && fieldValues(template, facet.field).includes(value)).length;
-        return `<label class="catalog-filter-option"><input type="checkbox" data-facet="${facet.key}" value="${escape(value)}" ${state[facet.key]?.includes(value) ? "checked" : ""}><span>${escape(value)}</span><small data-option-count>${count}</small></label>`;
+      const candidates = records.filter(template => matches(template, state, facet.key));
+      return `<details class="catalog-facet" data-facet-section="${facet.key}" ${facet.open || state[facet.key]?.length ? "open" : ""}><summary>${escape(facet.label)}<span title="Filter items">${values.length}</span></summary><fieldset><legend class="sr-only">${escape(facet.label)}</legend>${values.map(value => {
+        const optionCount = count(candidates.filter(template => fieldValues(template, facet.field).includes(value)), weights);
+        return `<label class="catalog-filter-option"><input type="checkbox" data-facet="${facet.key}" value="${escape(value)}" ${state[facet.key]?.includes(value) ? "checked" : ""}><span>${escape(value)}</span><small data-option-count>${optionCount}</small></label>`;
       }).join("")}</fieldset></details>`;
-    }).join("")}<p class="catalog-filter-footnote">Any option within a group; all selected groups together. Counts reflect the other filters. Unknown metadata does not satisfy a filter.</p>`;
+    }).join("")}`;
   }
   function chips(state) {
     const values = [];
@@ -106,7 +123,7 @@
     const lower = text.toLowerCase();
     const warnings = [];
     if (/\b(?:without|avoid|except|not|no|never|excluding|exclude|cannot|can['’]t|don['’]t)\b|\banything\s+but\b/.test(lower)) {
-      return { state, warnings: ["This keyword matcher cannot safely interpret exclusions or negation. Choose your criteria below instead."], recognized: false };
+      return { state, warnings: ["This keyword matcher cannot safely interpret exclusions or negation. Use the catalog filters instead."], recognized: false };
     }
     const add = (key, value) => {
       const facet = facets.find(item => item.key === key);
@@ -134,5 +151,5 @@
     if (/\b(?:cheap|free|budget|cost|secure|private|compliant|hipaa|gdpr|region|quota|production)\b/.test(lower)) warnings.push("Cost, security, compliance, region and quota requirements are not validated by this matcher. Review them on the template page and in the repository.");
     return { state, warnings, recognized: facets.some(facet => state[facet.key].length) };
   }
-  return { escape, facets, fieldValues, options, parse, serialize, matches, filter, detailUrl, listingUrl, icon, card, filterPanel, chips, infer };
+  return { escape, facets, fieldValues, options, parse, serialize, matches, filter, count, detailUrl, listingUrl, icon, card, filterPanel, chips, infer };
 });

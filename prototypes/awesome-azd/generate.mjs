@@ -6,6 +6,12 @@ import Catalog from "./catalog-core.js";
 
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const catalog = JSON.parse(await readFile(path.join(directory, "templates.json"), "utf8"));
+const { catalogTotal, aiTotal, serviceTotal, languageTotal, pageSize, previewWeights } = catalog.display;
+assert(Number.isInteger(catalogTotal) && catalogTotal >= catalog.templates.length);
+assert(Number.isInteger(pageSize) && pageSize > 0);
+for (const value of [aiTotal, serviceTotal, languageTotal]) assert(Number.isInteger(value) && value > 0);
+assert.equal(Catalog.count(catalog.templates, previewWeights), catalogTotal, "Preview weights must total the displayed catalog size.");
+assert.equal(Catalog.count(catalog.templates.filter(template => template.collections.includes("ai")), previewWeights), aiTotal, "AI preview weights must total the displayed AI collection size.");
 const check = process.argv.includes("--check");
 const baseUrl = "https://hyoshis.github.io/cliux/prototypes/awesome-azd/";
 const { escape, facets, parse, card, filterPanel, icon } = Catalog;
@@ -21,6 +27,9 @@ for (const template of catalog.templates) {
   assert(template.prerequisites === null || (Array.isArray(template.prerequisites) && template.prerequisites.length));
   assert(template.host === null || template.services.includes(template.host));
   assert(template.initCommand === null || template.initCommand.startsWith("azd init -t "));
+  if (template.repositoryStats) {
+    for (const key of ["forks", "stars"]) assert(Number.isInteger(template.repositoryStats[key]) && template.repositoryStats[key] >= 0, `${template.id}: invalid ${key} snapshot.`);
+  }
   assert(template.flow.length > 1);
   for (const url of [template.repository, template.readme, template.launchUrl].filter(Boolean)) assert.equal(new URL(url).protocol, "https:");
   ids.add(template.id);
@@ -29,64 +38,74 @@ for (const template of catalog.templates) {
 const artifacts = new Map();
 const creator = `<div class="creator"><span>Hiyo Shin &middot; Senior Designer, CoreAI</span><span>Catalog-first design &middot; interactive prototype</span></div>`;
 function header(root = "", active = "templates") {
-  return `<header class="product-header selected-header"><a class="product-brand" href="${root}catalog.html"><span class="brand-mark" aria-hidden="true">a<span>z</span>d</span>Azure Developer CLI</a><nav aria-label="Main"><a href="${root}catalog.html" ${active === "templates" ? 'aria-current="page"' : ""}>Templates</a><a href="${root}find.html" ${active === "finder" ? 'aria-current="page"' : ""}>Help me choose</a><a href="https://azure.github.io/awesome-azd/extensions/" target="_blank" rel="noopener">Extensions &#8599;</a><a href="https://learn.microsoft.com/azure/developer/azure-developer-cli/" target="_blank" rel="noopener">Docs &#8599;</a></nav><div class="header-end"><a class="header-agent-link" href="${root}agents.html">For agents</a><button class="icon-button theme-toggle" aria-label="Switch to dark theme" title="Switch theme">&#9680;</button></div></header>`;
+  return `<header class="product-header selected-header"><a class="product-brand" href="${root}catalog.html"><span class="brand-mark" aria-hidden="true">a<span>z</span>d</span>Azure Developer CLI</a><nav aria-label="Main"><a href="${root}catalog.html" ${active === "templates" ? 'aria-current="page"' : ""}>Templates</a><a href="https://azure.github.io/awesome-azd/extensions/" target="_blank" rel="noopener">Extensions &#8599;</a><a href="https://learn.microsoft.com/azure/developer/azure-developer-cli/" target="_blank" rel="noopener">Docs &#8599;</a></nav><div class="header-end"><button class="icon-button theme-toggle" aria-label="Switch to dark theme" title="Switch theme">&#9680;</button></div></header>`;
 }
-function head(title, description, root = "", markdown = "") {
-  return `<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><meta name="description" content="${escape(description)}"><title>${escape(title)} | Awesome azd</title><link rel="stylesheet" href="${root}styles.css"><link rel="stylesheet" href="${root}catalog.css"><link rel="describedby" href="${root}llms.txt">${markdown ? `<link rel="alternate" type="text/markdown" href="${markdown}">` : ""}<script src="${root}study.js" defer></script>`;
+function head(title, description, root = "", markdown = "", appendBrand = true) {
+  return `<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex"><meta name="description" content="${escape(description)}"><title>${escape(title)}${appendBrand ? " | Awesome azd" : ""}</title><link rel="stylesheet" href="${root}styles.css"><link rel="stylesheet" href="${root}catalog.css"><link rel="describedby" href="${root}llms.txt">${markdown ? `<link rel="alternate" type="text/markdown" href="${markdown}">` : ""}<script src="${root}study.js" defer></script>`;
 }
 function footer(root = "") {
-  return `<footer class="product-footer product-wrap selected-footer"><span>Awesome azd &middot; ${catalog.templates.length} curated examples, not the full catalog</span><div><a href="${root}agents.html">For agents</a><a href="${root}index.html#audit">Research &amp; rationale</a><a href="${root}catalog.html#archive">Design archive</a><a href="${root}templates.json">Catalog JSON</a></div></footer>`;
+  return `<footer class="product-footer product-wrap selected-footer"><div><a href="${root}llms.txt">llms.txt</a><a href="${root}templates.json">Prototype JSON</a><a href="${root}index.html#audit">Research &amp; rationale</a></div></footer>`;
 }
-function agentBand(root = "") {
-  return `<section class="catalog-agent-band" aria-labelledby="agent-band-heading"><div><p class="eyebrow">FOR YOUR CODING AGENT, TOO</p><h2 id="agent-band-heading">Same templates. A more direct way in.</h2><p>Give your agent a small index, structured metadata and clean template instructions. No gallery scraping required.</p></div><div class="agent-band-actions"><a class="button" href="${root}llms.txt">View llms.txt</a><button class="button" data-copy="${baseUrl}llms.txt">Copy agent link</button><a class="text-link" href="${root}agents.html">How it works &#8594;</a></div></section>`;
+function agentUtility(root = "") {
+  return `<section class="catalog-agent-utility" id="coding-agent" aria-labelledby="coding-agent-heading"><div><h2 id="coding-agent-heading">Use with your coding agent</h2><p>Share the catalog index to help your agent find templates and follow their setup instructions.</p><small>${catalog.templates.length} prototype examples, not the full live catalog.</small></div><div class="agent-utility-actions"><button class="button" data-copy="${baseUrl}llms.txt">Copy agent link</button><a class="text-link" href="${root}llms.txt">View llms.txt</a><a class="text-link" href="${root}templates.json">Prototype JSON</a></div></section>`;
 }
-function archive(root = "") {
-  return `<section class="catalog-archive" id="archive" aria-labelledby="archive-heading"><div class="catalog-archive-heading"><div><p class="eyebrow">DESIGN ARCHIVE</p><h2 id="archive-heading">Earlier directions, kept for reference.</h2></div><p>Catalog-first is the selected direction. These alternatives are not part of the active navigation or finder.</p></div><div class="archive-grid"><a class="archive-card" href="${root}archive/guided.html"><span class="archive-thumbnail archive-guided" aria-hidden="true">What do you<br>want to build?<i>01 &rarr; 02 &rarr; 03</i></span><span><small>ARCHIVED / EXPLORATION 02</small><h3>Guided start</h3><p>The original three-step, choice-only discovery flow.</p><b>Open archived direction &#8599;</b></span></a><a class="archive-card" href="${root}archive/blueprints.html"><span class="archive-thumbnail archive-blueprints" aria-hidden="true">Think<br>in systems.<i>&#9633; &rarr; &#9633; &rarr; &#9633;</i></span><span><small>ARCHIVED / EXPLORATION 03</small><h3>Blueprint atlas</h3><p>The architecture-first, diagram-led catalog layout.</p><b>Open archived direction &#8599;</b></span></a></div><a class="text-link" href="${root}index.html">View the original audit and consolidation plan &#8594;</a></section>`;
+function pagination(total, count) {
+  const pages = Math.ceil(total / pageSize);
+  const button = page => `<button type="button" disabled aria-label="Page ${page}" ${page === 1 ? 'aria-current="page"' : ""} title="Visual preview: only page 1 is populated.">${page}</button>`;
+  return `<div class="catalog-pagination" id="catalog-pagination"><p>1&ndash;${count} of ${total} templates<small>Pagination preview &middot; page 1 only</small></p><nav aria-label="Pagination preview"><button type="button" disabled aria-label="Previous page">&#8592;</button>${Array.from({ length: Math.min(5, pages) }, (_, index) => button(index + 1)).join("")}${pages > 5 ? `<span aria-hidden="true">&hellip;</span>${button(pages)}` : ""}<button type="button" disabled aria-label="Next page" title="Visual preview: only page 1 is populated.">&#8594;</button></nav></div>`;
 }
-function catalogPage(collection = "", layout = "hero") {
+function catalogPage(collection = "") {
   const root = collection ? "../../" : "";
   const records = catalog.templates.filter(template => !collection || template.collections.includes(collection));
   const state = parse("", records);
-  const config = { root, state, collection, from: layout === "featured" ? "featured" : "catalog" };
-  const canonical = `${baseUrl}${collection ? "templates/ai/" : layout === "featured" ? "catalog-featured.html" : "catalog.html"}`;
+  const visible = Catalog.filter(records, state).slice(0, pageSize);
+  const total = collection ? aiTotal : catalogTotal;
+  const stats = [
+    ["Templates", collection ? total : `${total}+`],
+    ["Azure services", collection ? new Set(records.flatMap(template => template.services)).size : `${serviceTotal}+`],
+    ["Languages", collection ? new Set(records.flatMap(template => template.languages)).size : languageTotal]
+  ];
+  const heroStats = `<dl class="hero-proof">${stats.map(([label, value]) => `<div class="hero-stat"><dt class="hero-stat-label">${label}</dt><dd class="hero-stat-value">${escape(value)}</dd></div>`).join("")}</dl>`;
+  const discovery = `<div class="catalog-discovery" id="catalog-discovery"><div class="catalog-search selected-search enhanced-only" id="catalog-search-box" data-mode="keyword"><span aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="m15.5 15.5 5.5 5.5"/></svg></span><label class="sr-only" for="catalog-search">Search templates</label><input id="catalog-search" type="search" placeholder="Search templates, languages, or authors..." autocomplete="off"><label class="sr-only" for="catalog-idea">Describe the app you want to build</label><textarea id="catalog-idea" rows="4" maxlength="1500" placeholder="An internal support assistant with a Python API and React UI that answers questions across PDFs, maintains conversation history, cites original sources, and supports employee sign-in on Azure Container Apps." aria-describedby="catalog-idea-preview" hidden></textarea><kbd id="catalog-search-shortcut" aria-hidden="true">/</kbd></div><div class="catalog-search-mode enhanced-only"><button type="button" class="catalog-mode-toggle" id="catalog-describe" aria-expanded="false" aria-controls="catalog-idea">Or describe the app you want to build</button><span id="catalog-idea-preview" hidden>Visual preview only</span></div></div>`;
+  const config = { root, state, collection, from: "catalog" };
+  const canonical = `${baseUrl}${collection ? "templates/ai/" : "catalog.html"}`;
   const listing = {
     "@context": "https://schema.org", "@type": "ItemList",
     name: collection ? "Awesome azd AI collection prototype" : "Awesome azd template catalog prototype",
-    itemListElement: records.map((template, index) => ({ "@type": "ListItem", position: index + 1, name: template.title, url: `${baseUrl}templates/${template.id}/` }))
+    itemListElement: visible.map((template, index) => ({ "@type": "ListItem", position: index + 1, name: template.title, url: `${baseUrl}templates/${template.id}/` }))
   };
   return `<!doctype html>
 <!-- Generated from templates.json by node generate.mjs. Do not edit. -->
-<html lang="en"><head>${head(collection ? "AI templates" : "Find your next starting point", "Discover, understand and start with an Azure Developer CLI template. Browse by goal, language, framework, Azure services and infrastructure.", root, collection ? "index.md" : "index.md")}<link rel="canonical" href="${canonical}"><script type="application/ld+json">${JSON.stringify(listing).replaceAll("<", "\\u003c")}</script><script src="${root}catalog.js" defer></script><script src="${root}catalog-core.js" defer></script><script src="${root}catalog-ui.js" defer></script></head>
-<body class="catalog-page" data-root="${root}" data-collection="${collection}" data-mode="catalog" data-layout="${layout}"><a class="skip" href="#main">Skip to content</a>${creator}${header(root)}
-<main id="main"><div class="product-wrap">${!collection ? `<nav class="catalog-design-switch" aria-label="Catalog design explorations"><span>Design exploration</span><a data-catalog-design="hero" href="catalog.html" ${layout === "hero" ? 'aria-current="page"' : ""}>Original hero</a><a data-catalog-design="featured" href="catalog-featured.html" ${layout === "featured" ? 'aria-current="page"' : ""}>Featured templates</a></nav>` : ""}${layout === "featured" ? `<section class="catalog-featured" id="catalog-featured" aria-labelledby="featured-heading"><div class="featured-heading"><div><h1>Your next app<br>starts here.</h1><h2 class="sr-only" id="featured-heading">Featured templates</h2></div><a class="button" href="find.html">Help me find <span aria-hidden="true">&#8594;</span></a></div><div class="featured-template-grid">${records.filter(template => template.featured).map(template => card(template, { ...config, featured: true })).join("")}</div></section>` : `<section class="selected-hero"><div><p class="eyebrow">AWESOME AZD ${collection ? "/ THE AI COLLECTION" : "/ FIND YOUR STARTING POINT"}</p><h1>${collection ? "Build with AI.<br>Start with context." : "Your next app<br>starts here."}</h1><p>Find a template for what you want to build. Understand the architecture and requirements, then make it yours.</p><div class="hero-proof"><span>${records.length} curated examples</span><span>Shared detail pages</span><span>Human + agent readable</span></div></div><a class="choose-callout" href="${root}find.html${collection ? "?collection=ai" : ""}"><div><h2>Not sure where to start?</h2><span class="choose-action">Help me find a template</span></div><span class="choose-arrow" aria-hidden="true">&#8594;</span></a></section>`}
-<div class="catalog-discovery" id="catalog-discovery"><label class="catalog-search selected-search enhanced-only"><span aria-hidden="true">&#8981;</span><span class="sr-only">Search templates</span><input id="catalog-search" type="search" placeholder="Search templates, languages, services, or authors..." autocomplete="off"><kbd aria-hidden="true">/</kbd></label><div class="selected-collection-row"><nav aria-label="Template collections"><a data-collection-link="" href="${root}catalog.html" ${!collection ? 'aria-current="page"' : ""}>All templates <span>${catalog.templates.length}</span></a><a data-collection-link="ai" href="${root}templates/ai/index.html" ${collection ? 'aria-current="page"' : ""}>AI collection <span>${catalog.templates.filter(template => template.collections.includes("ai")).length}</span></a></nav><a class="small" href="${root}find.html">Find by goal &#8594;</a></div></div>
+<html lang="en"><head>${head(collection ? "AI templates" : "Awesome azd redesigned", "Discover, understand and start with an Azure Developer CLI template. Browse by goal, language, framework, Azure services and infrastructure.", root, "index.md", Boolean(collection))}<link rel="canonical" href="${canonical}"><script type="application/ld+json">${JSON.stringify(listing).replaceAll("<", "\\u003c")}</script><script src="${root}catalog.js" defer></script><script src="${root}catalog-core.js" defer></script><script src="${root}catalog-ui.js" defer></script></head>
+<body class="catalog-page" data-root="${root}" data-collection="${collection}" data-mode="catalog"><a class="skip" href="#main">Skip to content</a>${creator}${header(root)}
+<main id="main"><div class="product-wrap"><section class="selected-hero"><div class="hero-intro"><h1>${collection ? "Build with AI.<br><span>Start with context.</span>" : "Your next app.<br><span>Ready to build.</span>"}</h1><p>Explore app and Azure infrastructure templates. <span class="hero-next-step">Find your starting point, customize it, and deploy with azd.</span></p>${heroStats}</div></section>
+${discovery}
+<div class="selected-collection-row"><nav aria-label="Template collections"><a data-collection-link="" href="${root}catalog.html" ${!collection ? 'aria-current="page"' : ""}>All templates <span>${catalogTotal}</span></a><a data-collection-link="ai" href="${root}templates/ai/index.html" ${collection ? 'aria-current="page"' : ""}><svg class="ai-template-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5Z"/></svg>AI templates <span>${aiTotal}</span></a></nav></div>
 <noscript><style>.enhanced-only{display:none!important}.selected-catalog-layout{grid-template-columns:1fr!important}</style><p class="evidence-note">Interactive filtering needs JavaScript. All ${records.length} template detail pages below are fully readable without it. You can also use the <a href="${root}templates.json">catalog JSON</a>.</p></noscript>
 <div id="catalog-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div><button class="button catalog-mobile-filters enhanced-only" id="catalog-filter-toggle" aria-controls="catalog-filters" aria-expanded="false">Filters</button>
-<div class="selected-catalog-layout"><aside class="catalog-filter-panel enhanced-only" id="catalog-filters" aria-label="Template filters">${filterPanel(records, state)}</aside><section class="selected-results" aria-label="Template results"><div class="selected-results-toolbar"><div><h2 id="catalog-result-heading">Explore templates</h2><p id="catalog-result-count">${records.length} of ${records.length} examples</p></div><label class="enhanced-only">Sort by <select id="catalog-sort" aria-label="Sort templates"><option value="editorial">Editorial order</option><option value="az">Title A&ndash;Z</option></select></label></div><div class="active-filters" id="catalog-active-filters"></div><div class="selected-template-grid" id="catalog-results">${records.map(template => card(template, config)).join("")}</div><div class="catalog-scope-note">A working prototype with ${catalog.templates.length} source-linked examples. Can't find your use case? <a href="https://azure.github.io/awesome-azd/templates/" target="_blank" rel="noopener">Browse the full live catalog &#8599;</a></div></section></div>
-${agentBand(root)}${!collection ? archive(root) : `<div class="collection-return"><a class="text-link" href="${root}catalog.html">Browse all template types &#8594;</a></div>`}</div></main>${footer(root)}</body></html>
+<div class="selected-catalog-layout"><aside class="catalog-filter-panel enhanced-only" id="catalog-filters" aria-label="Template filters">${filterPanel(records, state, previewWeights)}</aside><section class="selected-results" aria-label="Template results"><div class="selected-results-toolbar"><div><h2 id="catalog-result-heading" tabindex="-1">Explore templates</h2><p id="catalog-result-count">1&ndash;${visible.length} of ${total} templates</p></div><label class="enhanced-only">Sort by <select id="catalog-sort" aria-label="Sort templates"><option value="editorial">Editorial order</option><option value="az">Alphabetical (A-Z)</option></select></label></div><div class="active-filters" id="catalog-active-filters" role="group" aria-label="Applied filters"></div><div class="selected-template-grid" id="catalog-results">${visible.map(template => card(template, config)).join("")}</div>${pagination(total, visible.length)}</section></div>
+${agentUtility(root)}${collection ? `<div class="collection-return"><a class="text-link" href="${root}catalog.html">Browse all template types &#8594;</a></div>` : ""}</div></main>${footer(root)}</body></html>
 `;
 }
 function finderPage() {
-  const tasks = [...new Set(catalog.templates.map(template => template.task))];
   return `<!doctype html>
 <!-- Generated from templates.json by node generate.mjs. Do not edit. -->
-<html lang="en"><head>${head("Find a template by goal", "Choose a goal or describe your app, then review explicit matching criteria and source-linked template details.", "", "find.md")}<script src="catalog.js" defer></script><script src="catalog-core.js" defer></script><script src="catalog-ui.js" defer></script></head>
-<body class="catalog-page" data-root="" data-mode="finder"><a class="skip" href="#main">Skip to content</a>${creator}${header("", "finder")}
-<main id="main" class="product-wrap focused-finder-page">
-<div class="breadcrumb"><a href="catalog.html">&#8592; Back to templates</a></div>
-<section class="finder-hero"><h1>What do you want to build?</h1><p>Pick a goal or describe your idea. Find a starting point to make your own.</p></section>
-<form id="template-finder" class="hybrid-finder-form focused-finder-form">
-<fieldset class="finder-goal-group"><legend>Choose a goal <span>(optional)</span></legend><div class="finder-goal-options">${tasks.map(task => `<label class="finder-goal-option"><input type="radio" name="goal" value="${escape(task)}"><span>${icon(task)}<b>${escape(task)}</b></span></label>`).join("")}</div><button type="button" class="link-button" id="clear-finder-goal">Clear selection</button></fieldset>
-<label class="finder-input-label" for="finder-idea">Or describe your idea <span>(optional)</span></label>
-<textarea id="finder-idea" name="idea" rows="3" maxlength="1500" placeholder="e.g. A Python app to chat with PDF documents" aria-describedby="finder-privacy"></textarea>
-<p id="finder-privacy" class="finder-helper">Keyword matching only. Your idea stays in this browser. Don't include secrets.</p>
-<details class="finder-options" id="finder-options"><summary>Refine your stack <span>Optional</span></summary><div class="finder-preferences"><label for="finder-language">Language<select id="finder-language" name="language"><option value="">No preference</option>${Catalog.options(catalog.templates, facets.find(facet => facet.key === "languages")).map(value => `<option>${escape(value)}</option>`).join("")}</select></label><label for="finder-host">Default host<select id="finder-host" name="host"><option value="">No preference</option>${Catalog.options(catalog.templates, facets.find(facet => facet.key === "hosts")).map(value => `<option>${escape(value)}</option>`).join("")}</select></label></div></details>
-<div class="finder-form-actions"><button type="submit" class="button blue finder-submit">Find templates <span aria-hidden="true">&#8594;</span></button><button type="button" class="link-button" id="finder-reset">Start over</button></div>
-</form>
-<div id="finder-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></div>
-<section class="finder-answer focused-finder-results" id="finder-answer" aria-labelledby="finder-result-heading" hidden><div class="finder-answer-top"><h2 id="finder-result-heading" tabindex="-1">Your matches</h2><p id="finder-answer-description"></p></div><div id="finder-matches" hidden><div id="finder-criteria" class="active-filters" role="group" aria-label="Matching filters"></div><div id="finder-warnings"></div><div id="finder-results" class="finder-results-grid"></div><a id="finder-open-catalog" class="finder-catalog-link" href="catalog.html">View in catalog &#8594;</a></div></section>
-<noscript><style>#template-finder{display:none!important}</style><p class="evidence-note">The interactive finder needs JavaScript. <a href="catalog.html">Browse the static catalog</a> or give your agent <a href="llms.txt">llms.txt</a>.</p></noscript>
-</main>${footer()}</body></html>`;
+<html lang="en"><head>${head("Describe your app", "Preview an expanded app-description search field in the catalog.", "", "find.md")}<script>
+const query = new URLSearchParams(location.search);
+const destination = query.get("collection") === "ai" ? "templates/ai/index.html" : "catalog.html";
+query.delete("collection");
+location.replace(destination + (query.size ? "?" + query.toString() : "") + "#catalog-describe");
+</script></head>
+<body class="catalog-page"><a class="skip" href="#main">Skip to content</a>${creator}${header()}
+<main id="main" class="product-wrap"><section class="finder-hero"><h1>Describe your app in the catalog.</h1><p>Preview the multiline search field. App-idea matching is not connected in this visual prototype.</p><p><a class="button blue" href="catalog.html#catalog-describe">Open the template catalog &#8594;</a></p><p><a href="templates/ai/index.html#catalog-describe">Open the AI collection &#8594;</a></p></section></main>${footer()}</body></html>`;
+}
+function agentRedirectPage() {
+  return `<!doctype html>
+<!-- Generated by node generate.mjs. Do not edit. -->
+<html lang="en"><head>${head("Use with your coding agent", "Coding-agent links are now available directly in the template catalog.")}<meta http-equiv="refresh" content="0; url=catalog.html#coding-agent"></head>
+<body class="catalog-page"><a class="skip" href="#main">Skip to content</a>${creator}${header()}
+<main id="main" class="product-wrap"><section class="finder-hero"><h1>Coding-agent links have moved.</h1><p>Use the catalog index and shared template records directly from the gallery.</p><a class="button" href="catalog.html#coding-agent">Open the catalog tools &#8594;</a></section></main>${footer()}</body></html>
+`;
 }
 const categories = {
   "Azure Container Apps": "Application hosting", "Azure App Service": "Application hosting", "Azure Kubernetes Service": "Application hosting",
@@ -180,8 +199,8 @@ artifacts.set("index.html", studyHtml
   .replaceAll("same six sample records", `same ${catalog.templates.length} sample records`)
   .replaceAll("ALTERNATIVE", "ARCHIVED"));
 artifacts.set("catalog.html", catalogPage());
-artifacts.set("catalog-featured.html", catalogPage("", "featured"));
 artifacts.set("find.html", finderPage());
+artifacts.set("agents.html", agentRedirectPage());
 artifacts.set(path.join("templates", "ai", "index.html"), catalogPage("ai"));
 for (const template of catalog.templates) {
   const folder = path.join("templates", template.id.replaceAll("/", path.sep));
@@ -189,32 +208,36 @@ for (const template of catalog.templates) {
   artifacts.set(path.join(folder, "index.md"), markdownPage(template));
 }
 function listingMarkdown(records, root = "") {
-  return `# Awesome azd template catalog prototype\n\n> ${records.length} curated examples, not the full production catalog. One shared record source powers human and agent views.\n\n${records.map(template => `- [${template.title}](${root}templates/${template.id}/index.md): ${template.task}; ${template.languages.join(", ") || "bring your own code"}; ${template.iac}.`).join("\n")}\n\nFilter with [catalog JSON](${root}templates.json), then read a template's Markdown before choosing. Unknown fields must not satisfy constraints. [Retrieval guide](${root}agent-guide.md).\n`;
+  return `# Awesome azd template catalog prototype\n\n> ${records.length} source-linked examples, not the full production catalog. Hero totals, filter counts and pagination are visual mocks; only the records below exist in this prototype. Repository stars and forks are GitHub snapshots, not deployment metrics. One shared record source powers human and agent views.\n\n${records.map(template => `- [${template.title}](${root}templates/${template.id}/index.md): ${template.task}; ${template.languages.join(", ") || "bring your own code"}; ${template.iac || "infrastructure not specified"}.`).join("\n")}\n\nFilter with [prototype JSON](${root}templates.json), then read a template's Markdown before choosing. The ${catalog.schemaVersion} schema is a design sample, not the production contract. Unknown fields must not satisfy constraints. Use the [existing production catalog](https://azure.github.io/awesome-azd/templates.json) for the full inventory and follow its [schema](https://github.com/Azure/awesome-azd/blob/main/docs/templates-schema.md). [Retrieval guide](${root}agent-guide.md).\n`;
 }
 artifacts.set("index.md", listingMarkdown(catalog.templates));
-artifacts.set("find.md", `# Find a template by goal\n\n> Choose a goal, describe an idea, or do both. This prototype uses transparent keyword matching, not a live AI model.\n\nQuick choices: ${[...new Set(catalog.templates.map(template => template.task))].join("; ")}.\n\nOptional language and verified-default-host preferences constrain the results. Recognized description keywords become visible, removable criteria. OR applies within each group; AND applies between groups. Unknown metadata cannot confirm a match. Conflicting explicit and inferred criteria require clarification.\n\nRaw descriptions stay in the browser, are not sent to an AI service, and are not put in result URLs. Do not include secrets. Cost, security, compliance, region, negation and arbitrary natural-language requirements are not safely interpreted.\n\n[Catalog index](index.md) | [Structured records](templates.json) | [Agent retrieval guide](agent-guide.md)\n`);
+artifacts.set("find.md", `# Describe your app: visual prototype\n\n> The [template catalog](catalog.html#catalog-describe) previews an app-description mode within the existing main search box. Clicking the description link expands that same box into a multiline textarea; it does not open a separate form.\n\nExample placeholder: "An internal support assistant with a Python API and React UI that answers questions across PDFs, maintains conversation history, cites original sources, and supports employee sign-in on Azure Container Apps."\n\nThis mode is visual only. Entering an app description does not apply filters, perform semantic matching, download a model or send an AI request. Users can switch back to the ordinary keyword-search field. Existing manual filters, keyword search and template links retain their prototype behavior. Legacy find.html links open the catalog in the expanded visual mode.\n\n[Catalog index](index.md) | [Structured records](templates.json) | [Agent retrieval guide](agent-guide.md)\n`);
 artifacts.set(path.join("templates", "ai", "index.md"), listingMarkdown(catalog.templates.filter(template => template.collections.includes("ai")), "../../"));
 artifacts.set("llms.txt", `# Awesome azd catalog-first prototype
 
-> ${catalog.templates.length} source-linked examples demonstrating template discovery, evaluation and agent retrieval. Not the full Awesome azd catalog or approved contract v1.
+> ${catalog.templates.length} source-linked design examples, not the full Awesome azd catalog. The local ${catalog.schemaVersion} schema is not the production contract.
 
-Match explicit task and technical constraints with the shared JSON catalog, then retrieve per-template Markdown. Null or unlisted metadata means unknown, not supported. Service tags do not establish the default host. Do not infer price, deployment health, model availability, security or production readiness. Discovery is read-only; review repository hooks and obtain approval before execution or cloud changes.
+Read the catalog JSON, shortlist declared matches, then read template Markdown and the linked repository setup instructions. Null or unlisted metadata means unknown, not supported; service tags do not establish default hosting. Do not infer costs, model availability, security or deployment readiness. Review repository hooks and obtain approval before execution or cloud changes.
 
-## Discovery
+Share this index explicitly: automatic discovery is not guaranteed. The intended production location is /awesome-azd/llms.txt.
 
-- [Retrieval guide](agent-guide.md): Facets, matching semantics, provenance and safety.
-- [Catalog JSON](templates.json): Only hand-edited record source; schemaVersion ${catalog.schemaVersion}.
-- [Catalog index](index.md): Concise list of all ${catalog.templates.length} prototype examples.
-- [AI collection](templates/ai/index.md): Membership derived from the same records, not another catalog.
+## Prototype retrieval
 
-## Template details
+- [Prototype JSON](templates.json): The ${catalog.templates.length} sample records shared by the gallery and generated Markdown; schemaVersion ${catalog.schemaVersion}.
+- [Template index](index.md): Links to each example's Markdown, repository and setup guidance.
+- [Retrieval guide](agent-guide.md): Sample fields, matching rules and source limitations.
 
-${catalog.templates.map(template => `- [${template.title}](templates/${template.id}/index.md): ${template.task}; ${template.languages.join(", ") || "bring your own code"}; ${template.host || "default host unknown"}.`).join("\n")}
+## Existing production catalog
+
+- [Production JSON](https://azure.github.io/awesome-azd/templates.json): Full published inventory from the existing canonical catalog; not replaced by this prototype.
+- [Production schema](https://github.com/Azure/awesome-azd/blob/main/docs/templates-schema.md): Field definitions and gallery filtering rules.
+
+The production JSON is a flat array, unlike this prototype's templates array. For gallery discovery, include only records whose templateType is absent, null or empty. Entries such as extension.ai.agent are for specialized azd flows that build agents, not coding-agent access to the gallery. Production records provide discovery metadata; follow each source link for complete setup requirements. Evolve the existing catalog for richer metadata rather than create an agent-only dataset.
 
 ## Optional
 
+- [AI collection](templates/ai/index.md): A view of the same prototype records, not another inventory.
 - [Source initiative](${catalog.provenance.initiative}): Consolidation scope and launch requirements.
-- [Upstream production catalog](${catalog.provenance.catalog}): The existing source of truth; not replaced by this prototype.
 - [llms.txt proposal](https://llmstxt.org/): Discovery guidance, not access control or guaranteed agent support.
 `);
 const archiveShell = await readFile(path.join(directory, "explore.html"), "utf8");

@@ -2,7 +2,7 @@
 
 > Build a remote Model Context Protocol server with TypeScript and Azure Functions.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/remote-mcp-functions-typescript`
 - Source UUID: `d7da481d-769d-4a79-aba6-9370acc41c2a`
@@ -45,7 +45,11 @@ Declared services are not a guarantee of default provisioning. The verified defa
 
 ## Supported next step
 
-A remote init command is not independently confirmed. [Follow repository setup](https://github.com/Azure-Samples/remote-mcp-functions-typescript#readme); do not invent a root-level command.
+Inspect the repository and hooks before running:
+
+```sh
+azd init -t remote-mcp-functions-typescript
+```
 
 Discovery is read-only. Before any `azd up`, review the subscription, permissions, region, quota, security and charges, and obtain approval. Charges can continue after an interrupted deployment. `azd down` deletes resources and also requires approval.
 

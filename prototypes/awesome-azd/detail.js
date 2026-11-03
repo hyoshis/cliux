@@ -8,7 +8,7 @@
   const direction = params.get("direction");
   const archived = params.get("from") === "archive" || (!params.has("from") && ["pathfinder", "blueprints"].includes(direction));
   const finder = params.get("from") === "finder";
-  let listing = C.listingUrl({ root, state, collection, finder, featured: params.get("from") === "featured" });
+  let listing = C.listingUrl({ root, state, collection, finder });
   if (archived) {
     const query = C.serialize(state, { collection, direction, step: ["1", "2", "3"].includes(params.get("step")) ? params.get("step") : "" });
     listing = `${root}archive/${direction === "blueprints" ? "blueprints" : "guided"}.html?${query}`;

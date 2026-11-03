@@ -2,7 +2,7 @@
 
 > Try a .NET Minimal API with Azure Table Storage in an Aspire application on Container Apps.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `fboucher/aspireazstorage`
 - Source UUID: `c9e16274-a367-4140-aab1-64bb117d67ba`

@@ -1,11 +1,9 @@
-# Find a template by goal
+# Describe your app: visual prototype
 
-> Choose a goal, describe an idea, or do both. This prototype uses transparent keyword matching, not a live AI model.
+> The [template catalog](catalog.html#catalog-describe) previews an app-description mode within the existing main search box. Clicking the description link expands that same box into a multiline textarea; it does not open a separate form.
 
-Quick choices: Chat with documents; Query a database; Build an MCP server; Build a web app; Build an AI agent; Start with infrastructure.
+Example placeholder: "An internal support assistant with a Python API and React UI that answers questions across PDFs, maintains conversation history, cites original sources, and supports employee sign-in on Azure Container Apps."
 
-Optional language and verified-default-host preferences constrain the results. Recognized description keywords become visible, removable criteria. OR applies within each group; AND applies between groups. Unknown metadata cannot confirm a match. Conflicting explicit and inferred criteria require clarification.
-
-Raw descriptions stay in the browser, are not sent to an AI service, and are not put in result URLs. Do not include secrets. Cost, security, compliance, region, negation and arbitrary natural-language requirements are not safely interpreted.
+This mode is visual only. Entering an app description does not apply filters, perform semantic matching, download a model or send an AI request. Users can switch back to the ordinary keyword-search field. Existing manual filters, keyword search and template links retain their prototype behavior. Legacy find.html links open the catalog in the expanded visual mode.
 
 [Catalog index](index.md) | [Structured records](templates.json) | [Agent retrieval guide](agent-guide.md)

@@ -2,7 +2,7 @@
 
 > Explore the Java version of the enterprise-data chat sample with Azure OpenAI and AI Search.
 
-This is one of 9 curated design-prototype examples, not a production-readiness assessment.
+This is one of 20 curated design-prototype examples, not a production-readiness assessment.
 
 - Identity: `azure-samples/azure-search-openai-demo-java`
 - Source UUID: `68592edf-9c61-4208-84b0-fd264282af94`
@@ -47,7 +47,7 @@ Complete prerequisites are unknown in this record. Review the repository require
 Inspect the repository and hooks before running:
 
 ```sh
-azd init -t https://github.com/Azure-Samples/azure-search-openai-demo-java
+azd init -t azure-search-openai-demo-java
 ```
 
 Discovery is read-only. Before any `azd up`, review the subscription, permissions, region, quota, security and charges, and obtain approval. Charges can continue after an interrupted deployment. `azd down` deletes resources and also requires approval.
