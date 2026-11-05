@@ -5,23 +5,30 @@
 })(globalThis, function () {
   const escape = value => String(value ?? "").replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]));
   const compactNumber = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+  const aiIcon = '<svg class="ai-template-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 14.5 9.5 21 12 14.5 14.5 12 21 9.5 14.5 3 12 9.5 9.5Z"/></svg>';
   const facets = [
-    { key: "tasks", param: "task", field: "task", label: "Use case", open: true },
+    { key: "types", param: "type", field: "collections", label: "Template type", labels: { ai: "AI application" }, open: true },
+    {
+      key: "tasks", param: "task", field: "task", label: "Use case", open: true,
+      values: ["Build a web app", "Build an API", "Build an AI agent", "Build an MCP server", "Chat with documents", "Query a database", "Automate a workflow", "Start with infrastructure"],
+      labels: { "Chat with documents": "Ask questions about documents", "Query a database": "Query data with AI" }
+    },
     { key: "languages", param: "language", field: "languages", label: "Language" },
     { key: "services", param: "service", field: "services", label: "Azure services", open: true },
     { key: "hosts", param: "host", field: "host", label: "Default hosting" },
     { key: "frameworks", param: "framework", field: "frameworks", label: "Framework" },
     { key: "databases", param: "database", field: "databases", label: "Database / retrieval" },
     { key: "iac", param: "iac", field: "iac", label: "Infrastructure as code" },
-    { key: "authorship", param: "authorship", field: "authorship", label: "Authored by" },
     { key: "tools", param: "tool", field: "tools", label: "Tools" },
-    { key: "topics", param: "topic", field: "topics", label: "Topic" }
+    { key: "topics", param: "topic", field: "topics", label: "Topic" },
+    { key: "authorship", param: "authorship", field: "authorship", label: "Authored by" }
   ];
   const fieldValues = (template, field) => Array.isArray(template[field]) ? template[field] : template[field] ? [template[field]] : [];
-  const options = (records, facet) => [...new Set(records.flatMap(template => fieldValues(template, facet.field)))].sort((a, b) => a.localeCompare(b));
+  const valueLabel = (facet, value) => facet.labels?.[value] ?? value;
+  const options = (records, facet) => facet.values ? [...facet.values] : [...new Set(records.flatMap(template => fieldValues(template, facet.field)))].sort((a, b) => a.localeCompare(b));
   function parse(search, records) {
     const query = new URLSearchParams(search);
-    const state = { q: query.get("q") || "", sort: query.get("sort") === "az" ? "az" : "editorial", unavailable: [] };
+    const state = { q: query.get("q") || "", sort: ["az", "za"].includes(query.get("sort")) ? query.get("sort") : "popular", unavailable: [] };
     for (const facet of facets) {
       const allowed = options(records, facet);
       const requested = query.getAll(facet.param).flatMap(value => value.split(",")).filter(Boolean);
@@ -34,7 +41,7 @@
     const query = new URLSearchParams();
     if (state.q) query.set("q", state.q);
     for (const facet of facets) if (state[facet.key]?.length) query.set(facet.param, state[facet.key].join(","));
-    if (state.sort === "az") query.set("sort", "az");
+    if (["az", "za"].includes(state.sort)) query.set("sort", state.sort);
     for (const [key, value] of Object.entries(extra)) if (value) query.set(key, value);
     return query.toString();
   }
@@ -47,8 +54,9 @@
   }
   function filter(records, state) {
     const result = records.filter(template => matches(template, state));
-    if (state.sort === "az") result.sort((a, b) => a.title.localeCompare(b.title));
-    else if (!state.q && facets.every(facet => !state[facet.key]?.length)) result.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
+    if (["az", "za"].includes(state.sort)) result.sort((a, b) => (state.sort === "za" ? -1 : 1) * a.title.localeCompare(b.title));
+    else if (state.sort === "popular") result.sort((a, b) => (b.repositoryStats?.stars ?? -1) - (a.repositoryStats?.stars ?? -1) || a.title.localeCompare(b.title));
+    if (!(state.q || "").trim() && facets.every(facet => !state[facet.key]?.length)) result.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
     return result;
   }
   function count(records, weights = null) {
@@ -59,13 +67,18 @@
       return total + weight;
     }, 0);
   }
-  function detailUrl(template, { root = "", state = {}, collection = "", from = "catalog" } = {}) {
-    const query = serialize(state, { collection, from });
+  function detailUrl(template, { root = "", state = {}, collection = "", from = "catalog", hero = true, layout = "" } = {}) {
+    const query = serialize(state, { collection, from, hero: hero ? "" : "off", layout: hero && ["hero-cta", "hero-link"].includes(layout) ? layout : "" });
     return `${root}templates/${template.id}/index.html${query ? `?${query}` : ""}`;
   }
-  function listingUrl({ root = "", state = {}, collection = "", finder = false } = {}) {
-    const query = serialize(state);
-    return `${root}${collection ? "templates/ai/index.html" : "catalog.html"}${query ? `?${query}` : ""}${finder ? "#catalog-describe" : ""}`;
+  function listingUrl({ root = "", state = {}, collection = "", hero = true, layout = "" } = {}) {
+    const query = serialize(collection === "ai" ? { ...state, types: ["ai"] } : state);
+    const page = !hero ? "catalog-no-hero.html" : layout === "hero-cta" ? "catalog-hero-cta.html" : layout === "hero-link" ? "catalog-hero-link.html" : "catalog.html";
+    return `${root}${page}${query ? `?${query}` : ""}`;
+  }
+  function startUrl({ root = "", state = {}, collection = "", hero = true, layout = "" } = {}) {
+    const query = serialize(state, { collection, hero: hero ? "" : "off", layout: hero && ["hero-cta", "hero-link"].includes(layout) ? layout : "" });
+    return `${root}start-with-code.html${query ? `?${query}` : ""}`;
   }
   function icon(task) {
     const paths = {
@@ -90,10 +103,11 @@
     const badge = highlighted ? `<span class="catalog-featured-badge"><svg viewBox="0 0 24 24" width="12" height="12" fill="currentColor" aria-hidden="true"><path d="M12 3 14.8 8.7 21.1 9.6 16.6 14 17.7 20.3 12 17.3 6.3 20.3 7.4 14 2.9 9.6 9.2 8.7Z"/></svg>Featured</span>` : "";
     const stats = template.repositoryStats;
     const repositoryStats = stats ? `<div class="catalog-repo-stats"><span class="catalog-repo-stat" title="${stats.stars.toLocaleString("en-US")} stars"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21.1 9.6 16.6 14 17.7 20.3 12 17.3 6.3 20.3 7.4 14 2.9 9.6 9.2 8.7Z"/></svg><span aria-hidden="true">${compactNumber.format(stats.stars).toLowerCase()}</span><span class="sr-only">${stats.stars.toLocaleString("en-US")} stars</span></span></div>` : "";
+    const typeMark = template.collections.includes("ai") ? `<span class="catalog-card-ai" title="AI app template">${aiIcon}<span class="sr-only">AI app template: </span></span>` : "";
     return `<article class="catalog-card${featured ? " featured-card" : highlighted ? " promoted-card" : ""}">
       <a class="catalog-card-link" href="${escape(detailUrl(template, config))}" aria-labelledby="${id}">
       <div class="catalog-card-top"><span class="catalog-author">${authorshipMark}${escape(template.authorship)} Authored</span>${badge}</div>
-      <${heading} id="${id}">${escape(template.title)}</${heading}>
+      <${heading} id="${id}">${typeMark}${escape(template.title)}</${heading}>
       <p class="catalog-card-summary">${escape(template.description)}</p>
       <div class="catalog-card-meta"><div class="catalog-card-tags">${languages.map(language => `<span class="tag">${escape(language)}</span>`).join("")}${template.iac ? `<span class="tag">${escape(template.iac)}</span>` : ""}${service ? `<span class="tag">${escape(service)}</span>` : ""}</div>${repositoryStats}</div>
       </a>
@@ -101,12 +115,13 @@
     </article>`;
   }
   function filterPanel(records, state, weights = null) {
-    return `<div class="catalog-filter-heading"><h2>Filter templates</h2><button class="link-button" type="button" data-clear>Clear all</button></div>${facets.filter(facet => !["services", "hosts", "topics"].includes(facet.key)).map(facet => {
+    return `<div class="catalog-filter-heading"><h2>Filter templates</h2><button class="link-button" type="button" data-clear>Clear all</button></div>${facets.filter(facet => !["services", "hosts", "topics", "tools"].includes(facet.key)).map(facet => {
       const values = options(records, facet);
       const candidates = records.filter(template => matches(template, state, facet.key));
       return `<details class="catalog-facet" data-facet-section="${facet.key}" ${facet.open || state[facet.key]?.length ? "open" : ""}><summary>${escape(facet.label)}<span title="Filter items">${values.length}</span></summary><fieldset><legend class="sr-only">${escape(facet.label)}</legend>${values.map(value => {
         const optionCount = count(candidates.filter(template => fieldValues(template, facet.field).includes(value)), weights);
-        return `<label class="catalog-filter-option"><input type="checkbox" data-facet="${facet.key}" value="${escape(value)}" ${state[facet.key]?.includes(value) ? "checked" : ""}><span>${escape(value)}</span><small data-option-count>${optionCount}</small></label>`;
+        const mark = facet.key === "types" && value === "ai" ? aiIcon : "";
+        return `<label class="catalog-filter-option"><input type="checkbox" data-facet="${facet.key}" value="${escape(value)}" ${state[facet.key]?.includes(value) ? "checked" : ""}><span class="catalog-filter-value">${mark}<span>${escape(valueLabel(facet, value))}</span></span><small data-option-count>${optionCount}</small></label>`;
       }).join("")}</fieldset></details>`;
     }).join("")}`;
   }
@@ -114,7 +129,7 @@
     const values = [];
     if (state.q) values.push(`<button type="button" class="filter-chip" data-remove="q" aria-label="Remove search: ${escape(state.q)}">Search: ${escape(state.q)} <span aria-hidden="true">&#215;</span></button>`);
     for (const facet of facets) for (const value of state[facet.key] || []) {
-      values.push(`<button type="button" class="filter-chip" data-remove="${facet.key}" data-value="${escape(value)}" aria-label="Remove filter: ${escape(value)}">${escape(value)} <span aria-hidden="true">&#215;</span></button>`);
+      values.push(`<button type="button" class="filter-chip" data-remove="${facet.key}" data-value="${escape(value)}" aria-label="Remove filter: ${escape(valueLabel(facet, value))}">${escape(valueLabel(facet, value))} <span aria-hidden="true">&#215;</span></button>`);
     }
     return values.join("");
   }
@@ -151,5 +166,5 @@
     if (/\b(?:cheap|free|budget|cost|secure|private|compliant|hipaa|gdpr|region|quota|production)\b/.test(lower)) warnings.push("Cost, security, compliance, region and quota requirements are not validated by this matcher. Review them on the template page and in the repository.");
     return { state, warnings, recognized: facets.some(facet => state[facet.key].length) };
   }
-  return { escape, facets, fieldValues, options, parse, serialize, matches, filter, count, detailUrl, listingUrl, icon, card, filterPanel, chips, infer };
+  return { escape, facets, fieldValues, options, parse, serialize, matches, filter, count, detailUrl, listingUrl, startUrl, icon, card, filterPanel, chips, infer };
 });

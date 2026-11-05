@@ -26,7 +26,7 @@ Discovery is read-only. Do not invent prices, model availability, health scores 
 
 ## Shared generation
 
-The gallery and optional app-description form share `catalog-core.js`. A single local `templates.json` generates the gallery, collection, template HTML, Markdown and llms.txt. The compact [catalog utility](catalog.html#coding-agent) exposes the retrieval links; legacy `agents.html` links redirect there.
+The gallery's keyword search and filters use `catalog-core.js`. A single local `templates.json` generates the gallery, collection, template HTML, Markdown and llms.txt. The compact [catalog utility](catalog.html#coding-agent) exposes the retrieval links; legacy `agents.html` links redirect there.
 
 ```sh
 node generate.mjs
