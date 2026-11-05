@@ -11,7 +11,16 @@
     {
       key: "tasks", param: "task", field: "task", label: "Use case", open: true,
       values: ["Build a web app", "Build an API", "Build an AI agent", "Build an MCP server", "Chat with documents", "Query a database", "Automate a workflow", "Start with infrastructure"],
-      labels: { "Chat with documents": "Ask questions about documents", "Query a database": "Query data with AI" }
+      labels: {
+        "Build a web app": "Web apps",
+        "Build an API": "APIs",
+        "Build an AI agent": "AI agents",
+        "Build an MCP server": "MCP servers",
+        "Chat with documents": "Document Q&A",
+        "Query a database": "Data queries with AI",
+        "Automate a workflow": "Workflow automation",
+        "Start with infrastructure": "Infrastructure"
+      }
     },
     { key: "languages", param: "language", field: "languages", label: "Language" },
     { key: "services", param: "service", field: "services", label: "Azure services", open: true },

@@ -6,6 +6,30 @@ const C = require("./catalog-core.js");
 const { templates } = require("./templates.json");
 const ids = state => C.filter(templates, state).map(template => template.id);
 
+test("the official-style navbar has only Templates interactive and no attribution strip", () => {
+  const pages = [
+    ["catalog.html", ""],
+    ["catalog-no-hero.html", ""],
+    ["catalog-hero-cta.html", ""],
+    ["catalog-hero-link.html", ""],
+    ["start-with-code.html", ""],
+    [path.join("templates", ...templates[0].id.split("/"), "index.html"), "../../../"]
+  ];
+  assert(existsSync(path.join(__dirname, "assets", "azd-logo.png")));
+  assert(existsSync(path.join(__dirname, "assets", "official-navbar-LICENSE.txt")));
+  for (const [filename, root] of pages) {
+    const html = readFileSync(path.join(__dirname, filename), "utf8");
+    const header = html.match(/<header class="product-header selected-header">[\s\S]*?<\/header>/)[0];
+    const links = [...header.matchAll(/<a href="([^"]+)"[^>]*>([^<]+)<\/a>/g)];
+    assert.equal((header.match(/<a\b/g) || []).length, 1);
+    assert.deepEqual(links.map(link => [link[1], link[2]]), [[`${root}catalog.html`, "Templates"]]);
+    assert(!/<(?:button|input|select|textarea)\b|\btabindex=/i.test(header));
+    assert(header.includes(`src="${root}assets/azd-logo.png"`));
+    for (const item of ["Extensions", "Hosting", "Contribute", "Docs", "Resources", "Add a template"]) assert(header.includes(item));
+    assert(!html.includes('class="creator"'));
+  }
+});
+
 test("facets intersect across groups and union within a group", () => {
   const state = C.parse("?language=Python,C%23+%2F+.NET&framework=Blazor&host=Azure+Container+Apps", templates);
   assert.deepEqual(ids(state), ["azure-samples/azure-search-openai-demo-csharp"]);
@@ -38,12 +62,12 @@ test("Use case shows all eight requested choices in order and preserves saved cr
   const panel = C.filterPanel(templates, C.parse("", templates));
   const group = panel.match(/<details class="catalog-facet" data-facet-section="tasks"[\s\S]*?<\/details>/)[0];
   assert.deepEqual([...group.matchAll(/<span class="catalog-filter-value"><span>([^<]+)<\/span>/g)].map(match => match[1]), [
-    "Build a web app", "Build an API", "Build an AI agent", "Build an MCP server",
-    "Ask questions about documents", "Query data with AI", "Automate a workflow", "Start with infrastructure"
-  ]);
+    "Web apps", "APIs", "AI agents", "MCP servers",
+    "Document Q&A", "Data queries with AI", "Workflow automation", "Infrastructure"
+  ].map(C.escape));
   const saved = C.parse("?task=Chat+with+documents", templates);
   assert(C.filter(templates, saved).length > 0);
-  assert(C.chips(saved).includes("Ask questions about documents"));
+  assert(C.chips(saved).includes(C.escape("Document Q&A")));
   const api = C.parse("?task=Build+an+API", templates);
   assert.deepEqual(api.tasks, ["Build an API"]);
   assert.deepEqual(C.filter(templates, api), []);
@@ -155,8 +179,9 @@ test("catalog search and sorting share a toolbar above the filters and results",
 test("catalog CTAs navigate to the standalone setup page instead of opening a dialog", () => {
   for (const filename of ["catalog.html", "catalog-no-hero.html"]) {
     const html = readFileSync(path.join(__dirname, filename), "utf8");
-    const cta = html.match(/<a\b[^>]*data-start-code[^>]*>/)[0];
+    const cta = html.match(/<a\b[^>]*data-start-code[^>]*>[\s\S]*?<\/a>/)[0];
     assert(cta.includes('href="start-with-code.html'));
+    assert.doesNotMatch(cta, /&#8594;|\u2192/);
     assert(!html.includes("<dialog"));
     assert(!html.includes("data-open-setup"));
     if (filename === "catalog.html") {
@@ -174,12 +199,18 @@ test("catalog CTAs navigate to the standalone setup page instead of opening a di
 
 test("the setup page includes both commands and the initialization choices", () => {
   const html = readFileSync(path.join(__dirname, "start-with-code.html"), "utf8");
-  assert(html.includes("<h1>Start with your own code</h1>"));
+  const heading = html.match(/<h1>([\s\S]*?)<\/h1>/)[1].replace(/<[^>]+>/g, "");
+  assert.equal(heading, "Start with your own code");
+  assert(!html.includes('class="catalog-start-intro"'));
+  assert(!html.includes('class="catalog-start-step-number"'));
+  assert.equal([...html.matchAll(/<section class="catalog-start-step"/g)].length, 2);
+  assert.equal([...html.matchAll(/<pre><code>/g)].length, 2);
   assert(html.includes('data-back-to-catalog href="catalog.html"'));
   assert.deepEqual([...html.matchAll(/<code>([^<]+)<\/code>/g)].map(match => match[1]), ["azd init", "azd up"]);
   assert.deepEqual([...html.matchAll(/data-copy="([^"]+)"/g)].map(match => match[1]), ["azd init", "azd up"]);
   assert(html.includes("Scan current directory"));
   assert(html.includes("Set up with GitHub Copilot"));
+  assert(html.includes('href="https://azure.github.io/awesome-azd/" target="_blank" rel="noopener">Read the setup guide'));
   assert(!html.includes("Deploying to Azure can incur charges."));
 });
 
