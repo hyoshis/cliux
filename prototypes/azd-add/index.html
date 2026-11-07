@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="An interactive azd add baseline with screenshot-backed AI and Blob storage flows and simulated resource groups.">
+  <title>azd add | Existing resource selection flow</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <div class="page">
+    <header class="page-header">
+      <p class="attribution">Hiyo Shin &middot; Senior Designer, CoreAI</p>
+      <a class="collection-link" href="../../index.html">All prototypes <span aria-hidden="true">&nearr;</span></a>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <p class="eyebrow">Azure Developer CLI <span aria-hidden="true">/</span> Existing flow</p>
+          <h1><code>azd add</code></h1>
+          <p class="description">Choose a resource to add to an existing azd project.</p>
+        </div>
+        <span class="baseline-label">Baseline + simulations</span>
+      </div>
+
+      <nav class="flow-nav" aria-label="Compare resource selection designs">
+        <a href="index.html" aria-current="page">Existing flow</a>
+        <a href="new-design.html">New design</a>
+        <a href="ideas.html">Simpler ideas</a>
+      </nav>
+      <section class="terminal" aria-label="Interactive azd add terminal">
+        <div class="terminal-bar">
+          <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="terminal-title">my-azd-project &mdash; azd add</span>
+          <span class="simulation-label">Simulation</span>
+        </div>
+        <div class="terminal-body" id="terminal-output">
+          <noscript>Enable JavaScript to try the interactive resource selection flow.</noscript>
+        </div>
+        <div class="terminal-footer">
+          <p id="keyboard-hint">Use arrows to move</p>
+          <div class="terminal-actions">
+            <button class="text-button" id="back-button" type="button" disabled>Back <kbd>Esc</kbd></button>
+            <button class="select-button" id="continue-button" type="button">Select <kbd>Enter</kbd></button>
+          </div>
+        </div>
+      </section>
+
+      <div class="prototype-tools">
+        <p id="step-label">Choose a resource category</p>
+        <button class="text-button" id="restart-button" type="button">Restart <span aria-hidden="true">&#8635;</span></button>
+      </div>
+      <aside class="reference-note" aria-label="Prototype scope">
+        <p id="reference-note" role="status" aria-live="polite">The category and AI-type menus follow your screenshots. Blob storage includes the full preview-and-accept flow. Database, Host service, Key Vault, and Messaging use simulated choices.</p>
+        <div class="example-links" role="group" aria-label="Jump to a reference example">
+          <button id="ai-example" type="button">AI selection <span aria-hidden="true">&rarr;</span></button>
+          <button id="storage-example" type="button">Blob storage example <span aria-hidden="true">&rarr;</span></button>
+        </div>
+      </aside>
+      <p class="simulation-note">Browser-only prototype. No project files are changed and no Azure commands are executed.</p>
+    </main>
+  </div>
+</body>
+</html>

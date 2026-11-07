@@ -21,6 +21,7 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 
 | Prototype | Description | Link |
 | --- | --- | --- |
+| **azd &middot; Add resources** | Existing flow, hybrid design, and three compact resource-first, goal-first, and capability-first concepts with editable review. | [`azd-add/`](./azd-add/) &middot; [live](https://hyoshis.github.io/cliux/prototypes/azd-add/ideas.html) |
 | **azd &middot; Skill installation strategy** | Stakeholder dashboard with three azd-native CLI design options, seven interactive scenarios, competitive analysis, consent rules, and rollout guidance. | [`azd-skill-install-system/`](./azd-skill-install-system/) &middot; [live](https://hyoshis.github.io/cliux/prototypes/azd-skill-install-system/) |
 | **azd · Smart defaults** | Stakeholder design dashboard with current initialization paths, four competitive deep dives, default rules, guardrails, and two interactive CLI concepts. | [`init-smart-default/`](./init-smart-default/) · [live](https://hyoshis.github.io/cliux/prototypes/init-smart-default/) |
 | **Awesome azd · Catalog consolidation** | Comparison study and design rationale, with a recommended catalog-first design, complete faceted browsing, a hybrid goal finder, rich detail pages, and agent-readable content. | [`awesome-azd/`](./awesome-azd/) · [live](https://hyoshis.github.io/cliux/prototypes/awesome-azd/) |

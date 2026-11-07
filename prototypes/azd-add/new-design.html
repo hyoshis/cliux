@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A hybrid azd add design: grouped multi-select, editable resource plans, goal suggestions, and a shared JSON plan for agents.">
+  <title>azd add | Hybrid resource selection</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="new-design.css">
+  <script src="resource-plan.js" defer></script>
+  <script src="new-design.js" defer></script>
+</head>
+<body class="hybrid-page">
+  <div class="page">
+    <header class="page-header">
+      <p class="attribution">Hiyo Shin &middot; Senior Designer, CoreAI</p>
+      <a class="collection-link" href="../../index.html">All prototypes <span aria-hidden="true">&nearr;</span></a>
+    </header>
+    <main>
+      <div class="intro">
+        <div>
+          <p class="eyebrow">Azure Developer CLI <span aria-hidden="true">/</span> New design</p>
+          <h1><code>azd add</code></h1>
+          <p class="description">Choose resources, or describe a goal. Review one editable plan.</p>
+        </div>
+        <span class="baseline-label">Hybrid concept</span>
+      </div>
+      <nav class="flow-nav" aria-label="Compare resource selection designs">
+        <a href="index.html">Existing flow</a>
+        <a href="new-design.html" aria-current="page">New design</a>
+        <a href="ideas.html">Simpler ideas</a>
+      </nav>
+      <ol class="flow-steps" aria-label="Resource plan stages">
+        <li data-stage="select" aria-current="step"><span>1</span> Select resources</li>
+        <li data-stage="configure"><span>2</span> Configure values</li>
+        <li data-stage="review"><span>3</span> Review &amp; approve</li>
+      </ol>
+      <section class="terminal" aria-label="Hybrid azd add terminal">
+        <div class="terminal-bar">
+          <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+          <span class="terminal-title">my-azd-project &mdash; resource plan</span>
+          <span class="simulation-label">Simulation</span>
+        </div>
+        <div class="terminal-body" id="hybrid-output">
+          <noscript>Enable JavaScript to try the interactive design.</noscript>
+        </div>
+        <div class="terminal-footer">
+          <p id="hybrid-hint">Arrows move / Space selects / Enter continues</p>
+          <div class="terminal-actions">
+            <button class="text-button" id="hybrid-back" type="button" disabled>Back <kbd>Esc</kbd></button>
+            <button class="select-button" id="hybrid-next" type="button" disabled><span id="next-label">Configure resources</span><kbd>Enter</kbd></button>
+          </div>
+        </div>
+      </section>
+      <div class="prototype-tools">
+        <p id="selection-count" role="status" aria-live="polite">0 selected</p>
+        <div class="tool-actions">
+          <button class="text-button" id="agent-toggle" type="button" aria-expanded="false" aria-controls="agent-panel">Agent view</button>
+          <button class="text-button" id="hybrid-restart" type="button">Restart <span aria-hidden="true">&#8635;</span></button>
+        </div>
+      </div>
+      <section class="agent-panel" id="agent-panel" aria-labelledby="agent-title" hidden>
+        <h2 id="agent-title">The same plan, for an agent</h2>
+        <p>Proposed JSON contract, not an existing azd API. Inspect the plan, resolve missing fields, then request an explicit apply. Non-interactive mode is not automatic approval.</p>
+        <pre id="agent-plan" aria-label="Current resource plan as JSON"></pre>
+      </section>
+      <aside class="reference-note" aria-label="Design guidance">
+        <p id="design-note">All categories are expanded. Select what you need or try a goal. Goal suggestions are a keyword-based simulation, not live AI.</p>
+        <div class="example-links" id="goal-examples" role="group" aria-label="Try a simulated goal">
+          <button id="goal-chat" type="button">Try chat + uploads <span aria-hidden="true">&rarr;</span></button>
+          <button id="goal-orders" type="button">Try orders + queue <span aria-hidden="true">&rarr;</span></button>
+        </div>
+      </aside>
+      <p class="simulation-note">Browser-only prototype. No project files are changed and no Azure or AI commands are executed. Resource fields and configuration previews are illustrative.</p>
+    </main>
+  </div>
+</body>
+</html>
