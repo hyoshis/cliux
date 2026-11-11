@@ -484,7 +484,9 @@ h3 { font-size: 39px; line-height: 1.16; letter-spacing: -1px; }
 /* === PORTFOLIO MAP: CLI UX WORKSTREAMS === */
 .portfolio-content { padding-top: 55px; }
 .portfolio-content h2 { font-size: 72px; }
-.portfolio-intro { max-width: 1160px; margin-top: 18px; color: #c1cec8; font-size: 27px; line-height: 1.4; }
+.portfolio-intro-row { display: flex; align-items: baseline; justify-content: space-between; gap: 30px; margin-top: 18px; }
+.portfolio-intro { max-width: 1160px; color: #c1cec8; font-size: 27px; line-height: 1.4; }
+.portfolio-hint { color: var(--accent); font: 500 18px var(--mono-font); white-space: nowrap; }
 .portfolio-flow {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -522,6 +524,9 @@ h3 { font-size: 39px; line-height: 1.16; letter-spacing: -1px; }
   line-height: 1.35;
 }
 .portfolio-stream li::before { position: absolute; left: 0; color: var(--accent); content: "·"; }
+.portfolio-stream a { color: #d3e2da; text-decoration-color: #70948b; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.portfolio-stream a:hover { color: var(--accent); text-decoration-color: currentColor; }
+.portfolio-stream a span[aria-hidden="true"] { color: var(--accent); }
 .portfolio-foundation {
   display: flex;
   align-items: baseline;
@@ -1016,14 +1021,17 @@ body.editing [contenteditable="true"] { outline: 1px dashed rgba(118, 221, 206, 
           <div class="content portfolio-content">
             <p class="eyebrow reveal" data-editable>MY WORK IN THE CLIUX REPO</p>
             <h2 class="reveal" data-editable>Designing the path to Azure.</h2>
-            <p class="portfolio-intro reveal" data-editable>Research and interactive prototypes across Azure Developer CLI and Microsoft Foundry.</p>
+            <div class="portfolio-intro-row reveal">
+              <p class="portfolio-intro" data-editable>Research and interactive prototypes across Azure Developer CLI and Microsoft Foundry.</p>
+              <p class="portfolio-hint"><span aria-hidden="true">↗</span> Underlined projects open in a new tab</p>
+            </div>
             <div class="portfolio-flow reveal delay-1" aria-label="Four workstreams in the developer journey">
               <article class="portfolio-stream">
                 <span class="portfolio-phase">01 / DISCOVER</span>
                 <h3 data-editable>Find a starting point</h3>
                 <ul>
-                  <li>Awesome AZD catalog</li>
-                  <li><span class="mono">azd init</span> smart defaults</li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/awesome-azd/catalog.html" target="_blank" rel="noopener noreferrer">Awesome AZD catalog <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/init-smart-default/" target="_blank" rel="noopener noreferrer"><span class="mono">azd init</span> smart defaults <span aria-hidden="true">↗</span></a></li>
                   <li>Archived template guidance</li>
                 </ul>
               </article>
@@ -1031,17 +1039,18 @@ body.editing [contenteditable="true"] { outline: 1px dashed rgba(118, 221, 206, 
                 <span class="portfolio-phase">02 / CONFIGURE</span>
                 <h3 data-editable>Add what you need</h3>
                 <ul>
-                  <li><span class="mono">azd add</span> resource selection</li>
-                  <li>Extension auto-install</li>
-                  <li><span class="mono">azd</span> and Foundry skill installs</li>
-                  <li>Foundry DevPack install options</li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/azd-add/ideas.html" target="_blank" rel="noopener noreferrer"><span class="mono">azd add</span> resource selection <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/azd-extension-install/" target="_blank" rel="noopener noreferrer">Extension auto-install <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/azd-skill-install-system/" target="_blank" rel="noopener noreferrer"><span class="mono">azd</span> skill installation <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/fndry-skill-install/" target="_blank" rel="noopener noreferrer">Foundry skill installation <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/foundry-devpack/" target="_blank" rel="noopener noreferrer">Foundry DevPack install options <span aria-hidden="true">↗</span></a></li>
                 </ul>
               </article>
               <article class="portfolio-stream">
                 <span class="portfolio-phase">03 / ENABLE</span>
                 <h3 data-editable>Explore agent workflows</h3>
                 <ul>
-                  <li>Agentic platform-engineering walkthrough</li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/ignite/" target="_blank" rel="noopener noreferrer">Agentic platform-engineering walkthrough <span aria-hidden="true">↗</span></a></li>
                   <li>Agentic CLI landscape and interaction patterns</li>
                 </ul>
               </article>
@@ -1049,8 +1058,8 @@ body.editing [contenteditable="true"] { outline: 1px dashed rgba(118, 221, 206, 
                 <span class="portfolio-phase">04 / TRUST</span>
                 <h3 data-editable>Make consequences clear</h3>
                 <ul>
-                  <li>Validation warning states</li>
-                  <li>Safer extension redirects</li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/validation-warning/" target="_blank" rel="noopener noreferrer">Validation warning states <span aria-hidden="true">↗</span></a></li>
+                  <li><a href="https://hyoshis.github.io/cliux/prototypes/ext-redirect/" target="_blank" rel="noopener noreferrer">Safer extension redirects <span aria-hidden="true">↗</span></a></li>
                 </ul>
               </article>
             </div>
@@ -1064,7 +1073,7 @@ body.editing [contenteditable="true"] { outline: 1px dashed rgba(118, 221, 206, 
         <aside class="speaker-notes" hidden>
           <p>This slide zooms out from the individual prototypes. Across the repo, my work spans four connected challenges: helping developers choose a starting point, making setup and extension flows easier to understand, exploring agent-ready workflows, and making warnings and redirects safer.</p>
           <p>These are research, design explorations, and interactive prototypes—not a claim that every concept shipped. The repo itself is a searchable static prototype library, published through GitHub Pages.</p>
-          <p><strong>Show:</strong> Browse the portfolio at <a href="https://hyoshis.github.io/cliux/" target="_blank" rel="noopener noreferrer">hyoshis.github.io/cliux</a>. Point to the four workstreams, then open a prototype relevant to the conversation.</p>
+          <p><strong>Show:</strong> Select an underlined project on the slide to open its live prototype in a new tab. You can also browse the portfolio at <a href="https://hyoshis.github.io/cliux/" target="_blank" rel="noopener noreferrer">hyoshis.github.io/cliux</a>.</p>
         </aside>
       </section>
 
