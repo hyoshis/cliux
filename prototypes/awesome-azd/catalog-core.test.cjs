@@ -204,13 +204,18 @@ test("the setup page includes both commands and the initialization choices", () 
   assert(!html.includes('class="catalog-start-intro"'));
   assert(!html.includes('class="catalog-start-step-number"'));
   assert.equal([...html.matchAll(/<section class="catalog-start-step"/g)].length, 2);
-  assert.equal([...html.matchAll(/<pre><code>/g)].length, 2);
+  assert(html.includes('<section class="catalog-start-prerequisite" aria-labelledby="start-install"><h2 id="start-install">Prerequisite: Install azd</h2>'));
+  assert(html.includes('<h2 id="start-initialize">1. Initialize your app</h2>'));
+  assert(html.includes('<h2 id="start-deploy">2. Provision and deploy</h2>'));
+  assert.equal([...html.matchAll(/<pre><code[^>]*>/g)].length, 3);
   assert(html.includes('data-back-to-catalog href="catalog.html"'));
-  assert.deepEqual([...html.matchAll(/<code>([^<]+)<\/code>/g)].map(match => match[1]), ["azd init", "azd up"]);
-  assert.deepEqual([...html.matchAll(/data-copy="([^"]+)"/g)].map(match => match[1]), ["azd init", "azd up"]);
-  assert(html.includes("Scan current directory"));
-  assert(html.includes("Set up with GitHub Copilot"));
-  assert(html.includes('href="https://azure.github.io/awesome-azd/" target="_blank" rel="noopener">Read the setup guide'));
+  assert.deepEqual([...html.matchAll(/<code[^>]*>([^<]+)<\/code>/g)].map(match => match[1]), ["winget install microsoft.azd", "azd init", "azd up"]);
+  assert.deepEqual([...html.matchAll(/data-copy="([^"]+)"/g)].map(match => match[1]), ["winget install microsoft.azd", "azd init", "azd up"]);
+  assert.deepEqual([...html.matchAll(/<option value="([^"]+)"/g)].map(match => match[1]), ["windows", "mac", "linux"]);
+  assert(html.includes("How do you want to initialize your app?"));
+  assert(html.includes('<dt>Scan current directory</dt>'));
+  assert(html.includes('<dt>Set up with GitHub Copilot</dt>'));
+  assert(!html.includes("Read the setup guide"));
   assert(!html.includes("Deploying to Azure can incur charges."));
 });
 
