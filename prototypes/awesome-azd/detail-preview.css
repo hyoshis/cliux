@@ -32,10 +32,14 @@
 .detail-start-links a { display: flex; align-items: center; min-height: 44px; padding: var(--s2) var(--s3); border: 1px solid var(--line); border-radius: var(--s2); font-weight: 500; text-decoration: none; }
 .detail-start-links a:hover { background: var(--blue-tint); border-color: var(--blue); text-decoration: underline; }
 @media (min-width: 1151px) {
-  .selected-detail-reference { grid-template-columns: minmax(0, 1fr) 460px; }
+  .selected-detail-reference { grid-template-columns: minmax(0, 1fr) 380px; }
   .selected-detail-reference .detail-start-reference { margin-top: .8rem; }
 }
-.selected-detail-reference .detail-summary { margin-top: var(--s6); padding: 0; border: 0; background: transparent; }
+.selected-detail-reference .detail-summary { justify-self: stretch; width: 100%; box-sizing: border-box; margin: var(--s5) 0 0; padding: var(--s5); }
+.selected-detail-reference .detail-media-plain { width: fit-content; max-width: 100%; }
+.selected-detail-reference .detail-media-plain img { width: auto; max-width: 100%; max-height: none; }
+.selected-detail-reference .detail-media { margin-inline: 0; }
+.selected-detail-reference .detail-media img { margin-inline: 0; }
 .detail-start-reference { --detail-action-primary: #0f6cbd; --detail-action-primary-hover: #115ea3; --detail-action-secondary: var(--subtle); --detail-action-border: var(--line); --detail-command-accent: #17692c; }
 :root[data-theme="dark"] .detail-start-reference { --detail-action-secondary: #303030; --detail-action-border: #555; --detail-command-accent: #7ee787; }
 .detail-start-reference .selected-command { display: flex; align-items: center; gap: var(--s2); }
@@ -71,6 +75,7 @@
 :root[data-theme="dark"] .selected-detail-reference .detail-summary dt img { filter: brightness(1.6); }
 .selected-detail-reference .detail-summary dd { min-width: 0; text-align: right; }
 .selected-detail-reference .detail-summary dd:not(.tags) { white-space: nowrap; }
-.selected-detail-reference .detail-summary .tags { justify-content: flex-end; gap: var(--s1); }
+.selected-detail-reference .detail-summary .tags { justify-content: flex-start; gap: var(--s1); }
+.selected-detail-reference .selected-start-panel > section { width: 100%; box-sizing: border-box; }
 .selected-detail-reference .detail-summary .detail-summary-cost { border-top: 1px solid var(--line); padding-top: var(--s5); margin-top: var(--s2); }
 .breadcrumb { font-size: var(--detail-ui-size); }
