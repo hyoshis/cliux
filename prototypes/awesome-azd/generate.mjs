@@ -198,8 +198,10 @@ function detailLaunchLinks(template) {
     { kind: "environment", url: launch && !isCodespaces && !isVscode ? template.launchUrl : null, label: "Open development environment" }
   ].filter(link => link.url);
 }
-function detailImage(image, kind, externalArrow) {
-  return image ? `<figure class="detail-media detail-media-${kind}"><a href="${escape(image.src)}" target="_blank" rel="noopener"><img src="${escape(image.src)}" alt="${escape(image.alt)}" decoding="async"><span>View full size${externalArrow}</span></a></figure>` : "";
+function detailImage(image, kind, externalArrow, showInline = false) {
+  if (!image) return "";
+  if (showInline) return `<figure class="detail-media detail-media-${kind} detail-media-plain"><img src="${escape(image.src)}" alt="${escape(image.alt)}" decoding="async"></figure>`;
+  return `<figure class="detail-media detail-media-${kind}"><a href="${escape(image.src)}" target="_blank" rel="noopener"><img src="${escape(image.src)}" alt="${escape(image.alt)}" decoding="async"><span>View full size${externalArrow}</span></a></figure>`;
 }
 function detailResourceName(resource) {
   const name = escape(resource.name);
@@ -225,6 +227,8 @@ function detailPage(template) {
   const isTypographyPreview = ["azure-samples/azure-search-openai-demo", "azure-samples/aisearch-openai-rag-audio"].includes(template.id);
   const isReferencePreview = template.id === "azure-samples/azure-search-openai-demo";
   const externalArrow = isReferencePreview ? "" : " &#8599;";
+  // Fluent UI System Icons (MIT); see the license in assets.
+  const fluentOpenIcon = `<svg class="detail-external-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M4.49999 3C3.67157 3 3 3.67157 3 4.5V11.5C3 12.3284 3.67157 13 4.49999 13H11.5C12.3284 13 12.9999 12.3284 12.9999 11.5V9.26923C12.9999 8.99309 13.2238 8.76923 13.4999 8.76923C13.7761 8.76923 13.9999 8.99309 13.9999 9.26923V11.5C13.9999 12.8807 12.8807 14 11.5 14H4.49999C3.11928 14 2 12.8807 2 11.5V4.5C2 3.11929 3.11928 2 4.49999 2H6.73075C7.00689 2 7.23074 2.22386 7.23074 2.5C7.23074 2.77614 7.00689 3 6.73075 3H4.49999ZM8.76926 2.5C8.76926 2.22386 8.99311 2 9.26925 2H13.5C13.7761 2 14 2.22386 14 2.5V6.73077C14 7.00691 13.7761 7.23077 13.5 7.23077C13.2239 7.23077 13 7.00691 13 6.73077V3.70711L9.6228 7.08433C9.42754 7.27959 9.11096 7.27959 8.9157 7.08433C8.72044 6.88906 8.72044 6.57248 8.9157 6.37722L12.2929 3H9.26925C8.99311 3 8.76926 2.77614 8.76926 2.5Z"/></svg>`;
   const summaryLabel = (label, icon) => isReferencePreview
     ? `<img src="https://azure.github.io/ai-app-templates/img/${icon}.svg" alt="" width="20" height="20">${label}`
     : label;
@@ -240,27 +244,34 @@ function detailPage(template) {
   const startLinks = isReferencePreview
     ? referenceDetailLinks(template, launchLinks)
     : `${launchLinks.map(link => `<a href="${escape(link.url)}" target="_blank" rel="noopener">${link.label} &#8599;</a>`).join("")}<a href="${escape(template.repository)}" target="_blank" rel="noopener">View on GitHub &#8599;</a>`;
+  const creatorLinks = detail.creators.map(creator => creator.url ? `<a href="${escape(creator.url)}" target="_blank" rel="noopener">${escape(creator.name)}</a>` : escape(creator.name)).join(", ");
+  const tagChips = detail.tags.map(tag => `<span class="tag">${escape(tag)}</span>`).join("");
+  const repositoryName = new URL(template.repository).pathname.split("/").filter(Boolean).join(" / ");
+  const stars = template.repositoryStats?.stars;
+  const referenceRepository = `<div class="detail-repository-meta"><a href="${escape(template.repository)}" target="_blank" rel="noopener" aria-label="${escape(repositoryName)} on GitHub (opens in a new tab)">${escape(repositoryName)}</a>${stars == null ? "" : `<span aria-hidden="true">&bull;</span><span class="detail-repository-star" title="${stars.toLocaleString("en-US")} stars (snapshot)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 14.8 8.7 21.1 9.6 16.6 14 17.7 20.3 12 17.3 6.3 20.3 7.4 14 2.9 9.6 9.2 8.7Z"/></svg><span aria-hidden="true">${new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(stars)}</span><span class="sr-only">${stars.toLocaleString("en-US")} stars (snapshot)</span></span>`}</div>`;
+  const referenceByline = `<div class="detail-hero-byline">${detail.creators.length ? `<span>by ${creatorLinks}</span><span aria-hidden="true">&bull;</span>` : ""}<a href="${escape(template.repository)}" target="_blank" rel="noopener" aria-label="View on GitHub (opens in a new tab)">View on GitHub</a></div>`;
+  const summarySection = `<section class="detail-summary" aria-labelledby="summary-heading"><h2 id="summary-heading">Summary</h2><dl>
+${!isReferencePreview && detail.creators.length ? `<div><dt>${summaryLabel("Created by", "Person")}</dt><dd>${creatorLinks}</dd></div>` : ""}
+${detail.lastUpdated ? `<div><dt>${summaryLabel("Last updated", "Calendar")}</dt><dd>${escape(detail.lastUpdated)}</dd></div>` : ""}
+${detail.languages.length ? `<div><dt>${summaryLabel("Languages", "Code")}</dt><dd>${escape(detail.languages.join(", "))}</dd></div>` : ""}
+${detail.models.length ? `<div><dt>${summaryLabel("Models", "Cube")}</dt><dd>${escape(detail.models.join(", "))}</dd></div>` : ""}
+${detail.tags.length ? `<div${isReferencePreview ? ' class="detail-summary-tags"' : ""}><dt>${summaryLabel("Tags", "Tag")}</dt><dd class="tags">${tagChips}</dd></div>` : ""}
+<div${isReferencePreview ? ' class="detail-summary-cost"' : ""}><dt>${summaryLabel("Estimated cost", "Calculator")}</dt><dd><a href="https://azure.microsoft.com/pricing/calculator/" target="_blank" rel="noopener"${isReferencePreview ? ' aria-label="Pricing calculator (opens in a new tab)"' : ""}>Pricing calculator${isReferencePreview ? fluentOpenIcon : externalArrow}</a></dd></div>
+</dl></section>`;
   return `<!doctype html>
 <!-- Generated from templates.json by node generate.mjs. Do not edit. -->
 <html lang="en"><head>${head(detail.title, detail.about, root, "index.md")}${previewStyles}<link rel="canonical" href="${canonical}"><meta property="og:title" content="${escape(detail.title)}"><meta property="og:description" content="${escape(detail.about)}"><meta property="og:type" content="website"><meta property="og:url" content="${canonical}"><script src="${root}catalog.js" defer></script><script src="${root}catalog-core.js" defer></script><script src="${root}detail.js" defer></script></head>
 <body class="catalog-page" data-mode="detail" data-root="${root}"><a class="skip" href="#main">Skip to content</a>${header(root)}
-<main id="main" class="product-wrap"><div class="breadcrumb"><a data-back-to-results href="${root}catalog.html">&#8592; Back to templates</a></div>
+<main id="main" class="product-wrap"><div class="breadcrumb${isReferencePreview ? " detail-breadcrumb-reference" : ""}"><a data-back-to-results href="${root}catalog.html">${isReferencePreview ? `<span aria-hidden="true">&#8592;</span><span>Back to templates</span>` : "&#8592; Back to templates"}</a></div>
 <div class="selected-detail-layout${isReferencePreview ? " selected-detail-reference" : ""}"><div class="selected-detail-content">
-<header class="selected-detail-hero"><a class="detail-repository" href="${escape(template.repository)}" target="_blank" rel="noopener">${escape(template.id)}${externalArrow}</a><h1>${escape(detail.title)}</h1><p class="detail-description">${escape(detail.about)}</p></header>
+<header class="selected-detail-hero">${isReferencePreview ? referenceRepository : `<a class="detail-repository" href="${escape(template.repository)}" target="_blank" rel="noopener">${escape(template.id)}${externalArrow}</a>`}<h1>${escape(detail.title)}</h1>${isReferencePreview ? referenceByline : ""}<p class="detail-description">${escape(detail.about)}</p></header>
 ${isReferencePreview && detail.aboutImage ? `<figure class="detail-media detail-media-screenshot detail-media-plain"><img src="${escape(detail.aboutImage.src)}" alt="${escape(detail.aboutImage.alt)}" decoding="async"></figure>` : detailImage(detail.aboutImage, "screenshot", externalArrow)}
-<section id="architecture" aria-labelledby="architecture-heading"><h2 id="architecture-heading">Architecture</h2>${detail.architectureImage ? detailImage(detail.architectureImage, "architecture", externalArrow) : `<p>Architecture image is not available in this prototype.</p>`}</section>
+<section id="architecture" aria-labelledby="architecture-heading"><h2 id="architecture-heading">Architecture</h2>${detail.architectureImage ? detailImage(detail.architectureImage, "architecture", externalArrow, isReferencePreview) : `<p>Architecture image is not available in this prototype.</p>`}</section>
 ${detail.resources.length ? `<section id="resources" aria-labelledby="resources-heading"><h2 id="resources-heading">Resources included</h2>${resourceDescriptions ? `<div class="table-scroll"><table class="detail-resource-table${resourceIcons ? " detail-resource-table-with-icons" : ""}"><thead><tr><th scope="col">Resource</th><th scope="col">Description</th></tr></thead><tbody>${detail.resources.map(resource => `<tr><th scope="row">${detailResourceName(resource)}</th><td>${escape(resource.description || "")}</td></tr>`).join("")}</tbody></table></div>` : `<ul class="detail-resource-list">${detail.resources.map(resource => `<li>${detailResourceName(resource)}</li>`).join("")}</ul>`}</section>` : ""}
 </div><aside class="selected-start-panel" aria-label="Template actions and summary">
-<section class="detail-start${isReferencePreview ? " detail-start-reference" : ""}" aria-labelledby="start-heading">${isReferencePreview ? `<div class="detail-start-header"><h2 id="start-heading">Get started</h2><a class="detail-github-link" href="${escape(template.repository)}" target="_blank" rel="noopener" aria-label="View on GitHub (opens in a new tab)"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg><span>View on GitHub</span></a></div>` : `<h2 id="start-heading">Get started</h2>`}${template.initCommand ? `<div class="selected-command"><code>${commandMarkup}</code>${copyButton}</div><p>Use the Azure Developer CLI (azd) to deploy this template. <a href="https://aka.ms/azd" target="_blank" rel="noopener">Learn more about azd${externalArrow}</a></p>` : `<a class="button blue" href="${escape(template.readme)}" target="_blank" rel="noopener">Open setup instructions${externalArrow}</a>`}
-<div class="detail-start-links">${startLinks}</div></section>
-<section class="detail-summary" aria-labelledby="summary-heading"><h2 id="summary-heading">Summary</h2><dl>
-${detail.creators.length ? `<div><dt>${summaryLabel("Created by", "Person")}</dt><dd>${detail.creators.map(creator => creator.url ? `<a href="${escape(creator.url)}" target="_blank" rel="noopener">${escape(creator.name)}</a>` : escape(creator.name)).join(", ")}</dd></div>` : ""}
-${detail.lastUpdated ? `<div><dt>${summaryLabel("Last updated", "Calendar")}</dt><dd>${escape(detail.lastUpdated)}</dd></div>` : ""}
-${detail.languages.length ? `<div><dt>${summaryLabel("Languages", "Code")}</dt><dd>${escape(detail.languages.join(", "))}</dd></div>` : ""}
-${detail.models.length ? `<div><dt>${summaryLabel("Models", "Cube")}</dt><dd>${escape(detail.models.join(", "))}</dd></div>` : ""}
-${detail.tags.length ? `<div><dt>${summaryLabel("Tags", "Tag")}</dt><dd class="tags">${detail.tags.map(tag => `<span class="tag">${escape(tag)}</span>`).join("")}</dd></div>` : ""}
-<div${isReferencePreview ? ' class="detail-summary-cost"' : ""}><dt>${summaryLabel("Estimated cost", "Calculator")}</dt><dd><a href="https://azure.microsoft.com/pricing/calculator/" target="_blank" rel="noopener">Pricing calculator${externalArrow}</a></dd></div>
-</dl></section></aside></div></main></body></html>`;
+<section class="detail-start${isReferencePreview ? " detail-start-reference" : ""}" aria-labelledby="start-heading">${isReferencePreview ? `<div class="detail-start-header"><h2 id="start-heading">Get started</h2></div>` : `<h2 id="start-heading">Get started</h2>`}${template.initCommand ? `<div class="selected-command"><code>${commandMarkup}</code>${copyButton}</div><p>Use the Azure Developer CLI (azd) to deploy this template. <a href="https://aka.ms/azd" target="_blank" rel="noopener"${isReferencePreview ? ' aria-label="Learn more about azd (opens in a new tab)"' : ""}>Learn more about azd${isReferencePreview ? fluentOpenIcon : externalArrow}</a></p>` : `<a class="button blue" href="${escape(template.readme)}" target="_blank" rel="noopener">Open setup instructions${externalArrow}</a>`}
+${isReferencePreview && template.initCommand ? `<div class="detail-start-separator">or</div>` : ""}<div class="detail-start-links">${startLinks}</div></section>
+${summarySection}</aside></div></main></body></html>`;
 }
 function markdownPage(template) {
   const detail = detailContent(template);
