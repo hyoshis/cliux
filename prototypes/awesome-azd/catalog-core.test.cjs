@@ -6,6 +6,129 @@ const C = require("./catalog-core.js");
 const { templates } = require("./templates.json");
 const ids = state => C.filter(templates, state).map(template => template.id);
 
+test("only the two detail previews load the typography refinements", () => {
+  const previews = new Set(["azure-samples/azure-search-openai-demo", "azure-samples/aisearch-openai-rag-audio"]);
+  assert(existsSync(path.join(__dirname, "detail-preview.css")));
+  for (const template of templates) {
+    const html = readFileSync(path.join(__dirname, "templates", ...template.id.split("/"), "index.html"), "utf8");
+    assert.equal(html.includes('<link rel="stylesheet" href="../../../detail-preview.css">'), previews.has(template.id), template.id);
+    if (previews.has(template.id)) {
+      const command = html.match(/<div class="selected-command"><code>(.*?)<\/code>/)[1].replace(/<\/?span\b[^>]*>/g, "");
+      assert.equal(command, C.escape(template.initCommand));
+      assert(html.includes(`data-copy="${C.escape(template.initCommand)}"`));
+    }
+  }
+});
+
+test("a template without an application screenshot still shows its architecture", () => {
+  const template = templates.find(item => item.id === "azure-samples/aisearch-openai-rag-audio");
+  const folder = path.join(__dirname, "templates", ...template.id.split("/"));
+  const html = readFileSync(path.join(folder, "index.html"), "utf8");
+  const markdown = readFileSync(path.join(folder, "index.md"), "utf8");
+  const titlePosition = html.indexOf(`<h1>${C.escape(template.detail.title)}</h1>`);
+  const descriptionPosition = html.indexOf(`<p class="detail-description">${C.escape(template.detail.about)}</p>`);
+  assert(titlePosition >= 0 && descriptionPosition > titlePosition);
+  assert(!html.includes("About this template"));
+  assert(!html.includes("detail-media-screenshot"));
+  assert(html.includes('id="architecture"'));
+  assert(html.includes(`src="${C.escape(template.detail.architectureImage.src)}" alt="${C.escape(template.detail.architectureImage.alt)}"`));
+  assert(!html.includes("Last updated"));
+  assert(markdown.startsWith(`# ${template.detail.title}\n\n> ${template.detail.about}`));
+  assert(!markdown.includes("About this template"));
+  assert(markdown.includes(`![${template.detail.architectureImage.alt}](${template.detail.architectureImage.src})`));
+});
+
+test("template actions keep Codespaces, VS Code for the Web, and GitHub links", () => {
+  for (const id of ["azure-samples/get-started-with-ai-agents", "azure-samples/azure-search-openai-demo"]) {
+    const template = templates.find(item => item.id === id);
+    const html = readFileSync(path.join(__dirname, "templates", ...id.split("/"), "index.html"), "utf8");
+    const markdown = readFileSync(path.join(__dirname, "templates", ...id.split("/"), "index.md"), "utf8");
+    const codespaces = template.detail.codespacesUrl ?? template.launchUrl;
+    const vscode = template.detail.vscodeUrl ?? template.launchUrl;
+    const anchors = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)];
+    for (const [url, label] of [[codespaces, "Open in GitHub Codespaces"], [vscode, "Open in VS Code for the Web"], [template.repository, "View on GitHub"]]) {
+      const link = anchors.find(([, attributes, content]) => attributes.includes(`href="${C.escape(url)}"`) && content.replace(/<[^>]+>/g, "").includes(label));
+      assert(link, label);
+      assert(link[1].includes('target="_blank" rel="noopener"'));
+    }
+    assert(markdown.includes(`[Open in GitHub Codespaces](${codespaces})`));
+    assert(markdown.includes(`[Open in VS Code for the Web](${vscode})`));
+    if (id === "azure-samples/azure-search-openai-demo") {
+      assert(html.includes('class="catalog-copy-command detail-copy-command"'));
+      assert(html.includes('aria-label="Copy command"'));
+      assert(html.includes('class="detail-action-primary"'));
+      assert(!/&#8599;|&#x2197;|&nearr;|\u2197/i.test(html));
+    }
+  }
+});
+
+test("template details render supplied images and source metadata without fabricating missing fields", () => {
+  const template = templates.find(item => item.detail?.aboutImage);
+  assert(template, "An image-bearing example should be available for the detail-page check.");
+  const folder = path.join(__dirname, "templates", ...template.id.split("/"));
+  const html = readFileSync(path.join(folder, "index.html"), "utf8");
+  const markdown = readFileSync(path.join(folder, "index.md"), "utf8");
+  const descriptionPosition = html.indexOf(`<p class="detail-description">${C.escape(template.detail.about)}</p>`);
+  const aboutImagePosition = html.indexOf(`src="${C.escape(template.detail.aboutImage.src)}"`);
+  assert(aboutImagePosition > descriptionPosition);
+  for (const image of [template.detail.aboutImage, template.detail.architectureImage]) {
+    assert(html.includes(`src="${C.escape(image.src)}" alt="${C.escape(image.alt)}"`));
+    assert(markdown.includes(`![${image.alt}](${image.src})`));
+  }
+  assert(descriptionPosition >= 0);
+  assert(html.includes(C.escape(template.detail.models.join(", "))));
+  for (const resource of template.detail.resources) {
+    assert(html.includes(C.escape(resource.name)));
+    assert(html.includes(C.escape(resource.description)));
+  }
+  assert(!html.includes("Last updated"));
+});
+
+test("the requested detail page shows the source's service icons beside resource names", () => {
+  const template = templates.find(item => item.id === "azure-samples/azure-search-openai-demo");
+  const html = readFileSync(path.join(__dirname, "templates", ...template.id.split("/"), "index.html"), "utf8");
+  const rows = [...html.matchAll(/<tr><th scope="row">([\s\S]*?)<\/th><td>(.*?)<\/td><\/tr>/g)];
+  assert.equal(rows.length, template.detail.resources.length);
+  for (const [index, resource] of template.detail.resources.entries()) {
+    assert(rows[index][1].includes(`src="${C.escape(resource.icon)}" alt=""`), resource.name);
+    assert(rows[index][1].includes(C.escape(resource.name)), resource.name);
+    assert.equal(rows[index][2], C.escape(resource.description));
+  }
+  const other = readFileSync(path.join(__dirname, "templates", "azure-samples", "aisearch-openai-rag-audio", "index.html"), "utf8");
+  assert(!other.includes("detail-resource-icon"));
+});
+
+test("all template details omit tabs, prerequisites, and content beyond the supported detail fields", () => {
+  for (const template of templates) {
+    const folder = path.join(__dirname, "templates", ...template.id.split("/"));
+    const html = readFileSync(path.join(folder, "index.html"), "utf8");
+    const markdown = readFileSync(path.join(folder, "index.md"), "utf8");
+    assert.deepEqual([...html.matchAll(/<h2[^>]*>([^<]+)<\/h2>/g)].map(match => match[1]), [
+      "Architecture",
+      ...((template.detail?.resources ?? [...template.services, ...template.databases]).length ? ["Resources included"] : []),
+      "Get started",
+      "Summary"
+    ]);
+    assert(!html.includes("detail-section-nav"));
+    assert(!html.includes('role="tab'));
+    assert(!html.includes("<footer"));
+    assert(!html.includes("About this template"));
+    assert(!markdown.includes("About this template"));
+    if (template.detail?.architectureImage) {
+      assert(html.includes(`src="${C.escape(template.detail.architectureImage.src)}" alt="${C.escape(template.detail.architectureImage.alt)}"`));
+    } else {
+      assert(html.includes("Architecture image is not available in this prototype."));
+    }
+    for (const extra of ["Prerequisites", 'id="requirements"', "GitHub stars:", "Conceptual flow", "Source and limitations", "Fit and features", "azd up", "azd down"]) {
+      assert(!html.includes(extra), `${template.id}: unexpected detail content: ${extra}`);
+      assert(!markdown.includes(extra), `${template.id}: unexpected Markdown content: ${extra}`);
+    }
+    assert(html.includes("Pricing calculator"));
+    const elementIds = [...html.matchAll(/\bid="([^"]+)"/g)].map(match => match[1]);
+    assert.equal(new Set(elementIds).size, elementIds.length, `${template.id}: duplicated element IDs`);
+  }
+});
+
 test("the official-style navbar has only Templates interactive and no attribution strip", () => {
   const pages = [
     ["catalog.html", ""],

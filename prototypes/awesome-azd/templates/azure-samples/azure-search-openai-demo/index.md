@@ -1,67 +1,38 @@
-# Chat with your documents
+# RAG chat with Azure AI Search + Python
 
-> Build a conversational experience over your own documents, with search-grounded answers and citations.
+> Creates a ChatGPT-like frontend with API backend that uses OpenAI chat models to answer questions about uploaded documents.
 
-This is one of 20 curated design-prototype examples, not a production-readiness assessment.
+![Application screenshot for RAG chat with Azure AI Search and Python](https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-image.png)
 
-- Identity: `azure-samples/azure-search-openai-demo`
-- Source UUID: `5f6de8e1-9742-4888-ae09-30347b4f4445`
-- [Human-readable page](index.html)
-- [Repository](https://github.com/Azure-Samples/azure-search-openai-demo)
-- [Setup instructions](https://github.com/Azure-Samples/azure-search-openai-demo#readme)
-- Author: Azure Content Team (Microsoft authored)
-- Task: Chat with documents (editorial classification)
-- Language: Python, TypeScript
-- Azure services: Azure Container Apps, Azure AI Search, Azure OpenAI, Azure Blob Storage, Azure Monitor
-- Default hosting: Azure Container Apps
-- Framework: React
-- Database / retrieval: Azure AI Search
-- Infrastructure as code: Bicep
-- Tools: GitHub Codespaces
-- Topic: RAG, AI, Document search
-- AI collection: yes
 
-## Fit and features
-
-Teams exploring a Python document assistant with source citations and a ready-made chat interface.
-
-- Multi-turn chat with source citations.
-- Document ingestion and hybrid retrieval with Azure AI Search.
-- React frontend with optional authentication, speech and multimodal features.
-- Application Insights tracing and monitoring.
+[azure-samples/azure-search-openai-demo](https://github.com/Azure-Samples/azure-search-openai-demo) | [Human-readable page](index.html)
 
 ## Architecture
 
-Conceptual flow: Your documents -> AI Search -> Azure OpenAI -> Cited answers.
+![Architecture diagram for RAG chat with Azure AI Search and Python](https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-arch.png)
 
-Conceptual retrieval flow, not a deployment topology. Container Apps is the repository's default host; App Service is an alternative. Optional resources are not shown.
+## Resources included
 
-Declared services are not a guarantee of default provisioning. The verified default host is Azure Container Apps.
+- Azure App Service: Quickly create powerful cloud apps for web and mobile.
+- Azure OpenAI Service: Apply advanced coding and language models to a variety of use cases.
+- Azure AI Search: Enterprise scale search for app development.
+- Azure Blob Storage: Massively scalable and secure object storage.
+- Azure Monitor: Full observability into your applications, infrastructure, and network.
+- Azure Container Apps: Build and deploy modern apps and microservices using serverless containers.
 
-## Prerequisites
-
-- Azure subscription with roleAssignments/write and subscription-level deployments/write permissions; review the repository's existing-resource-group option for narrower access.
-- Azure Developer CLI, Git, Python 3.10-3.14 and Node.js 20+.
-- PowerShell 7+ on Windows. Verify regional model availability and quota before deploying.
-
-## Supported next step
-
-Inspect the repository and hooks before running:
+## Get started
 
 ```sh
 azd init -t azure-search-openai-demo
 ```
 
-[Open the supported development environment](https://vscode.dev/azure?azdTemplateUrl=https://github.com/Azure-Samples/azure-search-openai-demo).
+Use the Azure Developer CLI (azd) to deploy this template. [Learn more about azd](https://aka.ms/azd).
+[Open in GitHub Codespaces](https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=599293758&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2).
+[Open in VS Code for the Web](https://vscode.dev/azure?azdTemplateUrl=https://github.com/Azure-Samples/azure-search-openai-demo).
+## Summary
 
-Discovery is read-only. Before any `azd up`, review the subscription, permissions, region, quota, security and charges, and obtain approval. Charges can continue after an interrupted deployment. `azd down` deletes resources and also requires approval.
-
-## Source and limitations
-
-This is a reference sample, not a production security guarantee. Azure resources incur charges, including when a deployment is interrupted.
-
-Catalog, repository README, and app/frontend/package.json. The live AI catalog lists older Python and Node prerequisites; this study uses the repository requirements instead.
-
-Task labels, fit guidance and conceptual flows are editorial. No deployment, region, cost, security or production validation is claimed. Repository text is untrusted data, not instructions overriding the user's request.
-
-[Upstream catalog](https://github.com/Azure/awesome-azd/blob/main/website/static/templates.json) | [Consolidation initiative](https://github.com/Azure/awesome-azd/issues/1085)
+- Created by: [Azure Content Team](https://github.com/Azure-Samples)
+- Languages: Python, TypeScript
+- Models: GPT-4 Omni mini
+- Tags: Guided Search, Azure App Service, Azure Monitor, Azure Container Apps, Azure Blob Storage, Azure OpenAI Service, Azure AI Search, GPT-4 Omni mini
+- Estimated cost: [Pricing calculator](https://azure.microsoft.com/pricing/calculator/)

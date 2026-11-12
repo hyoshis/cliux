@@ -50,6 +50,33 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/get-started-with-ai-agents",
       "readme": "https://github.com/Azure-Samples/get-started-with-ai-agents#readme",
+      "detail": {
+        "source": "https://azure.github.io/ai-app-templates/repo/azure-samples/get-started-with-ai-agents/",
+        "about": "This solution deploys a web-based chat application with an AI agent running in Azure Container Apps. The agent leverages the Azure AI Agent service and utilizes Azure AI Search for knowledge retrieval from uploaded files, enabling it to generate responses with citations.",
+        "aboutImage": {
+          "src": "https://azure.github.io/ai-app-templates/templates/images/get-started-with-ai-agents-image.png",
+          "alt": "Chat application for the AI agents template"
+        },
+        "architectureImage": {
+          "src": "https://azure.github.io/ai-app-templates/templates/images/get-started-with-ai-agents-arch.png",
+          "alt": "Architecture of the AI agents application"
+        },
+        "vscodeUrl": "https://vscode.dev/azure?azdTemplateUrl=https://github.com/Azure-Samples/get-started-with-ai-agents",
+        "creators": [
+          { "name": "Howie Leung", "url": "https://github.com/howieleung" },
+          { "name": "Nikolay Rovinskiy", "url": "https://github.com/nick863" },
+          { "name": "Sophia Ramsey", "url": "https://github.com/sophia-ramsey" }
+        ],
+        "languages": ["Python", "JavaScript"],
+        "models": ["GPT-4 Omni mini"],
+        "tags": ["Agent", "Interactive Chat", "Guided Search", "Azure Application Insights", "Azure Blob Storage", "Azure OpenAI Service", "Microsoft Foundry", "Azure Service Principal", "Azure AI Search", "GPT-4 Omni mini"],
+        "resources": [
+          { "name": "Azure AI Search", "description": "Enterprise scale search for app development." },
+          { "name": "Azure OpenAI Service", "description": "Apply advanced coding and language models to a variety of use cases." },
+          { "name": "Microsoft Foundry", "description": "The AI app and agent factory" },
+          { "name": "Azure Blob Storage", "description": "Massively scalable and secure object storage." }
+        ]
+      },
       "collections": ["ai"],
       "task": "Build an AI agent",
       "languages": ["Python"],
@@ -81,6 +108,33 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/azure-search-openai-demo",
       "readme": "https://github.com/Azure-Samples/azure-search-openai-demo#readme",
+      "detail": {
+        "source": "https://azure.github.io/ai-app-templates/repo/azure-samples/azure-search-openai-demo/",
+        "title": "RAG chat with Azure AI Search + Python",
+        "about": "Creates a ChatGPT-like frontend with API backend that uses OpenAI chat models to answer questions about uploaded documents.",
+        "aboutImage": {
+          "src": "https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-image.png",
+          "alt": "Application screenshot for RAG chat with Azure AI Search and Python"
+        },
+        "architectureImage": {
+          "src": "https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-arch.png",
+          "alt": "Architecture diagram for RAG chat with Azure AI Search and Python"
+        },
+        "codespacesUrl": "https://github.com/codespaces/new?hide_repo_select=true&ref=main&repo=599293758&machine=standardLinux32gb&devcontainer_path=.devcontainer%2Fdevcontainer.json&location=WestUs2",
+        "creators": [
+          { "name": "Azure Content Team", "url": "https://github.com/Azure-Samples" }
+        ],
+        "models": ["GPT-4 Omni mini"],
+        "tags": ["Guided Search", "Azure App Service", "Azure Monitor", "Azure Container Apps", "Azure Blob Storage", "Azure OpenAI Service", "Azure AI Search", "GPT-4 Omni mini"],
+        "resources": [
+          { "name": "Azure App Service", "description": "Quickly create powerful cloud apps for web and mobile.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-App-Service.svg" },
+          { "name": "Azure OpenAI Service", "description": "Apply advanced coding and language models to a variety of use cases.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-OpenAI-Service.svg" },
+          { "name": "Azure AI Search", "description": "Enterprise scale search for app development.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-AI-Search.svg" },
+          { "name": "Azure Blob Storage", "description": "Massively scalable and secure object storage.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-Storage.svg" },
+          { "name": "Azure Monitor", "description": "Full observability into your applications, infrastructure, and network.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-Monitor.svg" },
+          { "name": "Azure Container Apps", "description": "Build and deploy modern apps and microservices using serverless containers.", "icon": "https://azure.github.io/ai-app-templates/img/Azure-Container-Apps.svg" }
+        ]
+      },
       "collections": ["ai"],
       "task": "Chat with documents",
       "languages": ["Python", "TypeScript"],
@@ -112,6 +166,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/rag-postgres-openai-python",
       "readme": "https://github.com/Azure-Samples/rag-postgres-openai-python#readme",
+      "detail": {
+        "architectureImage": { "src": "https://azure.github.io/ai-app-templates/templates/images/rag-postgres-openai-python-arch.png", "alt": "RAG chat architecture with PostgreSQL and Azure OpenAI" }
+      },
       "collections": ["ai"],
       "task": "Query a database",
       "languages": ["Python"],
@@ -143,6 +200,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/azure-search-openai-demo-csharp",
       "readme": "https://github.com/Azure-Samples/azure-search-openai-demo-csharp#readme",
+      "detail": {
+        "architectureImage": { "src": "https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-csharp-arch.png", "alt": "C# RAG chat architecture with Azure AI Search" }
+      },
       "collections": ["ai"],
       "task": "Chat with documents",
       "languages": ["C# / .NET"],
@@ -174,6 +234,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/azure-search-openai-demo-java",
       "readme": "https://github.com/Azure-Samples/azure-search-openai-demo-java#readme",
+      "detail": {
+        "architectureImage": { "src": "https://azure.github.io/ai-app-templates/templates/images/azure-search-openai-demo-java-arch.png", "alt": "Java RAG chat architecture with Azure AI Search" }
+      },
       "collections": ["ai"],
       "task": "Chat with documents",
       "languages": ["Java"],
@@ -205,6 +268,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/remote-mcp-functions-typescript",
       "readme": "https://github.com/Azure-Samples/remote-mcp-functions-typescript#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/remote-mcp-functions-typescript/main/images/architecture-diagram.png", "alt": "Remote MCP server architecture using Azure Functions" }
+      },
       "collections": [],
       "task": "Build an MCP server",
       "languages": ["TypeScript"],
@@ -269,6 +335,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/msdocs-django-postgresql-sample-app",
       "readme": "https://github.com/Azure-Samples/msdocs-django-postgresql-sample-app#readme",
+      "detail": {
+        "architectureImage": { "src": "https://learn.microsoft.com/en-us/azure/app-service/media/tutorial-python-postgresql-app-django/python-postgresql-app-architecture.png", "alt": "App Service and PostgreSQL architecture for the Django sample" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["Python"],
@@ -362,6 +431,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/apptemplate-wordpress-on-ACA",
       "readme": "https://github.com/Azure-Samples/apptemplate-wordpress-on-ACA#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/apptemplate-wordpress-on-ACA/main/assets/azure.png", "alt": "WordPress architecture on Azure Container Apps" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["PHP", "JavaScript"],
@@ -393,6 +465,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/msdocs-flask-postgresql-sample-app",
       "readme": "https://github.com/Azure-Samples/msdocs-flask-postgresql-sample-app#readme",
+      "detail": {
+        "architectureImage": { "src": "https://learn.microsoft.com/en-us/azure/app-service/media/tutorial-python-postgresql-app-flask/python-postgresql-app-architecture.png", "alt": "App Service and PostgreSQL architecture for the Flask sample" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["Python"],
@@ -424,6 +499,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/pubsub-dapr-csharp-servicebus",
       "readme": "https://github.com/Azure-Samples/pubsub-dapr-csharp-servicebus#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/pubsub-dapr-csharp-servicebus/main/images/pubsub-diagram.png", "alt": "Dapr publisher and subscriber architecture for the C# sample" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["C# / .NET"],
@@ -455,6 +533,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/pubsub-dapr-python-servicebus",
       "readme": "https://github.com/Azure-Samples/pubsub-dapr-python-servicebus#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/pubsub-dapr-python-servicebus/main/images/pubsub-diagram.png", "alt": "Dapr publisher and subscriber architecture for the Python sample" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["Python"],
@@ -486,6 +567,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/pubsub-dapr-nodejs-servicebus",
       "readme": "https://github.com/Azure-Samples/pubsub-dapr-nodejs-servicebus#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/pubsub-dapr-nodejs-servicebus/main/images/pubsub-diagram.png", "alt": "Dapr publisher and subscriber architecture for the Node.js sample" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["JavaScript"],
@@ -517,6 +601,25 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/aisearch-openai-rag-audio",
       "readme": "https://github.com/Azure-Samples/aisearch-openai-rag-audio#readme",
+      "detail": {
+        "source": "https://azure.github.io/ai-app-templates/repo/azure-samples/aisearch-openai-rag-audio/",
+        "title": "VoiceRAG with Realtime API",
+        "about": "An app that lets users ask questions about a knowledge base over a real-time voice interface, using Azure AI Search and GPT-4o Realtime API.",
+        "architectureImage": {
+          "src": "https://azure.github.io/ai-app-templates/templates/images/aisearch-openai-rag-audio.png",
+          "alt": "VoiceRAG architecture using Azure AI Search and Azure OpenAI"
+        },
+        "vscodeUrl": "https://vscode.dev/azure?azdTemplateUrl=https://github.com/Azure-Samples/aisearch-openai-rag-audio",
+        "creators": [{ "name": "Pamela Fox", "url": "https://github.com/Azure-Samples" }],
+        "languages": ["Python", "TypeScript", "JavaScript"],
+        "models": ["GPT-4 Omni"],
+        "tags": ["Interactive Chat", "Azure Container Apps", "Azure OpenAI Service", "Azure Managed Identities", "Azure AI Search", "GPT-4 Omni"],
+        "resources": [
+          { "name": "Azure Container Apps", "description": "Build and deploy modern apps and microservices using serverless containers." },
+          { "name": "Azure OpenAI Service", "description": "Apply advanced coding and language models to a variety of use cases." },
+          { "name": "Azure AI Search", "description": "Enterprise scale search for app development." }
+        ]
+      },
       "collections": ["ai"],
       "task": "Chat with documents",
       "languages": ["Python", "TypeScript", "JavaScript"],
@@ -548,6 +651,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/app-service-javascript-sap-cloud-sdk-quickstart",
       "readme": "https://github.com/Azure-Samples/app-service-javascript-sap-cloud-sdk-quickstart#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/app-service-javascript-sap-cloud-sdk-quickstart/main/assets/project-overview-azd-style.png", "alt": "SAP Cloud SDK application architecture on Azure App Service" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["TypeScript"],
@@ -579,6 +685,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/azd-simple-flask-appservice",
       "readme": "https://github.com/Azure-Samples/azd-simple-flask-appservice#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/azd-simple-flask-appservice/main/diagram.png", "alt": "Flask app, configuration and App Service plan architecture" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["Python"],
@@ -610,6 +719,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/azd-deployment-environments",
       "readme": "https://github.com/Azure-Samples/azd-deployment-environments#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/azd-deployment-environments/main/assets/azure-deployment-environments-diagram.png", "alt": "Azure Deployment Environments and Dev Center architecture" }
+      },
       "collections": [],
       "task": "Start with infrastructure",
       "languages": [],
@@ -641,6 +753,9 @@
       "authorship": "Microsoft",
       "repository": "https://github.com/Azure-Samples/pubsub-dapr-aks-java",
       "readme": "https://github.com/Azure-Samples/pubsub-dapr-aks-java#readme",
+      "detail": {
+        "architectureImage": { "src": "https://raw.githubusercontent.com/Azure-Samples/pubsub-dapr-aks-java/main/docs/flow.drawio.png", "alt": "Java pub-sub workflow with Dapr on Kubernetes" }
+      },
       "collections": [],
       "task": "Build a web app",
       "languages": ["Java"],
