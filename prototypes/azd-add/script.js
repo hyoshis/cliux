@@ -363,7 +363,7 @@
     if (category) advance();
   }
 
-  document.querySelector('.terminal').addEventListener('keydown', (event) => {
+  output.closest('.terminal').addEventListener('keydown', (event) => {
     if (event.key === 'Escape' && !event.isComposing) {
       event.preventDefault();
       goBack();

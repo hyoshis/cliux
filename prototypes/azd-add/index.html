@@ -3,62 +3,86 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="An interactive azd add baseline with screenshot-backed AI and Blob storage flows and simulated resource groups.">
-  <title>azd add | Existing resource selection flow</title>
+  <meta name="description" content="azd add prototype: two ways to start (choose a path, one prompt), then multi-select, per-resource prompts, an azure.yaml preview and azd next steps.">
+  <title>azd add | Describe or browse</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="describe-or-browse.css">
   <script src="script.js" defer></script>
+  <script src="describe-or-browse.js" defer></script>
 </head>
-<body>
+<body class="dob-page">
   <div class="page">
     <header class="page-header">
       <p class="attribution">Hiyo Shin &middot; Senior Designer, CoreAI</p>
-      <a class="collection-link" href="../../index.html">All prototypes <span aria-hidden="true">&nearr;</span></a>
+      <a class="collection-link" href="../../index.html">All prototypes</a>
     </header>
     <main>
       <div class="intro">
         <div>
-          <p class="eyebrow">Azure Developer CLI <span aria-hidden="true">/</span> Existing flow</p>
+          <p class="eyebrow">Azure Developer CLI <span aria-hidden="true">/</span> Describe or browse</p>
           <h1><code>azd add</code></h1>
-          <p class="description">Choose a resource to add to an existing azd project.</p>
+          <p class="description">Compare the existing flow with two new ways to start. Both new ways then share the same steps: pick resources, answer a few prompts, review azure.yaml, get next steps.</p>
         </div>
-        <span class="baseline-label">Baseline + simulations</span>
       </div>
-
-      <nav class="flow-nav" aria-label="Compare resource selection designs">
-        <a href="index.html" aria-current="page">Existing flow</a>
-        <a href="new-design.html">New design</a>
-        <a href="ideas.html">Simpler ideas</a>
-      </nav>
-      <section class="terminal" aria-label="Interactive azd add terminal">
+      <div class="concepts" role="radiogroup" aria-label="Start concept">
+        <button class="concept" type="button" role="radio" aria-checked="false" data-concept="existing">
+          <span class="concept-head"><span class="concept-name">Existing flow</span><span class="concept-tag">Baseline</span></span>
+          <span class="concept-line">Today's azd add: one category, then one resource.</span>
+        </button>
+        <button class="concept" type="button" role="radio" aria-checked="true" data-concept="a">
+          <span class="concept-head"><span class="concept-name">A. Choose a path</span></span>
+          <span class="concept-line">Pick Describe or Browse first.</span>
+        </button>
+        <button class="concept" type="button" role="radio" aria-checked="false" data-concept="b">
+          <span class="concept-head"><span class="concept-name">B. One prompt</span></span>
+          <span class="concept-line">Type a name or a need. Matches get selected.</span>
+        </button>
+      </div>
+      <section class="terminal dob-terminal" id="terminal" tabindex="0" aria-label="azd add terminal. Use arrows, Space, Enter, Esc and typing." aria-describedby="terminal-keys">
         <div class="terminal-bar">
           <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
           <span class="terminal-title">my-azd-project &mdash; azd add</span>
-          <span class="simulation-label">Simulation</span>
         </div>
-        <div class="terminal-body" id="terminal-output">
-          <noscript>Enable JavaScript to try the interactive resource selection flow.</noscript>
+        <div class="terminal-body" id="screen">
+          <noscript>Enable JavaScript to try the prototype.</noscript>
         </div>
         <div class="terminal-footer">
-          <p id="keyboard-hint">Use arrows to move</p>
-          <div class="terminal-actions">
-            <button class="text-button" id="back-button" type="button" disabled>Back <kbd>Esc</kbd></button>
-            <button class="select-button" id="continue-button" type="button">Select <kbd>Enter</kbd></button>
-          </div>
+          <p class="terminal-keys" id="terminal-keys"><kbd>Esc</kbd> Back a step <span aria-hidden="true">&middot;</span> <kbd>PgUp</kbd> <kbd>PgDn</kbd> Scroll</p>
+          <button class="text-button" id="restart" type="button">Restart</button>
         </div>
       </section>
-
-      <div class="prototype-tools">
-        <p id="step-label">Choose a resource category</p>
-        <button class="text-button" id="restart-button" type="button">Restart <span aria-hidden="true">&#8635;</span></button>
-      </div>
-      <aside class="reference-note" aria-label="Prototype scope">
-        <p id="reference-note" role="status" aria-live="polite">The category and AI-type menus follow your screenshots. Blob storage includes the full preview-and-accept flow. Database, Host service, Key Vault, and Messaging use simulated choices.</p>
-        <div class="example-links" role="group" aria-label="Jump to a reference example">
-          <button id="ai-example" type="button">AI selection <span aria-hidden="true">&rarr;</span></button>
-          <button id="storage-example" type="button">Blob storage example <span aria-hidden="true">&rarr;</span></button>
+      <p class="visually-hidden" id="live" aria-live="polite"></p>
+      <p class="simulation-note" id="dob-note">Browser simulation of a project with two Container App services, api and web. Suggestions use keyword matching. No files or Azure resources change.</p>
+      <div id="existing-panel" hidden>
+        <section class="terminal" aria-label="Interactive azd add terminal, existing flow">
+          <div class="terminal-bar">
+            <div class="window-dots" aria-hidden="true"><span></span><span></span><span></span></div>
+            <span class="terminal-title">my-azd-project &mdash; azd add</span>
+            <span class="simulation-label">Simulation</span>
+          </div>
+          <div class="terminal-body" id="terminal-output"></div>
+          <div class="terminal-footer">
+            <p id="keyboard-hint">Use arrows to move</p>
+            <div class="terminal-actions">
+              <button class="text-button" id="back-button" type="button" disabled>Back <kbd>Esc</kbd></button>
+              <button class="select-button" id="continue-button" type="button">Select <kbd>Enter</kbd></button>
+            </div>
+          </div>
+        </section>
+        <div class="prototype-tools">
+          <p id="step-label">Choose a resource category</p>
+          <button class="text-button" id="restart-button" type="button">Restart <span aria-hidden="true">&#8635;</span></button>
         </div>
-      </aside>
-      <p class="simulation-note">Browser-only prototype. No project files are changed and no Azure commands are executed.</p>
+        <aside class="reference-note" aria-label="Prototype scope">
+          <p id="reference-note" role="status" aria-live="polite">The category and AI-type menus follow your screenshots. Blob storage includes the full preview-and-accept flow. Database, Host service, Key Vault, and Messaging use simulated choices.</p>
+          <div class="example-links" role="group" aria-label="Jump to a reference example">
+            <button id="ai-example" type="button">AI selection <span aria-hidden="true">&rarr;</span></button>
+            <button id="storage-example" type="button">Blob storage example <span aria-hidden="true">&rarr;</span></button>
+          </div>
+        </aside>
+        <p class="simulation-note">Browser-only prototype. No project files are changed and no Azure commands are executed.</p>
+      </div>
+      <p class="previous-designs">Earlier versions: <a href="existing-flow.html">Existing flow</a><span aria-hidden="true"> / </span><a href="new-design.html">Hybrid concept</a><span aria-hidden="true"> / </span><a href="ideas.html">Three simpler ideas</a></p>
     </main>
   </div>
 </body>
