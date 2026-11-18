@@ -182,9 +182,7 @@
         };
         addGroup('Coding assistants', hostIds.map((value) => ({ value, label: hosts[value] })), 0, false);
         addGroup('Install location', scopeChoices, hostIds.length, true);
-        notice.textContent = location === 'project' && defaults.selected.has('agents')
-          ? 'Foundry extensions for azd are user-level. Skills and MCP connections stay in this project.'
-          : '';
+        notice.textContent = '';
         const hostLabel = hostIds.filter((value) => checked.has(value)).map((value) => hosts[value]).join(' + ');
         $('target-status').textContent = `${hostLabel || 'Select a coding assistant'} | ${location === 'project' ? 'Project level' : 'User level'}`;
         prompt.input.setAttribute('aria-activedescendant', `${prompt.id}-choice-${cursor}`);
