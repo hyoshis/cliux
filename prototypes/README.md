@@ -22,6 +22,7 @@ https://hyoshis.github.io/cliux/prototypes/<prototype-name>/
 | Prototype | Description | Link |
 | --- | --- | --- |
 | **azd &middot; Add resources** | Existing flow and two concepts for describing or browsing resources. | [`azd-add/`](./azd-add/) &middot; [live](https://hyoshis.github.io/cliux/prototypes/azd-add/) |
+| **azd &middot; Pipeline authentication** | Compare two hint layouts for explaining authentication choices in `azd pipeline config`. | [`pipeline/`](./pipeline/) &middot; [live](https://hyoshis.github.io/cliux/prototypes/pipeline/) |
 | **azd &middot; Skill installation strategy** | Stakeholder dashboard with three azd-native CLI design options, seven interactive scenarios, competitive analysis, consent rules, and rollout guidance. | [`azd-skill-install-system/`](./azd-skill-install-system/) &middot; [live](https://hyoshis.github.io/cliux/prototypes/azd-skill-install-system/) |
 | **azd · Smart defaults** | Stakeholder design dashboard with current initialization paths, four competitive deep dives, default rules, guardrails, and two interactive CLI concepts. | [`init-smart-default/`](./init-smart-default/) · [live](https://hyoshis.github.io/cliux/prototypes/init-smart-default/) |
 | **Awesome azd · Catalog consolidation** | Comparison study and design rationale, with a recommended catalog-first design, complete faceted browsing, a hybrid goal finder, rich detail pages, and agent-readable content. | [`awesome-azd/`](./awesome-azd/) · [live](https://hyoshis.github.io/cliux/prototypes/awesome-azd/) |

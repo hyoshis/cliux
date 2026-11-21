@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="data:,">
+  <title>azd pipeline config | Hint below list</title>
+  <style>
+    :root { color-scheme: dark; --page: #151515; --terminal: #0c0c0c; --text: #cccccc; --strong: #f2f2f2; --hint: #999999; --hint-accent: #c586c0; --blue: #3b78ff; --border: #343434; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--page); color: var(--text); font: 14px/1.5 "Segoe UI", sans-serif; }
+    main { width: min(1240px, calc(100% - 96px)); min-width: 920px; margin: 36px auto; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; }
+    header p { margin: 0; color: var(--hint); }
+    button { font: inherit; }
+    .tools, .versions { display: flex; gap: 24px; }
+    .text-button { border: 0; padding: 4px 0; background: none; color: var(--text); cursor: pointer; }
+    .text-button:hover, .versions a:hover { color: var(--strong); }
+    button:focus-visible, a:focus-visible { outline: 2px solid var(--blue); outline-offset: 4px; }
+    h1 { margin: 0 0 8px; color: var(--strong); font: 600 26px/1.4 Consolas, "Cascadia Mono", monospace; }
+    .intro { margin: 0 0 28px; color: var(--hint); font-size: 15px; }
+    .versions { gap: 20px; margin: -12px 0 24px; }
+    .versions a { color: var(--text); text-decoration: none; }
+    .versions a[aria-current="page"] { color: var(--blue); font-weight: 600; }
+    .terminal { background: var(--terminal); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+    .bar { height: 42px; display: flex; align-items: center; padding: 0 24px; border-bottom: 1px solid var(--border); color: var(--hint); font-size: 12px; }
+    .screen { padding: 28px 28px 32px; min-height: 392px; font: 18px/1.6 Consolas, "Cascadia Mono", "Courier New", monospace; }
+    .command { color: var(--text); }
+    .prompt { margin: 0; font-weight: 700; color: var(--strong); }
+    .marker, .answer { color: var(--blue); }
+    .answer { font-weight: 400; }
+    .filter { display: flex; align-items: baseline; padding-left: 2ch; }
+    .filter label { white-space: pre; }
+    input { min-width: 0; flex: 1; border: 0; outline: 0; border-radius: 0; padding: 0; background: transparent; color: var(--text); caret-color: var(--blue); font: inherit; line-height: inherit; }
+    input::placeholder { color: var(--hint); opacity: 1; }
+    .option { display: block; width: 100%; text-align: left; border: 0; padding: 0 0 0 2ch; background: none; color: var(--text); font: inherit; cursor: pointer; }
+    .label { display: block; position: relative; padding-left: 2ch; }
+    .option[aria-selected="true"] .label { color: var(--blue); font-weight: 700; }
+    .option[aria-selected="true"] .label::before { content: ">"; position: absolute; left: 0; }
+    .rule { width: 35ch; max-width: 100%; border: 0; border-top: 1px solid var(--hint); margin: 0; height: 1px; }
+    .description { margin: 0; padding-left: 2ch; color: var(--hint-accent); }
+    .keys { margin: 0; color: var(--hint); }
+    .empty { margin: 0; padding-left: 4ch; color: var(--hint); }
+    .note { color: var(--hint); font-size: 13px; margin-top: 16px; }
+    [hidden] { display: none !important; }
+    body.light { color-scheme: light; --page: #f5f5f5; --terminal: #ffffff; --text: #333333; --strong: #161616; --hint: #626262; --hint-accent: #881798; --blue: #004acb; --border: #d6d6d6; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p>Hiyo Shin &middot; Senior Designer, CoreAI</p>
+      <div class="tools">
+        <button class="text-button" id="theme" type="button">Light theme</button>
+        <button class="text-button" id="restart" type="button">Restart</button>
+      </div>
+    </header>
+    <h1>azd pipeline config</h1>
+    <p class="intro">The selected option's hint stays below the list.</p>
+    <nav class="versions" aria-label="Compare hint layouts">
+      <a href="index.html">Hints under options (Recommended)</a>
+      <a href="index-bottom-hint.html" aria-current="page">Hint below list</a>
+    </nav>
+    <section class="terminal" aria-label="azd pipeline config authentication prototype">
+      <div class="bar">Azure Developer CLI</div>
+      <div class="screen">
+        <div class="command">$ azd pipeline config</div>
+        <p class="prompt" id="prompt"><span class="marker">?</span> Select how to authenticate the pipeline to Azure:<span class="answer" id="answer"></span></p>
+        <div id="selection">
+          <div class="filter">
+            <label for="filter">Filter: </label>
+            <input id="filter" placeholder="Type to filter list" autocomplete="off" spellcheck="false" role="combobox" aria-controls="options" aria-expanded="true" aria-autocomplete="list" aria-activedescendant="option-0">
+          </div>
+          <div id="options" role="listbox" aria-labelledby="prompt"></div>
+          <p class="empty" id="empty" hidden>No matching options. Clear the filter to see all options.</p>
+          <p class="description" id="description" aria-live="polite" aria-atomic="true"><strong>Hint:</strong> <span id="description-text"></span></p>
+          <hr class="rule">
+          <p class="keys">Use arrows to move</p>
+        </div>
+      </div>
+    </section>
+    <p class="note">Interactive prototype. No Azure resources or pipeline settings are changed.</p>
+  </main>
+  <script>
+    const choices = [
+      {
+        label: "Federated User Managed Identity (MSI + OIDC) (Recommended)",
+        hint: "No secrets to manage."
+      },
+      {
+        label: "Federated Service Principal (SP + OIDC)",
+        hint: "No secrets. Use if your org requires an Entra app registration."
+      },
+      {
+        label: "Client Credentials (SP + Secret)",
+        hint: "Uses a client secret that expires. Use only if your pipeline can't use OIDC."
+      },
+      {
+        label: "Skip authentication setup (for manually configured pipelines or existing set up)",
+        hint: "Choose this if the pipeline already has Azure access."
+      }
+    ];
+    const filter = document.getElementById("filter");
+    const options = document.getElementById("options");
+    const selection = document.getElementById("selection");
+    const answer = document.getElementById("answer");
+    const description = document.getElementById("description");
+    const descriptionText = document.getElementById("description-text");
+    let active = 0;
+    let visible = choices.map((_, index) => index);
+
+    function render() {
+      const query = filter.value.toLowerCase().trim();
+      visible = choices.flatMap((choice, index) =>
+        choice.label.toLowerCase().includes(query) ? [index] : []);
+      if (!visible.includes(active)) active = visible[0] ?? -1;
+      options.replaceChildren();
+      for (const index of visible) {
+        const option = document.createElement("button");
+        option.type = "button";
+        option.className = "option";
+        option.id = `option-${index}`;
+        option.setAttribute("role", "option");
+        option.setAttribute("aria-selected", String(index === active));
+        option.tabIndex = -1;
+        const label = document.createElement("span");
+        label.className = "label";
+        const labelText = choices[index].label;
+        const matchIndex = labelText.toLowerCase().indexOf(query);
+        if (query && matchIndex !== -1) {
+          const match = document.createElement("u");
+          match.textContent = labelText.slice(matchIndex, matchIndex + query.length);
+          label.append(labelText.slice(0, matchIndex), match, labelText.slice(matchIndex + query.length));
+        } else {
+          label.textContent = labelText;
+        }
+        option.append(label);
+        option.addEventListener("click", () => {
+          active = index;
+          render();
+          filter.focus({ preventScroll: true });
+        });
+        options.append(option);
+      }
+      document.getElementById("empty").hidden = visible.length !== 0;
+      description.hidden = active === -1;
+      descriptionText.textContent = active === -1 ? "" : choices[active].hint;
+      answer.textContent = active === -1 ? "" : ` ${choices[active].label}`;
+      if (active === -1) filter.removeAttribute("aria-activedescendant");
+      else filter.setAttribute("aria-activedescendant", `option-${active}`);
+    }
+
+    filter.addEventListener("input", render);
+    filter.addEventListener("keydown", event => {
+      if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+        event.preventDefault();
+        if (!visible.length) return;
+        const delta = event.key === "ArrowDown" ? 1 : -1;
+        active = visible[(visible.indexOf(active) + delta + visible.length) % visible.length];
+        render();
+      } else if (event.key === "Enter" && active !== -1) {
+        event.preventDefault();
+        answer.textContent = ` ${choices[active].label}`;
+        selection.hidden = true;
+        filter.setAttribute("aria-expanded", "false");
+        document.getElementById("restart").focus({ preventScroll: true });
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        filter.value = "";
+        render();
+      }
+    });
+    document.getElementById("restart").addEventListener("click", () => {
+      filter.value = "";
+      active = 0;
+      answer.textContent = "";
+      selection.hidden = false;
+      filter.setAttribute("aria-expanded", "true");
+      render();
+      filter.focus({ preventScroll: true });
+    });
+    document.getElementById("theme").addEventListener("click", event => {
+      const light = document.body.classList.toggle("light");
+      event.currentTarget.textContent = light ? "Dark theme" : "Light theme";
+    });
+    render();
+    filter.focus({ preventScroll: true });
+  </script>
+</body>
+</html>
