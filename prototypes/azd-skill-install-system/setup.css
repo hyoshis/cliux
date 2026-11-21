@@ -85,6 +85,8 @@ h1 { margin: 0; font-size: 34px; font-weight: 550; letter-spacing: -1px; line-he
 .terminal-line.warning { color: #e5ba78; }
 .terminal-line.error { color: #ff9595; }
 .terminal-line.progress { color: #7dcfff; }
+.terminal-line .spinner-bar { color: #7f848e; }
+.terminal-line .success { color: #8dd6a0; }
 .azd-prompt { margin: 0; padding: 0; font: inherit; }
 .azd-input-row { display: flex; align-items: baseline; flex-wrap: wrap; min-height: 1.65em; }
 .azd-input-row label { white-space: pre-wrap; }
